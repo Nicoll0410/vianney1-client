@@ -14,6 +14,7 @@ import { AuthContext } from "../contexts/AuthContext";
 const ROLE_MENU = {
   Cliente: {
     topItems: [
+      { label: "Galería", screen: "Galeria", icon: MaterialCommunityIcons, name: "view-gallery" },
       { label: "Agenda", screen: "Agenda", icon: MaterialIcons, name: "event" },
       { label: "Citas", screen: "Citas", icon: Ionicons, name: "calendar-outline" },
     ],
@@ -30,6 +31,7 @@ const ROLE_MENU = {
       //   { label: "Movimientos", screen: "Movimientos", icon: FontAwesome5, name: "exchange-alt" },
       // ],
       Ventas: [
+        { label: "Mi Galería", screen: "MiGaleria", icon: MaterialCommunityIcons, name: "view-gallery" },
         { label: "Agenda", screen: "Agenda", icon: MaterialIcons, name: "event" },
         { label: "Citas", screen: "Citas", icon: Ionicons, name: "calendar-outline" },
       ],
@@ -53,6 +55,7 @@ const ROLE_MENU = {
       // ],
       Ventas: [
         // { label: "Movimientos", screen: "Movimientos", icon: FontAwesome5, name: "exchange-alt" },
+        { label: "Mi Galería", screen: "MiGaleria", icon: MaterialCommunityIcons, name: "view-gallery" },
         { label: "Servicios", screen: "Servicios", icon: MaterialCommunityIcons, name: "toolbox-outline" },
         { label: "Agenda", screen: "Agenda", icon: MaterialIcons, name: "event" },
         { label: "Citas", screen: "Citas", icon: Ionicons, name: "calendar-outline" },
