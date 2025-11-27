@@ -115,7 +115,7 @@ const CategoriaInsumosScreen = () => {
       setLoading(true);
       const token = await AsyncStorage.getItem('token');
       const { data } = await axios.get(
-        'https://barber-server-6kuo.onrender.com/categorias-insumos/all',
+        'https://vianney-server.onrender.com/categorias-insumos/all',
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setCategorias(data.categorias || []);
@@ -151,7 +151,7 @@ const CategoriaInsumosScreen = () => {
   const handleCreate = async cat => {
     try {
       const token = await AsyncStorage.getItem('token');
-      await axios.post('https://barber-server-6kuo.onrender.com/categorias-insumos', cat,
+      await axios.post('https://vianney-server.onrender.com/categorias-insumos', cat,
         { headers: { Authorization: `Bearer ${token}` } });
       await fetchCategorias();
       setModalCrear(false);
@@ -166,7 +166,7 @@ const CategoriaInsumosScreen = () => {
     try {
       const token = await AsyncStorage.getItem('token');
       const { data } = await axios.get(
-        `https://barber-server-6kuo.onrender.com/categorias-insumos/${id}`,
+        `https://vianney-server.onrender.com/categorias-insumos/${id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setCatSel(data.categoria);
@@ -181,7 +181,7 @@ const CategoriaInsumosScreen = () => {
     try {
       const token = await AsyncStorage.getItem('token');
       const { data } = await axios.get(
-        `https://barber-server-6kuo.onrender.com/categorias-insumos/${id}`,
+        `https://vianney-server.onrender.com/categorias-insumos/${id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setCatSel(data.categoria);
@@ -194,7 +194,7 @@ const CategoriaInsumosScreen = () => {
     try {
       const token = await AsyncStorage.getItem('token');
       await axios.put(
-        `https://barber-server-6kuo.onrender.com/categorias-insumos/${cat.id}`,
+        `https://vianney-server.onrender.com/categorias-insumos/${cat.id}`,
         cat,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -215,7 +215,7 @@ const CategoriaInsumosScreen = () => {
     try {
       const token = await AsyncStorage.getItem('token');
       await axios.delete(
-        `https://barber-server-6kuo.onrender.com/categorias-insumos/${idAEliminar}`,
+        `https://vianney-server.onrender.com/categorias-insumos/${idAEliminar}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       await fetchCategorias();

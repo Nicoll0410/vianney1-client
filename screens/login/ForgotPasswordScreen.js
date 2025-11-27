@@ -22,8 +22,8 @@ const isDesktop = width >= 1024;
 const isMobile = width < 768;
 
 const BASE_URL = Platform.OS === 'android' 
-  ? 'https://barber-server-6kuo.onrender.com'
-  : 'https://barber-server-6kuo.onrender.com';
+  ? 'https://vianney-server.onrender.com'
+  : 'https://vianney-server.onrender.com';
 
 const ForgotPasswordScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');

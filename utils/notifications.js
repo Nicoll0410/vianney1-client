@@ -2,7 +2,7 @@ import { Audio } from "expo-av";
 import * as Notifications from "expo-notifications";
 import axios from "axios";
 
-const BASE_URL = "https://barber-server-6kuo.onrender.com";
+const BASE_URL = "https://vianney-server.onrender.com";
 
 // Configurar notificaciones push
 export const configurePushNotifications = async () => {

@@ -59,7 +59,7 @@ const InsumosScreen = ({ navigation }) => {
     try {
       const token = await AsyncStorage.getItem('token');
       const { data } = await axios.get(
-        'https://barber-server-6kuo.onrender.com/categorias-insumos',
+        'https://vianney-server.onrender.com/categorias-insumos',
         { headers: { Authorization: `Bearer ${token}` } }
       );
       const normalizadas = (data.categorias || []).map((c) => ({
@@ -78,7 +78,7 @@ const InsumosScreen = ({ navigation }) => {
       setLoading(true);
       const token = await AsyncStorage.getItem('token');
       const { data } = await axios.get(
-        'https://barber-server-6kuo.onrender.com/insumos/all',
+        'https://vianney-server.onrender.com/insumos/all',
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -170,7 +170,7 @@ useFocusEffect(
     try {
       const token = await AsyncStorage.getItem('token');
       const { data } = await axios.post(
-        'https://barber-server-6kuo.onrender.com/insumos',
+        'https://vianney-server.onrender.com/insumos',
         newInsumo,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -196,7 +196,7 @@ useFocusEffect(
     try {
       const token = await AsyncStorage.getItem('token');
       const { data } = await axios.get(
-        `https://barber-server-6kuo.onrender.com/insumos/${id}`,
+        `https://vianney-server.onrender.com/insumos/${id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setInsumoSeleccionado(data.insumo);
@@ -211,7 +211,7 @@ useFocusEffect(
     try {
       const token = await AsyncStorage.getItem('token');
       const { data } = await axios.get(
-        `https://barber-server-6kuo.onrender.com/insumos/${id}`,
+        `https://vianney-server.onrender.com/insumos/${id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setInsumoSeleccionado(data.insumo);
@@ -225,7 +225,7 @@ useFocusEffect(
     try {
       const token = await AsyncStorage.getItem('token');
       const { data } = await axios.put(
-        `https://barber-server-6kuo.onrender.com/insumos/${updatedInsumo.id}`,
+        `https://vianney-server.onrender.com/insumos/${updatedInsumo.id}`,
         updatedInsumo,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -264,7 +264,7 @@ useFocusEffect(
     try {
       setLoading(true);
       const token = await AsyncStorage.getItem('token');
-      await axios.delete(`https://barber-server-6kuo.onrender.com/insumos/${id}`, {
+      await axios.delete(`https://vianney-server.onrender.com/insumos/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setInsumos((prev) => prev.filter((i) => i.id !== id));

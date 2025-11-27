@@ -47,8 +47,8 @@ const months = [
 ];
 
 const BASE_URL = Platform.OS === 'android'
-  ? 'https://barber-server-6kuo.onrender.com'
-  : 'https://barber-server-6kuo.onrender.com';
+  ? 'https://vianney-server.onrender.com'
+  : 'https://vianney-server.onrender.com';
 
 const RegisterScreen = () => {
   const navigation = useNavigation();

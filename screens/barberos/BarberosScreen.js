@@ -210,7 +210,7 @@ const fetchBarberos = async () => {
   try {
     if (!refreshing) setLoading(true);
     const token = await AsyncStorage.getItem('token');
-    const { data } = await axios.get('https://barber-server-6kuo.onrender.com/barberos', {
+    const { data } = await axios.get('https://vianney-server.onrender.com/barberos', {
       headers: { Authorization: `Bearer ${token}` },
       params: { 
         all: true,
@@ -310,7 +310,7 @@ const fetchBarberos = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
       await axios.post(
-        'https://barber-server-6kuo.onrender.com/barberos',
+        'https://vianney-server.onrender.com/barberos',
         {
           nombre: nuevo.nombre,
           cedula: nuevo.cedula,
@@ -340,7 +340,7 @@ const fetchBarberos = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
       const { data } = await axios.get(
-        `https://barber-server-6kuo.onrender.com/barberos/by-id/${id}`,
+        `https://vianney-server.onrender.com/barberos/by-id/${id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       const b = data.barbero;
@@ -369,7 +369,7 @@ const fetchBarberos = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
       const { data } = await axios.get(
-        `https://barber-server-6kuo.onrender.com/barberos/by-id/${id}`,
+        `https://vianney-server.onrender.com/barberos/by-id/${id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       const b = data.barbero;
@@ -417,7 +417,7 @@ const handleUpdateBarbero = async (u) => {
     }
 
     await axios.put(
-      `https://barber-server-6kuo.onrender.com/barberos/${u.id}`,
+      `https://vianney-server.onrender.com/barberos/${u.id}`,
       datosActualizacion,
       { headers: { Authorization: `Bearer ${token}` } }
     );
@@ -437,7 +437,7 @@ const handleUpdateBarbero = async (u) => {
       setSendingEmail(true);
       const token = await AsyncStorage.getItem('token');
       await axios.post(
-        `https://barber-server-6kuo.onrender.com/barberos/${id}/reenviar-verificacion`,
+        `https://vianney-server.onrender.com/barberos/${id}/reenviar-verificacion`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -461,7 +461,7 @@ const handleUpdateBarbero = async (u) => {
     setDeleting(true);
     try {
       const token = await AsyncStorage.getItem('token');
-      await axios.delete(`https://barber-server-6kuo.onrender.com/barberos/${idAEliminar}`, {
+      await axios.delete(`https://vianney-server.onrender.com/barberos/${idAEliminar}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       await fetchBarberos();

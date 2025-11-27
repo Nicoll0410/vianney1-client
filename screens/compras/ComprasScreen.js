@@ -55,7 +55,7 @@ const ComprasScreen = () => {
     try {
       setLoading(true);
       const token = await AsyncStorage.getItem("token");
-      const { data } = await axios.get("https://barber-server-6kuo.onrender.com/compras/all-with-search", {
+      const { data } = await axios.get("https://vianney-server.onrender.com/compras/all-with-search", {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -103,7 +103,7 @@ const ComprasScreen = () => {
     try {
       setLoading(true);
       const token = await AsyncStorage.getItem("token");
-      const { data } = await axios.get(`https://barber-server-6kuo.onrender.com/compras/${compra.id}`, {
+      const { data } = await axios.get(`https://vianney-server.onrender.com/compras/${compra.id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setCompraSeleccionada(data);
@@ -129,7 +129,7 @@ const ComprasScreen = () => {
     try {
       setLoading(true);
       const token = await AsyncStorage.getItem("token");
-      await axios.patch(`https://barber-server-6kuo.onrender.com/compras/${compraAAnular}`, {}, {
+      await axios.patch(`https://vianney-server.onrender.com/compras/${compraAAnular}`, {}, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setConfirmModalVisible(false);

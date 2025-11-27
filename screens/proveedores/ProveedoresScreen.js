@@ -186,7 +186,7 @@ const ProveedoresScreen = () => {
     try {
       setLoading(true);
       const token = await AsyncStorage.getItem('token');
-      const { data } = await axios.get('https://barber-server-6kuo.onrender.com/proveedores/all', {
+      const { data } = await axios.get('https://vianney-server.onrender.com/proveedores/all', {
         headers: { Authorization: `Bearer ${token}` },
       });
       setProveedores(data.proveedores || []);
@@ -257,7 +257,7 @@ const ProveedoresScreen = () => {
     try {
       const token = await AsyncStorage.getItem('token');
       const { data } = await axios.post(
-        'https://barber-server-6kuo.onrender.com/proveedores',
+        'https://vianney-server.onrender.com/proveedores',
         newProveedor,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -287,7 +287,7 @@ const ProveedoresScreen = () => {
     try {
       const token = await AsyncStorage.getItem('token');
       const { data } = await axios.put(
-        `https://barber-server-6kuo.onrender.com/proveedores/${updated.id}`,
+        `https://vianney-server.onrender.com/proveedores/${updated.id}`,
         updated,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -317,7 +317,7 @@ const ProveedoresScreen = () => {
     setDeleting(true);
     try {
       const token = await AsyncStorage.getItem('token');
-      await axios.delete(`https://barber-server-6kuo.onrender.com/proveedores/${idAEliminar}`, {
+      await axios.delete(`https://vianney-server.onrender.com/proveedores/${idAEliminar}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

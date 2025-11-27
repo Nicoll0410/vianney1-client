@@ -41,7 +41,7 @@ const ControlInsumos = () => {
     try {
       setLoading(true);
       const token = await AsyncStorage.getItem('token');
-      const { data } = await axios.get('https://barber-server-6kuo.onrender.com/insumos/all', {
+      const { data } = await axios.get('https://vianney-server.onrender.com/insumos/all', {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -131,7 +131,7 @@ const reducirInsumo = async (id) => {
     // Modifica la llamada axios así:
     const { data } = await axios({
       method: 'patch',
-      url: `https://barber-server-6kuo.onrender.com/insumos/${id}/reducir`,
+      url: `https://vianney-server.onrender.com/insumos/${id}/reducir`,
       data: { cantidad: cantidadSolicitada },
       headers: { 
         'Authorization': `Bearer ${token}`,

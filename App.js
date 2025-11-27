@@ -91,7 +91,7 @@ function MainApp() {
       }
 
       // Crear nueva conexión socket
-      socketRef.current = io('https://barber-server-6kuo.onrender.com', {
+      socketRef.current = io('https://vianney-server.onrender.com', {
         transports: ['websocket', 'polling'],
         auth: {
           token: token

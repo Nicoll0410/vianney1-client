@@ -90,7 +90,7 @@ const CrearBarbero = ({ visible, onClose, onCreate }) => {
       try {
         const token = await AsyncStorage.getItem("token");
         const { data } = await axios.get(
-          "https://barber-server-6kuo.onrender.com/roles/workers",
+          "https://vianney-server.onrender.com/roles/workers",
           { headers: { Authorization: `Bearer ${token}` } }
         );
         setRoles(data.roles || []);

@@ -85,7 +85,7 @@ const RolesScreen = () => {
     try {
       setLoading(true);
       const token = await AsyncStorage.getItem('token');
-      const { data } = await axios.get('https://barber-server-6kuo.onrender.com/roles/all', {
+      const { data } = await axios.get('https://vianney-server.onrender.com/roles/all', {
         headers: { Authorization: `Bearer ${token}` },
       });
       const list = data.roles.map(r => ({
@@ -128,7 +128,7 @@ const RolesScreen = () => {
     try {
       const token = await AsyncStorage.getItem('token');
       const { data } = await axios.post(
-        'https://barber-server-6kuo.onrender.com/roles',
+        'https://vianney-server.onrender.com/roles',
         {
           nombre: nuevoRol.nombre,
           descripcion: nuevoRol.descripcion,
@@ -150,7 +150,7 @@ const RolesScreen = () => {
     try {
       const token = await AsyncStorage.getItem('token');
       const { data } = await axios.put(
-        `https://barber-server-6kuo.onrender.com/roles/${rolActualizado.id}`,
+        `https://vianney-server.onrender.com/roles/${rolActualizado.id}`,
         {
           nombre: rolActualizado.nombre,
           descripcion: rolActualizado.descripcion,
@@ -173,7 +173,7 @@ const RolesScreen = () => {
   const eliminarRol = async id => {
     try {
       const token = await AsyncStorage.getItem('token');
-      await axios.delete(`https://barber-server-6kuo.onrender.com/roles/${id}`, {
+      await axios.delete(`https://vianney-server.onrender.com/roles/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setRoles(prev => prev.filter(r => r.id !== id));

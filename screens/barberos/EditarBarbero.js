@@ -82,7 +82,7 @@ const EditarBarbero = ({ visible, onClose, barbero, onUpdate }) => {
     (async () => {
       try {
         const token = await AsyncStorage.getItem("token");
-        const { data } = await axios.get("https://barber-server-6kuo.onrender.com/roles/workers", {
+        const { data } = await axios.get("https://vianney-server.onrender.com/roles/workers", {
           headers: { Authorization: `Bearer ${token}` },
         });
         setRoles(data.roles || []);

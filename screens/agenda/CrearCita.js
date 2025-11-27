@@ -146,7 +146,7 @@ const CrearCita = ({
   const obtenerUsuarioIdDelBarbero = async (token, barberoId) => {
     try {
       const response = await axios.get(
-        `https://barber-server-6kuo.onrender.com/barberos/${barberoId}/usuario`,
+        `https://vianney-server.onrender.com/barberos/${barberoId}/usuario`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -169,7 +169,7 @@ const CrearCita = ({
     try {
       
       const response = await axios.get(
-        'https://barber-server-6kuo.onrender.com/auth/user-info',
+        'https://vianney-server.onrender.com/auth/user-info',
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -191,7 +191,7 @@ const CrearCita = ({
   const crearNotificacion = async (token, notificacionData) => {
     try {
       const response = await axios.post(
-        'https://barber-server-6kuo.onrender.com/notifications',
+        'https://vianney-server.onrender.com/notifications',
         notificacionData,
         {
           headers: {
@@ -271,7 +271,7 @@ const CrearCita = ({
       }
 
       const response = await axios.post(
-        "https://barber-server-6kuo.onrender.com/citas",
+        "https://vianney-server.onrender.com/citas",
         citaData,
         {
           headers: {

@@ -82,10 +82,10 @@ const CrearCompra = ({ visible, onClose, onCreate }) => {
         setLoading(true);
         const token = await AsyncStorage.getItem('token');
         const [provRes, insRes] = await Promise.all([
-          axios.get('https://barber-server-6kuo.onrender.com/proveedores/all', {
+          axios.get('https://vianney-server.onrender.com/proveedores/all', {
             headers: { Authorization: `Bearer ${token}` }
           }),
-          axios.get('https://barber-server-6kuo.onrender.com/insumos/all', {
+          axios.get('https://vianney-server.onrender.com/insumos/all', {
             headers: { Authorization: `Bearer ${token}` }
           })
         ]);
@@ -316,7 +316,7 @@ const compraData = {
 };
 
 
-      const response = await axios.post('https://barber-server-6kuo.onrender.com/compras', compraData, {
+      const response = await axios.post('https://vianney-server.onrender.com/compras', compraData, {
         headers: { Authorization: `Bearer ${token}` }
       });
 

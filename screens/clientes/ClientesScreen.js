@@ -42,8 +42,8 @@ const isMobile = width < 768;
 
 // Definir BASE_URL
 const BASE_URL = Platform.OS === 'android'
-  ? 'https://barber-server-6kuo.onrender.com'
-  : 'https://barber-server-6kuo.onrender.com';
+  ? 'https://vianney-server.onrender.com'
+  : 'https://vianney-server.onrender.com';
 
 /* ╔══════════════╗
    ║  Sub‑componentes  ║

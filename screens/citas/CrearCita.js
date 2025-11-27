@@ -97,7 +97,7 @@ const CrearCita = ({ visible, onClose, onCreate, infoCreacion }) => {
       setLoadingHoras(true);
 
       const token = await AsyncStorage.getItem('token');
-      const response = await axios.get(`https://barber-server-6kuo.onrender.com/citas/disponibilidad`, {
+      const response = await axios.get(`https://vianney-server.onrender.com/citas/disponibilidad`, {
         params: {
           servicioID: getId(servicioSel),
           barberoID: getId(barberoSel),
@@ -160,7 +160,7 @@ const CrearCita = ({ visible, onClose, onCreate, infoCreacion }) => {
       const token = await AsyncStorage.getItem('token');
       if (!token) throw new Error('Token no encontrado');
 
-      const response = await axios.post(`https://barber-server-6kuo.onrender.com/citas`, payload, {
+      const response = await axios.post(`https://vianney-server.onrender.com/citas`, payload, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'

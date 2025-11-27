@@ -38,11 +38,11 @@ const ServiciosScreen = () => {
       setLoading(true);
       const token = await AsyncStorage.getItem('token');
       
-      const serviciosResponse = await axios.get('https://barber-server-6kuo.onrender.com/servicios', {
+      const serviciosResponse = await axios.get('https://vianney-server.onrender.com/servicios', {
         headers: { Authorization: `Bearer ${token}` }
       });
       
-      const insumosResponse = await axios.get('https://barber-server-6kuo.onrender.com/insumos/all', {
+      const insumosResponse = await axios.get('https://vianney-server.onrender.com/insumos/all', {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -103,7 +103,7 @@ const ServiciosScreen = () => {
   const handleCreateService = async (newService) => {
     try {
       const token = await AsyncStorage.getItem('token');
-      const response = await axios.post('https://barber-server-6kuo.onrender.com/servicios', newService, {
+      const response = await axios.post('https://vianney-server.onrender.com/servicios', newService, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -120,7 +120,7 @@ const ServiciosScreen = () => {
   const verServicio = async (id) => {
     try {
       const token = await AsyncStorage.getItem('token');
-      const response = await axios.get(`https://barber-server-6kuo.onrender.com/servicios/${id}`, {
+      const response = await axios.get(`https://vianney-server.onrender.com/servicios/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setServicioSeleccionado({
@@ -137,7 +137,7 @@ const ServiciosScreen = () => {
   const editarServicio = async (id) => {
     try {
       const token = await AsyncStorage.getItem('token');
-      const response = await axios.get(`https://barber-server-6kuo.onrender.com/servicios/${id}`, {
+      const response = await axios.get(`https://vianney-server.onrender.com/servicios/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setServicioSeleccionado({
@@ -160,7 +160,7 @@ const ServiciosScreen = () => {
     try {
       const token = await AsyncStorage.getItem('token');
       const response = await axios.put(
-        `https://barber-server-6kuo.onrender.com/servicios/${updatedService.id}`,
+        `https://vianney-server.onrender.com/servicios/${updatedService.id}`,
         updatedService,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -187,7 +187,7 @@ const ServiciosScreen = () => {
   const handleDeleteService = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
-      await axios.delete(`https://barber-server-6kuo.onrender.com/servicios/${itemToDelete}`, {
+      await axios.delete(`https://vianney-server.onrender.com/servicios/${itemToDelete}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
