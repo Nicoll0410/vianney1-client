@@ -96,38 +96,51 @@ const GestionGaleriaScreen = () => {
         barberoID = barberData.id;
         console.log('✅ Barbero - usando barberData.id:', barberoID);
       } else if (userRole === 'Administrador') {
-        // Para admin, obtener su propio ID de barbero
-        // Intentar múltiples formas de obtener el userId
-        const userId = user?.userId || user?.id || user?.usuarioId || user?.sub;
+        // ✅ SOLUCIÓN: Buscar barbero por email (que SÍ está en el token)
+        const email = user?.email;
         
-        console.log('🔍 Intentando obtener userId para Admin:');
-        console.log('user.userId:', user?.userId);
-        console.log('user.id:', user?.id);
-        console.log('user.usuarioId:', user?.usuarioId);
-        console.log('user.sub:', user?.sub);
-        console.log('userId final:', userId);
+        console.log('📧 Buscando barbero por email:', email);
         
-        if (!userId) {
-          console.error('❌ No se pudo obtener userId del objeto user:', user);
-          showInfo('Error', 'No se pudo obtener el ID de usuario. Por favor, cierra sesión e inicia sesión nuevamente.', 'error');
+        if (!email) {
+          console.error('❌ No se pudo obtener email del token:', user);
+          showInfo('Error', 'No se pudo obtener el email del usuario', 'error');
           return;
         }
 
-        console.log('🔄 Buscando barbero con userId:', userId);
-        
-        // ✅ CAMBIO: Agregar el token en el header Authorization
-        const { data: respuestaBarbero } = await axios.get(
-          `https://vianney-server.onrender.com/barberos/usuario/${userId}`,
+        // Obtener todos los barberos y buscar por email
+        const { data: respuestaBarberos } = await axios.get(
+          'https://vianney-server.onrender.com/barberos',
           { 
             headers: { 
-              Authorization: `Bearer ${token}`,  // ← Agregar token
+              Authorization: `Bearer ${token}`,
               'Content-Type': 'application/json'
-            } 
+            },
+            params: { all: true }
           }
         );
         
-        console.log('✅ Barbero encontrado:', respuestaBarbero);
-        barberoID = respuestaBarbero.id;
+        console.log('📋 Barberos obtenidos:', respuestaBarberos);
+        
+        const listaBarberos = respuestaBarberos.barberos || respuestaBarberos;
+        const barberosArray = Array.isArray(listaBarberos) ? 
+          listaBarberos : 
+          (listaBarberos.barberos || []);
+        
+        console.log('🔍 Buscando email:', email, 'en', barberosArray.length, 'barberos');
+        
+        // Buscar el barbero cuyo usuario tenga este email
+        const miBarbero = barberosArray.find(b => 
+          b.usuario?.email?.toLowerCase() === email.toLowerCase()
+        );
+        
+        if (!miBarbero) {
+          console.error('❌ No se encontró barbero con email:', email);
+          showInfo('Error', 'No se encontró registro de barbero para este usuario', 'error');
+          return;
+        }
+        
+        console.log('✅ Barbero encontrado:', miBarbero);
+        barberoID = miBarbero.id;
       }
 
       if (!barberoID) {
@@ -191,28 +204,46 @@ const GestionGaleriaScreen = () => {
         barberoID = barberData.id;
         console.log('✅ Barbero - usando barberData.id:', barberoID);
       } else if (userRole === 'Administrador') {
-        // El user puede tener userId, id, usuarioId o sub
-        const userId = user?.userId || user?.id || user?.usuarioId || user?.sub;
+        // ✅ SOLUCIÓN: Buscar barbero por email
+        const email = user?.email;
         
-        console.log('🔍 Subiendo contenido - userId:', userId);
+        console.log('📧 Subiendo contenido - buscando por email:', email);
         
-        if (!userId) {
-          console.error('❌ No se pudo obtener userId:', user);
-          showInfo('Error', 'No se pudo obtener el ID de usuario', 'error');
+        if (!email) {
+          console.error('❌ No se pudo obtener email:', user);
+          showInfo('Error', 'No se pudo obtener el email del usuario', 'error');
           return;
         }
 
-        // ✅ CAMBIO: Agregar el token en el header Authorization
-        const { data: respuestaBarbero } = await axios.get(
-          `https://vianney-server.onrender.com/barberos/usuario/${userId}`,
+        // Obtener todos los barberos
+        const { data: respuestaBarberos } = await axios.get(
+          'https://vianney-server.onrender.com/barberos',
           { 
             headers: { 
-              Authorization: `Bearer ${token}`,  // ← Agregar token
+              Authorization: `Bearer ${token}`,
               'Content-Type': 'application/json'
-            } 
+            },
+            params: { all: true }
           }
         );
-        barberoID = respuestaBarbero.id;
+        
+        const listaBarberos = respuestaBarberos.barberos || respuestaBarberos;
+        const barberosArray = Array.isArray(listaBarberos) ? 
+          listaBarberos : 
+          (listaBarberos.barberos || []);
+        
+        // Buscar barbero por email
+        const miBarbero = barberosArray.find(b => 
+          b.usuario?.email?.toLowerCase() === email.toLowerCase()
+        );
+        
+        if (!miBarbero) {
+          console.error('❌ No se encontró barbero con email:', email);
+          showInfo('Error', 'No se encontró registro de barbero', 'error');
+          return;
+        }
+        
+        barberoID = miBarbero.id;
       }
 
       if (!barberoID) {
