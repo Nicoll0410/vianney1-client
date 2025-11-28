@@ -27,6 +27,17 @@ const isMobile = width < 768;
 
 const GestionGaleriaScreen = () => {
   const { user, userRole, barberData } = useContext(AuthContext);
+  
+  // 🔍 DEBUG - Ver qué hay en user
+  useEffect(() => {
+    console.log('📊 DEBUG - Datos del usuario:');
+    console.log('user completo:', user);
+    console.log('user.userId:', user?.userId);
+    console.log('user.id:', user?.id);
+    console.log('userRole:', userRole);
+    console.log('barberData:', barberData);
+  }, [user, userRole, barberData]);
+  
   const [contenidos, setContenidos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -83,20 +94,39 @@ const GestionGaleriaScreen = () => {
       let barberoID;
       if (userRole === 'Barbero' && barberData?.id) {
         barberoID = barberData.id;
+        console.log('✅ Barbero - usando barberData.id:', barberoID);
       } else if (userRole === 'Administrador') {
         // Para admin, obtener su propio ID de barbero
-        // El user puede tener userId o id
-        const userId = user.userId || user.id;
+        // Intentar múltiples formas de obtener el userId
+        const userId = user?.userId || user?.id || user?.usuarioId || user?.sub;
+        
+        console.log('🔍 Intentando obtener userId para Admin:');
+        console.log('user.userId:', user?.userId);
+        console.log('user.id:', user?.id);
+        console.log('user.usuarioId:', user?.usuarioId);
+        console.log('user.sub:', user?.sub);
+        console.log('userId final:', userId);
         
         if (!userId) {
-          showInfo('Error', 'No se pudo obtener el ID de usuario', 'error');
+          console.error('❌ No se pudo obtener userId del objeto user:', user);
+          showInfo('Error', 'No se pudo obtener el ID de usuario. Por favor, cierra sesión e inicia sesión nuevamente.', 'error');
           return;
         }
 
+        console.log('🔄 Buscando barbero con userId:', userId);
+        
+        // ✅ CAMBIO: Agregar el token en el header Authorization
         const { data: respuestaBarbero } = await axios.get(
           `https://vianney-server.onrender.com/barberos/usuario/${userId}`,
-          { headers: { Authorization: `Bearer ${token}` } }
+          { 
+            headers: { 
+              Authorization: `Bearer ${token}`,  // ← Agregar token
+              'Content-Type': 'application/json'
+            } 
+          }
         );
+        
+        console.log('✅ Barbero encontrado:', respuestaBarbero);
         barberoID = respuestaBarbero.id;
       }
 
@@ -105,17 +135,21 @@ const GestionGaleriaScreen = () => {
         return;
       }
 
+      console.log('📸 Cargando galería para barberoID:', barberoID);
+
       const { data } = await axios.get(
         `https://vianney-server.onrender.com/galeria/barbero/${barberoID}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
       if (data.success) {
+        console.log('✅ Galería cargada:', data.data.length, 'items');
         setContenidos(data.data);
       }
     } catch (error) {
-      console.error('Error cargando contenidos:', error);
-      showInfo('Error', 'No se pudo cargar el contenido', 'error');
+      console.error('❌ Error cargando contenidos:', error);
+      console.error('Error response:', error.response?.data);
+      showInfo('Error', error.response?.data?.mensaje || 'No se pudo cargar el contenido', 'error');
     } finally {
       setLoading(false);
     }
@@ -155,21 +189,38 @@ const GestionGaleriaScreen = () => {
       let barberoID;
       if (userRole === 'Barbero' && barberData?.id) {
         barberoID = barberData.id;
+        console.log('✅ Barbero - usando barberData.id:', barberoID);
       } else if (userRole === 'Administrador') {
-        // El user puede tener userId o id
-        const userId = user.userId || user.id;
+        // El user puede tener userId, id, usuarioId o sub
+        const userId = user?.userId || user?.id || user?.usuarioId || user?.sub;
+        
+        console.log('🔍 Subiendo contenido - userId:', userId);
         
         if (!userId) {
+          console.error('❌ No se pudo obtener userId:', user);
           showInfo('Error', 'No se pudo obtener el ID de usuario', 'error');
           return;
         }
 
+        // ✅ CAMBIO: Agregar el token en el header Authorization
         const { data: respuestaBarbero } = await axios.get(
           `https://vianney-server.onrender.com/barberos/usuario/${userId}`,
-          { headers: { Authorization: `Bearer ${token}` } }
+          { 
+            headers: { 
+              Authorization: `Bearer ${token}`,  // ← Agregar token
+              'Content-Type': 'application/json'
+            } 
+          }
         );
         barberoID = respuestaBarbero.id;
       }
+
+      if (!barberoID) {
+        showInfo('Error', 'No se pudo identificar al barbero', 'error');
+        return;
+      }
+
+      console.log('📤 Subiendo contenido para barberoID:', barberoID);
 
       await axios.post(
         'https://vianney-server.onrender.com/galeria',
@@ -198,8 +249,9 @@ const GestionGaleriaScreen = () => {
       await fetchContenidos();
       showInfo('¡Éxito!', 'Contenido subido correctamente', 'success');
     } catch (error) {
-      console.error('Error subiendo contenido:', error);
-      showInfo('Error', 'No se pudo subir el contenido', 'error');
+      console.error('❌ Error subiendo contenido:', error);
+      console.error('Error response:', error.response?.data);
+      showInfo('Error', error.response?.data?.mensaje || 'No se pudo subir el contenido', 'error');
     } finally {
       setUploading(false);
     }
