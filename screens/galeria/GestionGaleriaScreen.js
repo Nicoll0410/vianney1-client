@@ -119,14 +119,33 @@ const GestionGaleriaScreen = () => {
           }
         );
         
-        console.log('📋 Barberos obtenidos:', respuestaBarberos);
+        console.log('📋 Respuesta completa:', respuestaBarberos);
+        console.log('📋 Tipo de respuesta:', typeof respuestaBarberos);
+        console.log('📋 Es array?:', Array.isArray(respuestaBarberos));
+        console.log('📋 Keys:', Object.keys(respuestaBarberos || {}));
         
-        const listaBarberos = respuestaBarberos.barberos || respuestaBarberos;
-        const barberosArray = Array.isArray(listaBarberos) ? 
-          listaBarberos : 
-          (listaBarberos.barberos || []);
+        // Intentar múltiples estructuras posibles
+        let barberosArray = [];
+        
+        if (Array.isArray(respuestaBarberos)) {
+          barberosArray = respuestaBarberos;
+          console.log('✅ Estructura: Array directo');
+        } else if (respuestaBarberos.barberos && Array.isArray(respuestaBarberos.barberos)) {
+          barberosArray = respuestaBarberos.barberos;
+          console.log('✅ Estructura: respuestaBarberos.barberos');
+        } else if (respuestaBarberos.data && Array.isArray(respuestaBarberos.data)) {
+          barberosArray = respuestaBarberos.data;
+          console.log('✅ Estructura: respuestaBarberos.data');
+        } else if (respuestaBarberos.data && respuestaBarberos.data.barberos && Array.isArray(respuestaBarberos.data.barberos)) {
+          barberosArray = respuestaBarberos.data.barberos;
+          console.log('✅ Estructura: respuestaBarberos.data.barberos');
+        } else {
+          console.error('❌ Estructura desconocida de barberos');
+          console.log('Objeto completo:', JSON.stringify(respuestaBarberos, null, 2));
+        }
         
         console.log('🔍 Buscando email:', email, 'en', barberosArray.length, 'barberos');
+        console.log('🔍 Primer barbero (ejemplo):', barberosArray[0]);
         
         // Buscar el barbero cuyo usuario tenga este email
         const miBarbero = barberosArray.find(b => 
@@ -227,10 +246,23 @@ const GestionGaleriaScreen = () => {
           }
         );
         
-        const listaBarberos = respuestaBarberos.barberos || respuestaBarberos;
-        const barberosArray = Array.isArray(listaBarberos) ? 
-          listaBarberos : 
-          (listaBarberos.barberos || []);
+        console.log('📋 Upload - Respuesta completa:', respuestaBarberos);
+        
+        // Intentar múltiples estructuras posibles
+        let barberosArray = [];
+        
+        if (Array.isArray(respuestaBarberos)) {
+          barberosArray = respuestaBarberos;
+        } else if (respuestaBarberos.barberos && Array.isArray(respuestaBarberos.barberos)) {
+          barberosArray = respuestaBarberos.barberos;
+        } else if (respuestaBarberos.data && Array.isArray(respuestaBarberos.data)) {
+          barberosArray = respuestaBarberos.data;
+        } else if (respuestaBarberos.data && respuestaBarberos.data.barberos) {
+          barberosArray = respuestaBarberos.data.barberos;
+        } else {
+          console.error('❌ Estructura desconocida');
+          barberosArray = [];
+        }
         
         // Buscar barbero por email
         const miBarbero = barberosArray.find(b => 
