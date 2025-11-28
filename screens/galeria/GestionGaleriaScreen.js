@@ -85,11 +85,19 @@ const GestionGaleriaScreen = () => {
         barberoID = barberData.id;
       } else if (userRole === 'Administrador') {
         // Para admin, obtener su propio ID de barbero
-        const { data: barberoData } = await axios.get(
-          `https://vianney-server.onrender.com/barberos/usuario/${user.userId}`,
+        // El user puede tener userId o id
+        const userId = user.userId || user.id;
+        
+        if (!userId) {
+          showInfo('Error', 'No se pudo obtener el ID de usuario', 'error');
+          return;
+        }
+
+        const { data: respuestaBarbero } = await axios.get(
+          `https://vianney-server.onrender.com/barberos/usuario/${userId}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        barberoID = barberoData.id;
+        barberoID = respuestaBarbero.id;
       }
 
       if (!barberoID) {
@@ -148,11 +156,19 @@ const GestionGaleriaScreen = () => {
       if (userRole === 'Barbero' && barberData?.id) {
         barberoID = barberData.id;
       } else if (userRole === 'Administrador') {
-        const { data: barberoData } = await axios.get(
-          `https://vianney-server.onrender.com/barberos/usuario/${user.userId}`,
+        // El user puede tener userId o id
+        const userId = user.userId || user.id;
+        
+        if (!userId) {
+          showInfo('Error', 'No se pudo obtener el ID de usuario', 'error');
+          return;
+        }
+
+        const { data: respuestaBarbero } = await axios.get(
+          `https://vianney-server.onrender.com/barberos/usuario/${userId}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        barberoID = barberoData.id;
+        barberoID = respuestaBarbero.id;
       }
 
       await axios.post(
