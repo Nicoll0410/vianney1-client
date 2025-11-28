@@ -100,20 +100,63 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  const loadUserData = useCallback(async (userId, userRole, token) => {
+  // ✅ FUNCIÓN CORREGIDA - Busca por email en lugar de userId
+  const loadUserData = useCallback(async (user, userRole, token) => {
     try {
       if (userRole === "Cliente") {
-        const { data } = await axios.get(
-          `${BASE_URL}/clientes/usuario/${userId}`,
-          { headers: { Authorization: `Bearer ${token}` } }
+        // Para clientes, buscar por email
+        const email = user?.email;
+        if (!email) {
+          console.error('❌ No se pudo obtener email del usuario');
+          return {};
+        }
+
+        const { data: respuestaClientes } = await axios.get(
+          `${BASE_URL}/clientes`,
+          { 
+            headers: { Authorization: `Bearer ${token}` },
+            params: { all: true }
+          }
         );
-        return { clientData: data };
-      } else if (userRole === "Barbero") {
-        const { data } = await axios.get(
-          `${BASE_URL}/barberos/usuario/${userId}`,
-          { headers: { Authorization: `Bearer ${token}` } }
+        
+        const clientesArray = Array.isArray(respuestaClientes) ? respuestaClientes : 
+                             (respuestaClientes.clientes || respuestaClientes.data || []);
+        
+        const miCliente = clientesArray.find(c => 
+          c.usuario?.email?.toLowerCase() === email.toLowerCase()
         );
-        return { barberData: data };
+        
+        if (miCliente) {
+          console.log('✅ Cliente encontrado:', miCliente.nombre);
+          return { clientData: miCliente };
+        }
+      } else if (userRole === "Barbero" || userRole === "Administrador") {
+        // Para barberos y admins, buscar por email
+        const email = user?.email;
+        if (!email) {
+          console.error('❌ No se pudo obtener email del usuario');
+          return {};
+        }
+
+        const { data: respuestaBarberos } = await axios.get(
+          `${BASE_URL}/barberos`,
+          { 
+            headers: { Authorization: `Bearer ${token}` },
+            params: { all: true }
+          }
+        );
+        
+        const barberosArray = Array.isArray(respuestaBarberos) ? respuestaBarberos : 
+                             (respuestaBarberos.barberos || respuestaBarberos.data || []);
+        
+        const miBarbero = barberosArray.find(b => 
+          b.usuario?.email?.toLowerCase() === email.toLowerCase()
+        );
+        
+        if (miBarbero) {
+          console.log('✅ Barbero encontrado:', miBarbero.nombre);
+          return { barberData: miBarbero };
+        }
       }
       return {};
     } catch (error) {
@@ -231,7 +274,6 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  // Configurar Socket.io
   // Configurar Socket.io de manera robusta
   const setupSocket = useCallback(async () => {
     try {
@@ -272,44 +314,29 @@ export const AuthProvider = ({ children }) => {
         console.error("❌ Error de conexión:", error.message);
       });
 
-      // En el useEffect del socket, agregar esto:
-// 🔥 REEMPLAZAR el listener de actualizar_badge con este código MEJORADO:
-socketRef.current.on("actualizar_badge", async (data) => {
-  
-  const currentUserId = authState.user?.userId || authState.user?.id;
-  
-  // Si el evento es específico para un usuario, verificar que sea el correcto
-  if (data.usuarioID && data.usuarioID !== currentUserId) {
-    return;
-  }
-  
-  
-  // Forzar actualización INMEDIATA
-  await fetchNotifications();
-  
-  // Reproducir sonido de notificación
-  await playNotificationSound();
-  
-  // Forzar re-render de componentes
-  setAuthState(prev => ({
-    ...prev,
-    lastNotification: new Date() // Forzar update
-  }));
-});
+      socketRef.current.on("actualizar_badge", async (data) => {
+        const currentUserId = authState.user?.userId || authState.user?.id;
+        
+        if (data.usuarioID && data.usuarioID !== currentUserId) {
+          return;
+        }
+        
+        await fetchNotifications();
+        await playNotificationSound();
+        
+        setAuthState(prev => ({
+          ...prev,
+          lastNotification: new Date()
+        }));
+      });
 
-      // 🎯 HANDLER PRINCIPAL - NOTIFICACIONES EN TIEMPO REAL
       socketRef.current.on("nueva_notificacion", async (data) => {
-       
-        // ✅ Verificar si la notificación es para este usuario
         const currentUserId = authState.user.userId || authState.user.id;
         if (data.usuarioID === currentUserId) {
           
-          // 1. Reproducir sonido inmediatamente
           await playNotificationSound();
           
-          // 2. Actualizar estado en tiempo real
           setAuthState(prev => {
-            // Evitar duplicados
             const exists = prev.notifications.some(n => n.id === data.id);
             if (exists) {
               return prev;
@@ -317,7 +344,6 @@ socketRef.current.on("actualizar_badge", async (data) => {
 
             const newUnreadCount = prev.unreadCount + 1;
             
-            // Actualizar badge (solo en mobile)
             if (Platform.OS !== 'web') {
               Notifications.setBadgeCountAsync(newUnreadCount).catch(console.error);
             }
@@ -330,7 +356,6 @@ socketRef.current.on("actualizar_badge", async (data) => {
             };
           });
 
-          // 3. Mostrar alerta
           Alert.alert(
             data.titulo,
             data.cuerpo,
@@ -345,13 +370,12 @@ socketRef.current.on("actualizar_badge", async (data) => {
             ],
             { cancelable: true }
           );
-        } else {
         }
       });
 
     } catch (error) {
     }
-  }, [authState.isLoggedIn, authState.token, authState.user, playNotificationSound]);
+  }, [authState.isLoggedIn, authState.token, authState.user, playNotificationSound, fetchNotifications]);
 
 
   // Inicializar autenticación
@@ -371,7 +395,8 @@ socketRef.current.on("actualizar_badge", async (data) => {
       }
 
       const userRole = normalizeRole(decoded?.rol?.nombre);
-      const additionalData = await loadUserData(decoded.userId, userRole, savedToken);
+      // ✅ CAMBIO: Pasar el objeto decoded completo en lugar de decoded.userId
+      const additionalData = await loadUserData(decoded, userRole, savedToken);
 
       const newState = {
         isLoading: false,
@@ -405,38 +430,33 @@ socketRef.current.on("actualizar_badge", async (data) => {
   useEffect(() => {
     initializeAuth();
   }, []);
-  // Agregar este useEffect para actualización automática:
-useEffect(() => {
-  if (authState.isLoggedIn) {
-    // Actualizar cada 5 segundos
-    const interval = setInterval(() => {
-      fetchNotifications();
-    }, 10000);
 
-    return () => clearInterval(interval);
-  }
-}, [authState.isLoggedIn, fetchNotifications]);
+  useEffect(() => {
+    if (authState.isLoggedIn) {
+      const interval = setInterval(() => {
+        fetchNotifications();
+      }, 10000);
 
-  // Agregar este useEffect adicional para debuggear las salas
-useEffect(() => {
-  if (socketRef.current && authState.user) {
-    const userId = authState.user.userId || authState.user.id;
-    
-    // Unir al usuario a su sala personal
-    socketRef.current.emit("unir_usuario", userId);
-    
-    // Verificar estado de la conexión
-    socketRef.current.on("usuario_unido", (data) => {
-    });
+      return () => clearInterval(interval);
+    }
+  }, [authState.isLoggedIn, fetchNotifications]);
 
-    // Debuggear eventos de sala
-    socketRef.current.on("join", (room) => {
-    });
+  useEffect(() => {
+    if (socketRef.current && authState.user) {
+      const userId = authState.user.userId || authState.user.id;
+      
+      socketRef.current.emit("unir_usuario", userId);
+      
+      socketRef.current.on("usuario_unido", (data) => {
+      });
 
-    socketRef.current.on("leave", (room) => {
-    });
-  }
-}, [socketRef.current, authState.user]);
+      socketRef.current.on("join", (room) => {
+      });
+
+      socketRef.current.on("leave", (room) => {
+      });
+    }
+  }, [socketRef.current, authState.user]);
 
   useEffect(() => {
     setupSocket();
@@ -468,7 +488,8 @@ useEffect(() => {
 
       await AsyncStorage.setItem("token", token);
       const userRole = normalizeRole(decoded?.rol?.nombre);
-      const userData = await loadUserData(decoded.userId, userRole, token);
+      // ✅ CAMBIO: Pasar el objeto decoded completo
+      const userData = await loadUserData(decoded, userRole, token);
 
       const newState = {
         isLoading: false,
