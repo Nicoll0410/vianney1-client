@@ -94,102 +94,96 @@ const GaleriaScreen = ({ navigation }) => {
 
     return (
       <View key={index} style={styles.barberoCard}>
-        {/* Header con foto del barbero */}
-        <View style={styles.cardHeader}>
-          <View style={styles.avatarContainer}>
-            {avatarValido ? (
-              <Image
-                source={{ uri: barbero.avatar }}
-                style={styles.avatar}
-              />
-            ) : (
-              <View style={styles.avatarPlaceholder}>
-                <Ionicons name="person" size={40} color="#fff" />
-              </View>
-            )}
-          </View>
-          <View style={styles.barberoInfo}>
-            <Text style={styles.barberoNombre}>{barbero.nombre}</Text>
-            {contenidoDestacado?.descripcion && (
-              <Text style={styles.especialidad}>
-                {contenidoDestacado.descripcion}
+        <View style={styles.cardInner}>
+          {/* Header con foto del barbero */}
+          <View style={styles.cardHeader}>
+            <View style={styles.avatarContainer}>
+              {avatarValido ? (
+                <Image
+                  source={{ uri: barbero.avatar }}
+                  style={styles.avatar}
+                />
+              ) : (
+                <View style={styles.avatarPlaceholder}>
+                  <Ionicons name="person" size={30} color="#fff" />
+                </View>
+              )}
+            </View>
+            <View style={styles.barberoInfo}>
+              <Text style={styles.barberoNombre} numberOfLines={1}>
+                {barbero.nombre}
               </Text>
-            )}
+            </View>
           </View>
-        </View>
 
-        {/* Información de contacto */}
-        <View style={styles.contactoContainer}>
-          <View style={styles.contactoItem}>
-            <Ionicons name="call-outline" size={16} color="#666" />
-            <Text style={styles.contactoText}>{barbero.telefono}</Text>
-          </View>
-          <View style={styles.contactoItem}>
-            <Ionicons name="mail-outline" size={16} color="#666" />
-            <Text style={styles.contactoText}>{barbero.usuario?.email}</Text>
-          </View>
-        </View>
-
-        {/* Trabajo destacado */}
-        <Text style={styles.trabajoTitulo}>Trabajo Destacado</Text>
-        {contenidoValido ? (
-          <View style={styles.trabajoContainer}>
-            {contenidoDestacado.tipo === 'imagen' ? (
-              <Image
-                source={{ uri: contenidoDestacado.contenido }}
-                style={styles.trabajoImagen}
-                resizeMode="cover"
-              />
-            ) : (
-              <View style={styles.videoPlaceholder}>
-                <Ionicons name="play-circle" size={60} color="#fff" />
-                <Text style={styles.videoText}>Video</Text>
-              </View>
-            )}
-          </View>
-        ) : (
-          <View style={styles.sinContenido}>
-            <Ionicons name="images-outline" size={40} color="#ccc" />
-            <Text style={styles.sinContenidoText}>Sin contenido destacado</Text>
-          </View>
-        )}
-
-        {/* Redes sociales */}
-        <View style={styles.redesSociales}>
-          {contenidoDestacado?.instagram && (
-            <TouchableOpacity
-              onPress={() => abrirRedSocial(contenidoDestacado.instagram)}
-              style={styles.redSocialButton}
-            >
-              <FontAwesome name="instagram" size={24} color="#E4405F" />
-            </TouchableOpacity>
+          {/* Trabajo destacado compacto */}
+          {contenidoValido ? (
+            <View style={styles.trabajoContainerCompact}>
+              {contenidoDestacado.tipo === 'imagen' ? (
+                <Image
+                  source={{ uri: contenidoDestacado.contenido }}
+                  style={styles.trabajoImagenCompact}
+                  resizeMode="cover"
+                />
+              ) : (
+                <View style={styles.videoPlaceholderCompact}>
+                  <Ionicons name="play-circle" size={40} color="#fff" />
+                </View>
+              )}
+            </View>
+          ) : (
+            <View style={styles.sinContenidoCompact}>
+              <Ionicons name="images-outline" size={30} color="#ccc" />
+              <Text style={styles.sinContenidoTextCompact}>Sin contenido</Text>
+            </View>
           )}
-          {contenidoDestacado?.facebook && (
-            <TouchableOpacity
-              onPress={() => abrirRedSocial(contenidoDestacado.facebook)}
-              style={styles.redSocialButton}
-            >
-              <FontAwesome name="facebook" size={24} color="#1877F2" />
-            </TouchableOpacity>
-          )}
-          {contenidoDestacado?.tiktok && (
-            <TouchableOpacity
-              onPress={() => abrirRedSocial(contenidoDestacado.tiktok)}
-              style={styles.redSocialButton}
-            >
-              <FontAwesome name="music" size={24} color="#000" />
-            </TouchableOpacity>
-          )}
-        </View>
 
-        {/* Botón ver más */}
-        <TouchableOpacity
-          style={styles.verMasButton}
-          onPress={() => abrirGaleriaCompleta(barbero.id, barbero)}
-        >
-          <Ionicons name="images-outline" size={18} color="#fff" />
-          <Text style={styles.verMasText}>Ver más trabajos</Text>
-        </TouchableOpacity>
+          {/* Descripción compacta */}
+          {contenidoDestacado?.descripcion && (
+            <Text style={styles.descripcionCompact} numberOfLines={2}>
+              {contenidoDestacado.descripcion}
+            </Text>
+          )}
+
+          {/* Redes sociales compactas */}
+          {(contenidoDestacado?.instagram || contenidoDestacado?.facebook || contenidoDestacado?.tiktok) && (
+            <View style={styles.redesSocialesCompact}>
+              {contenidoDestacado?.instagram && (
+                <TouchableOpacity
+                  onPress={() => abrirRedSocial(contenidoDestacado.instagram)}
+                  style={styles.redSocialButtonCompact}
+                >
+                  <FontAwesome name="instagram" size={16} color="#E4405F" />
+                </TouchableOpacity>
+              )}
+              {contenidoDestacado?.facebook && (
+                <TouchableOpacity
+                  onPress={() => abrirRedSocial(contenidoDestacado.facebook)}
+                  style={styles.redSocialButtonCompact}
+                >
+                  <FontAwesome name="facebook" size={16} color="#1877F2" />
+                </TouchableOpacity>
+              )}
+              {contenidoDestacado?.tiktok && (
+                <TouchableOpacity
+                  onPress={() => abrirRedSocial(contenidoDestacado.tiktok)}
+                  style={styles.redSocialButtonCompact}
+                >
+                  <FontAwesome name="music" size={16} color="#000" />
+                </TouchableOpacity>
+              )}
+            </View>
+          )}
+
+          {/* Botón ver más compacto */}
+          <TouchableOpacity
+            style={styles.verMasButtonCompact}
+            onPress={() => abrirGaleriaCompleta(barbero.id, barbero)}
+          >
+            <Ionicons name="images-outline" size={14} color="#fff" />
+            <Text style={styles.verMasTextCompact}>Ver más</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     );
   };
@@ -209,11 +203,18 @@ const GaleriaScreen = ({ navigation }) => {
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
       >
-        <View style={styles.header}>
-          <Text style={styles.title}>Galería de Trabajos</Text>
-          <Text style={styles.subtitle}>
-            Conoce el trabajo de nuestros barberos
-          </Text>
+        <View style={styles.headerContainer}>
+          <View style={styles.headerGradient}>
+            <View style={styles.headerContent}>
+              <Ionicons name="cut-outline" size={40} color="#D4AF37" />
+              <Text style={styles.headerTitle}>
+                Conoce el trabajo de nuestros barberos
+              </Text>
+              <Text style={styles.headerSubtitle}>
+                Explora los mejores cortes y estilos
+              </Text>
+            </View>
+          </View>
         </View>
 
         {galeriaPorBarbero.length === 0 ? (
@@ -224,7 +225,7 @@ const GaleriaScreen = ({ navigation }) => {
             </Text>
           </View>
         ) : (
-          <View style={styles.cardsContainer}>
+          <View style={styles.gridContainer}>
             {galeriaPorBarbero.map(renderBarberoCard)}
           </View>
         )}
@@ -319,152 +320,154 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingBottom: 20
   },
-  header: {
-    padding: 20,
-    backgroundColor: '#424242'
+  headerContainer: {
+    overflow: 'hidden'
   },
-  title: {
-    fontSize: 28,
+  headerGradient: {
+    backgroundColor: '#1a1a1a',
+    paddingVertical: 40,
+    paddingHorizontal: 20,
+    position: 'relative'
+  },
+  headerContent: {
+    alignItems: 'center',
+    zIndex: 1
+  },
+  headerTitle: {
+    fontSize: 24,
     fontWeight: 'bold',
     color: '#fff',
-    marginBottom: 8
+    textAlign: 'center',
+    marginTop: 16,
+    marginBottom: 8,
+    letterSpacing: 0.5
   },
-  subtitle: {
-    fontSize: 16,
-    color: '#E0E0E0'
+  headerSubtitle: {
+    fontSize: 14,
+    color: '#D4AF37',
+    textAlign: 'center',
+    fontStyle: 'italic'
   },
-  cardsContainer: {
-    padding: 16
+  gridContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    padding: 8
   },
   barberoCard: {
+    width: isMobile ? '50%' : '33.33%',
+    padding: 8
+  },
+  cardInner: {
     backgroundColor: '#fff',
     borderRadius: 16,
-    padding: 20,
-    marginBottom: 20,
+    padding: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
-    elevation: 4
+    elevation: 4,
+    height: '100%'
   },
   cardHeader: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     alignItems: 'center',
-    marginBottom: 16
+    marginBottom: 12
   },
   avatarContainer: {
-    marginRight: 16
+    marginBottom: 8
   },
   avatar: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
-    borderWidth: 3,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    borderWidth: 2,
     borderColor: '#D4AF37'
   },
   avatarPlaceholder: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     backgroundColor: '#424242',
     justifyContent: 'center',
     alignItems: 'center'
   },
   barberoInfo: {
-    flex: 1
+    alignItems: 'center',
+    width: '100%'
   },
   barberoNombre: {
-    fontSize: 22,
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#212121',
-    marginBottom: 4
+    textAlign: 'center'
   },
-  especialidad: {
-    fontSize: 14,
-    color: '#D4AF37',
-    fontStyle: 'italic'
-  },
-  contactoContainer: {
-    marginBottom: 16
-  },
-  contactoItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8
-  },
-  contactoText: {
-    marginLeft: 8,
-    fontSize: 14,
-    color: '#666'
-  },
-  trabajoTitulo: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#212121',
-    marginBottom: 12
-  },
-  trabajoContainer: {
+  trabajoContainerCompact: {
     borderRadius: 12,
     overflow: 'hidden',
-    marginBottom: 16
+    marginBottom: 8
   },
-  trabajoImagen: {
+  trabajoImagenCompact: {
     width: '100%',
-    height: 250,
+    height: 140,
     backgroundColor: '#f5f5f5'
   },
-  videoPlaceholder: {
+  videoPlaceholderCompact: {
     width: '100%',
-    height: 250,
+    height: 140,
     backgroundColor: '#424242',
     justifyContent: 'center',
     alignItems: 'center'
   },
-  videoText: {
-    color: '#fff',
-    fontSize: 16,
-    marginTop: 8
-  },
-  sinContenido: {
-    height: 250,
+  sinContenidoCompact: {
+    height: 140,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#f5f5f5',
     borderRadius: 12,
-    marginBottom: 16
+    marginBottom: 8
   },
-  sinContenidoText: {
+  sinContenidoTextCompact: {
     color: '#999',
-    marginTop: 8,
-    fontSize: 14
+    marginTop: 4,
+    fontSize: 11
   },
-  redesSociales: {
+  descripcionCompact: {
+    fontSize: 11,
+    color: '#666',
+    marginBottom: 8,
+    textAlign: 'center'
+  },
+  redesSocialesCompact: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginBottom: 16,
-    paddingVertical: 12,
+    marginBottom: 8,
+    paddingVertical: 8,
     borderTopWidth: 1,
     borderBottomWidth: 1,
     borderColor: '#E0E0E0'
   },
-  redSocialButton: {
-    marginHorizontal: 12,
-    padding: 8
+  redSocialButtonCompact: {
+    marginHorizontal: 6,
+    padding: 4
   },
-  verMasButton: {
+  verMasButtonCompact: {
     flexDirection: 'row',
     backgroundColor: '#424242',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 25,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center'
   },
-  verMasText: {
+  verMasTextCompact: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 12,
     fontWeight: '600',
-    marginLeft: 8
+    marginLeft: 4
+  },
+  // Estilos antiguos removidos (contacto, trabajo normal, etc)
+  contactoContainer: {
+    marginBottom: 16
   },
   emptyContainer: {
     flex: 1,
