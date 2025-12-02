@@ -113,6 +113,12 @@ const GaleriaScreen = ({ navigation }) => {
               <Text style={styles.barberoNombre} numberOfLines={1}>
                 {barbero.nombre}
               </Text>
+              {barbero.telefono && (
+                <View style={styles.telefonoContainer}>
+                  <Ionicons name="call" size={12} color="#D4AF37" />
+                  <Text style={styles.telefonoText}>{barbero.telefono}</Text>
+                </View>
+              )}
             </View>
           </View>
 
@@ -400,6 +406,17 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#212121',
     textAlign: 'center'
+  },
+  telefonoContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 4
+  },
+  telefonoText: {
+    fontSize: 12,
+    color: '#666',
+    marginLeft: 4
   },
   trabajoContainerCompact: {
     borderRadius: 12,
