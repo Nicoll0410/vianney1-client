@@ -34,7 +34,7 @@ import NotificacionesScreen from "../screens/agenda/NotificacionesScreen";
 import ControlInsumos from "../screens/insumos/ControlInsumos";
 import GaleriaScreen from "../screens/galeria/GaleriaScreen";
 import GestionGaleriaScreen from "../screens/galeria/GestionGaleriaScreen";
-import MiPerfilScreen from "../screens/perfil/MiPerfilScreen"; // ✅ NUEVO
+import MiPerfilScreen from "../screens/perfil/MiPerfilScreen";
 
 const Stack = createStackNavigator();
 
@@ -42,7 +42,7 @@ const Stack = createStackNavigator();
 import LogoImg from "../assets/images/barberApp 1.png";
 
 /* Icono campana con badge */
-const NotificationBell = ({ navigation }) => {
+const NotificationBell = ({ navigation, isDark = false }) => {
   const { unreadCount } = useContext(AuthContext);
 
   return (
@@ -50,7 +50,11 @@ const NotificationBell = ({ navigation }) => {
       style={{ marginRight: 15 }}
       onPress={() => navigation.navigate("Notificaciones")}
     >
-      <Ionicons name="notifications-outline" size={26} color="black" />
+      <Ionicons 
+        name="notifications-outline" 
+        size={26} 
+        color={isDark ? "#fff" : "black"} // ✅ Blanco si es tema oscuro
+      />
       {unreadCount > 0 && (
         <View
           style={{
@@ -92,6 +96,30 @@ const HeaderLogo = () => {
       }}
     />
   );
+};
+
+// ✅ FUNCIÓN PARA OBTENER ESTILOS DEL HEADER SEGÚN LA PANTALLA
+const getHeaderStyle = (screenName) => {
+  if (screenName === 'Galeria') {
+    return {
+      headerStyle: {
+        backgroundColor: '#000', // Fondo negro
+      },
+      headerTintColor: '#fff', // Texto blanco (título y botones)
+      headerTitleStyle: {
+        color: '#fff', // Título blanco
+        fontWeight: 'bold',
+      },
+    };
+  }
+  
+  // Para todas las demás pantallas (por defecto)
+  return {
+    headerStyle: {
+      backgroundColor: '#fff', // Fondo blanco
+    },
+    headerTintColor: '#000', // Texto negro
+  };
 };
 
 const CustomDrawerNavigator = ({ navigation: mainNavigation }) => {
@@ -143,14 +171,18 @@ const CustomDrawerNavigator = ({ navigation: mainNavigation }) => {
 
   // OPCIONES COMUNES para TODAS las pantallas - CON BOTÓN DE HAMBURGUESA
   // SOLO en móvil/pantallas pequeñas
-  const commonOptions = ({ navigation }) => ({
+  const commonOptions = ({ navigation, isDark = false }) => ({
     headerLeft: () => {
       // No mostrar el ícono de menú en pantallas grandes de web
       if (isWeb && isLargeScreen) return null;
 
       return (
         <TouchableOpacity onPress={toggleDrawer} style={{ marginLeft: 15 }}>
-          <Ionicons name="menu" size={24} color="black" />
+          <Ionicons 
+            name="menu" 
+            size={24} 
+            color={isDark ? "#fff" : "black"} // ✅ Blanco si es tema oscuro
+          />
         </TouchableOpacity>
       );
     },
@@ -162,12 +194,14 @@ const CustomDrawerNavigator = ({ navigation: mainNavigation }) => {
       case "Cliente":
         return (
           <>
+            {/* ✅ GALERÍA CON TEMA OSCURO */}
             <Stack.Screen
               name="Galeria"
               component={GaleriaScreen}
               options={({ navigation }) => ({
-                ...commonOptions({ navigation }),
-                headerTitle: "Galería"
+                ...commonOptions({ navigation, isDark: true }), // ✅ isDark = true
+                headerTitle: "Galería",
+                ...getHeaderStyle('Galeria') // ✅ Aplicar estilos oscuros
               })}
             />
             <Stack.Screen
