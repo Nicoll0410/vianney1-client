@@ -400,7 +400,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden'
   },
   headerGradient: {
-    backgroundColor: '#1a1a1a',
+    backgroundColor: '#000',
     paddingVertical: 40,
     paddingHorizontal: 20,
     position: 'relative'
@@ -419,10 +419,11 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5
   },
   headerSubtitle: {
-    fontSize: 14,
+    fontSize: 16,
     color: '#D4AF37',
     textAlign: 'center',
-    fontStyle: 'italic'
+    fontStyle: 'italic',
+    fontWeight: 'bold'
   },
   // ✅ 2. GRID RESPONSIVE - 1 columna en móvil
   gridContainer: {
