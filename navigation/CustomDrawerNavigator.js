@@ -83,8 +83,19 @@ const NotificationBell = ({ navigation, isDark = false }) => {
 const HeaderLogo = ({ useGaleriaLogo = false }) => {
   const { width } = useWindowDimensions();
   const isLargeScreen = width >= 1024;
-  const logoWidth = isLargeScreen ? 180 : 120;
-  const logoHeight = isLargeScreen ? 40 : 30;
+  
+  // ✅ Tamaños diferentes según el logo
+  let logoWidth, logoHeight;
+  
+  if (useGaleriaLogo) {
+    // Logo de galería más grande
+    logoWidth = isLargeScreen ? 250 : 180;  // ✅ Más grande
+    logoHeight = isLargeScreen ? 60 : 45;   // ✅ Más grande
+  } else {
+    // Logo normal
+    logoWidth = isLargeScreen ? 180 : 120;
+    logoHeight = isLargeScreen ? 40 : 30;
+  }
 
   // ✅ Seleccionar el logo según la pantalla
   const logoSource = useGaleriaLogo ? LogoGaleriaImg : LogoImg;
