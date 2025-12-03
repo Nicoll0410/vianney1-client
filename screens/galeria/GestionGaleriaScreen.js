@@ -46,9 +46,6 @@ const GestionGaleriaScreen = () => {
   const [modalSubirVisible, setModalSubirVisible] = useState(false);
   const [nuevaImagen, setNuevaImagen] = useState(null);
   const [descripcion, setDescripcion] = useState('');
-  const [instagram, setInstagram] = useState('');
-  const [facebook, setFacebook] = useState('');
-  const [tiktok, setTiktok] = useState('');
   const [destacado, setDestacado] = useState(false);
   
   // Modal de confirmación
@@ -292,9 +289,6 @@ const GestionGaleriaScreen = () => {
           tipo: 'imagen',
           contenido: nuevaImagen,
           descripcion: descripcion || null,
-          instagram: instagram || null,
-          facebook: facebook || null,
-          tiktok: tiktok || null,
           destacado: destacado
         },
         { headers: { Authorization: `Bearer ${token}` } }
@@ -303,9 +297,6 @@ const GestionGaleriaScreen = () => {
       // Limpiar formulario
       setNuevaImagen(null);
       setDescripcion('');
-      setInstagram('');
-      setFacebook('');
-      setTiktok('');
       setDestacado(false);
       setModalSubirVisible(false);
 
@@ -396,24 +387,6 @@ const GestionGaleriaScreen = () => {
             {item.descripcion}
           </Text>
         )}
-
-        <View style={styles.redesContainer}>
-          {item.instagram && (
-            <View style={styles.redIcon}>
-              <FontAwesome name="instagram" size={16} color="#E4405F" />
-            </View>
-          )}
-          {item.facebook && (
-            <View style={styles.redIcon}>
-              <FontAwesome name="facebook" size={16} color="#1877F2" />
-            </View>
-          )}
-          {item.tiktok && (
-            <View style={styles.redIcon}>
-              <FontAwesome name="music" size={16} color="#000" />
-            </View>
-          )}
-        </View>
 
         <View style={styles.accionesCard}>
           <TouchableOpacity
@@ -531,48 +504,6 @@ const GestionGaleriaScreen = () => {
                 onChangeText={setDescripcion}
                 multiline
                 numberOfLines={3}
-              />
-            </View>
-
-            {/* Redes sociales */}
-            <Text style={styles.sectionTitle}>Redes Sociales (opcionales)</Text>
-            
-            <View style={styles.inputContainer}>
-              <View style={styles.inputIcon}>
-                <FontAwesome name="instagram" size={20} color="#E4405F" />
-              </View>
-              <TextInput
-                style={styles.input}
-                placeholder="URL de Instagram"
-                value={instagram}
-                onChangeText={setInstagram}
-                autoCapitalize="none"
-              />
-            </View>
-
-            <View style={styles.inputContainer}>
-              <View style={styles.inputIcon}>
-                <FontAwesome name="facebook" size={20} color="#1877F2" />
-              </View>
-              <TextInput
-                style={styles.input}
-                placeholder="URL de Facebook"
-                value={facebook}
-                onChangeText={setFacebook}
-                autoCapitalize="none"
-              />
-            </View>
-
-            <View style={styles.inputContainer}>
-              <View style={styles.inputIcon}>
-                <FontAwesome name="music" size={20} color="#000" />
-              </View>
-              <TextInput
-                style={styles.input}
-                placeholder="URL de TikTok"
-                value={tiktok}
-                onChangeText={setTiktok}
-                autoCapitalize="none"
               />
             </View>
 

@@ -119,6 +119,35 @@ const GaleriaScreen = ({ navigation }) => {
                   <Text style={styles.telefonoText}>{barbero.telefono}</Text>
                 </View>
               )}
+              {/* Redes sociales del barbero */}
+              {(barbero.instagram || barbero.facebook || barbero.tiktok) && (
+                <View style={styles.redesBarberoContainer}>
+                  {barbero.instagram && (
+                    <TouchableOpacity
+                      onPress={() => abrirRedSocial(barbero.instagram)}
+                      style={styles.redBarberoButton}
+                    >
+                      <FontAwesome name="instagram" size={16} color="#E4405F" />
+                    </TouchableOpacity>
+                  )}
+                  {barbero.facebook && (
+                    <TouchableOpacity
+                      onPress={() => abrirRedSocial(barbero.facebook)}
+                      style={styles.redBarberoButton}
+                    >
+                      <FontAwesome name="facebook" size={16} color="#1877F2" />
+                    </TouchableOpacity>
+                  )}
+                  {barbero.tiktok && (
+                    <TouchableOpacity
+                      onPress={() => abrirRedSocial(barbero.tiktok)}
+                      style={styles.redBarberoButton}
+                    >
+                      <FontAwesome name="music" size={16} color="#000" />
+                    </TouchableOpacity>
+                  )}
+                </View>
+              )}
             </View>
           </View>
 
@@ -149,36 +178,6 @@ const GaleriaScreen = ({ navigation }) => {
             <Text style={styles.descripcionCompact} numberOfLines={2}>
               {contenidoDestacado.descripcion}
             </Text>
-          )}
-
-          {/* Redes sociales compactas */}
-          {(contenidoDestacado?.instagram || contenidoDestacado?.facebook || contenidoDestacado?.tiktok) && (
-            <View style={styles.redesSocialesCompact}>
-              {contenidoDestacado?.instagram && (
-                <TouchableOpacity
-                  onPress={() => abrirRedSocial(contenidoDestacado.instagram)}
-                  style={styles.redSocialButtonCompact}
-                >
-                  <FontAwesome name="instagram" size={16} color="#E4405F" />
-                </TouchableOpacity>
-              )}
-              {contenidoDestacado?.facebook && (
-                <TouchableOpacity
-                  onPress={() => abrirRedSocial(contenidoDestacado.facebook)}
-                  style={styles.redSocialButtonCompact}
-                >
-                  <FontAwesome name="facebook" size={16} color="#1877F2" />
-                </TouchableOpacity>
-              )}
-              {contenidoDestacado?.tiktok && (
-                <TouchableOpacity
-                  onPress={() => abrirRedSocial(contenidoDestacado.tiktok)}
-                  style={styles.redSocialButtonCompact}
-                >
-                  <FontAwesome name="music" size={16} color="#000" />
-                </TouchableOpacity>
-              )}
-            </View>
           )}
 
           {/* Botón ver más compacto */}
@@ -417,6 +416,15 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#666',
     marginLeft: 4
+  },
+  redesBarberoContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 8,
+    gap: 8
+  },
+  redBarberoButton: {
+    padding: 4
   },
   trabajoContainerCompact: {
     borderRadius: 12,
