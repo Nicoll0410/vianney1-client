@@ -40,7 +40,6 @@ const Stack = createStackNavigator();
 
 /* Logo */
 import LogoImg from "../assets/images/barberApp 1.png";
-import LogoGaleriaImg from "../assets/images/NMbarber.png"; // ✅ Logo para Galería
 
 /* Icono campana con badge */
 const NotificationBell = ({ navigation, isDark = false }) => {
@@ -79,19 +78,16 @@ const NotificationBell = ({ navigation, isDark = false }) => {
   );
 };
 
-/* Logo a la derecha - con soporte para logo alternativo */
-const HeaderLogo = ({ useGaleriaLogo = false }) => {
+/* Logo a la derecha */
+const HeaderLogo = () => {
   const { width } = useWindowDimensions();
   const isLargeScreen = width >= 1024;
   const logoWidth = isLargeScreen ? 180 : 120;
   const logoHeight = isLargeScreen ? 40 : 30;
 
-  // ✅ Seleccionar el logo según la pantalla
-  const logoSource = useGaleriaLogo ? LogoGaleriaImg : LogoImg;
-
   return (
     <Image
-      source={logoSource}
+      source={LogoImg}
       style={{
         width: logoWidth,
         height: logoHeight,
@@ -175,7 +171,7 @@ const CustomDrawerNavigator = ({ navigation: mainNavigation }) => {
 
   // OPCIONES COMUNES para TODAS las pantallas - CON BOTÓN DE HAMBURGUESA
   // SOLO en móvil/pantallas pequeñas
-  const commonOptions = ({ navigation, isDark = false, useGaleriaLogo = false }) => ({
+  const commonOptions = ({ navigation, isDark = false }) => ({
     headerLeft: () => {
       // No mostrar el ícono de menú en pantallas grandes de web
       if (isWeb && isLargeScreen) return null;
@@ -190,7 +186,7 @@ const CustomDrawerNavigator = ({ navigation: mainNavigation }) => {
         </TouchableOpacity>
       );
     },
-    headerRight: () => <HeaderLogo useGaleriaLogo={useGaleriaLogo} />, // ✅ Pasar prop
+    headerRight: () => <HeaderLogo />,
   });
 
   const renderDrawerScreens = (userRole) => {
@@ -198,16 +194,12 @@ const CustomDrawerNavigator = ({ navigation: mainNavigation }) => {
       case "Cliente":
         return (
           <>
-            {/* ✅ GALERÍA CON TEMA OSCURO Y LOGO ALTERNATIVO */}
+            {/* ✅ GALERÍA CON TEMA OSCURO */}
             <Stack.Screen
               name="Galeria"
               component={GaleriaScreen}
               options={({ navigation }) => ({
-                ...commonOptions({ 
-                  navigation, 
-                  isDark: true,           // ✅ Tema oscuro
-                  useGaleriaLogo: true    // ✅ Logo de galería
-                }),
+                ...commonOptions({ navigation, isDark: true }), // ✅ isDark = true
                 headerTitle: "Galería",
                 ...getHeaderStyle('Galeria') // ✅ Aplicar estilos oscuros
               })}
