@@ -58,6 +58,7 @@ const MiPerfilScreen = () => {
       let barberoID;
       if (userRole === 'Barbero' && barberData?.id) {
         barberoID = barberData.id;
+        console.log('✅ Barbero ID desde barberData:', barberoID);
       } else if (userRole === 'Administrador') {
         const emailUsuario = user?.email;
         
@@ -65,6 +66,8 @@ const MiPerfilScreen = () => {
           showInfo('Error', 'No se pudo obtener el email del usuario', 'error');
           return;
         }
+
+        console.log('📧 Buscando barbero por email:', emailUsuario);
 
         const { data: respuestaBarberos } = await axios.get(
           'https://vianney-server.onrender.com/barberos',
@@ -87,6 +90,7 @@ const MiPerfilScreen = () => {
         }
         
         barberoID = miBarbero.id;
+        console.log('✅ Barbero encontrado:', miBarbero.nombre);
       }
 
       if (!barberoID) {
@@ -94,24 +98,46 @@ const MiPerfilScreen = () => {
         return;
       }
 
-      // Obtener datos del barbero
+      console.log('📡 Cargando datos del barbero ID:', barberoID);
+
+      // ✅ CORRECCIÓN: Usar /barberos/by-id/:id en lugar de /barberos/:id
       const { data } = await axios.get(
-        `https://vianney-server.onrender.com/barberos/${barberoID}`,
+        `https://vianney-server.onrender.com/barberos/by-id/${barberoID}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      if (data) {
-        setBarberoID(barberoID);
-        setNombre(data.nombre || '');
-        setTelefono(data.telefono || '');
-        setEmail(data.usuario?.email || '');
-        setInstagram(data.instagram || '');
-        setFacebook(data.facebook || '');
-        setTiktok(data.tiktok || '');
-      }
+      // El endpoint devuelve { barbero: {...} }
+      const barbero = data.barbero || data;
+
+      console.log('✅ Datos cargados correctamente');
+      console.log('📱 Redes sociales actuales:', {
+        instagram: barbero.instagram || 'No configurado',
+        facebook: barbero.facebook || 'No configurado',
+        tiktok: barbero.tiktok || 'No configurado'
+      });
+
+      setBarberoID(barbero.id);
+      setNombre(barbero.nombre || '');
+      setTelefono(barbero.telefono || '');
+      setEmail(barbero.usuario?.email || user?.email || '');
+      
+      // Cargar redes sociales
+      setInstagram(barbero.instagram || '');
+      setFacebook(barbero.facebook || '');
+      setTiktok(barbero.tiktok || '');
+
     } catch (error) {
-      console.error('Error cargando datos:', error);
-      showInfo('Error', 'No se pudieron cargar los datos', 'error');
+      console.error('❌ Error cargando datos:', error);
+      console.error('❌ Error response:', error.response?.data);
+      console.error('❌ Error status:', error.response?.status);
+      
+      if (error.response?.status === 401) {
+        showInfo('Sesión expirada', 'Tu sesión ha expirado. Por favor inicia sesión nuevamente.', 'error');
+      } else if (error.response?.status === 404) {
+        showInfo('Error', 'No se encontró el barbero. Verifica tu cuenta.', 'error');
+      } else {
+        showInfo('Error', 'No se pudieron cargar los datos', 'error');
+      }
     } finally {
       setLoading(false);
     }
@@ -122,7 +148,15 @@ const MiPerfilScreen = () => {
       setSaving(true);
       const token = await AsyncStorage.getItem('token');
 
-      await axios.patch(
+      console.log('💾 Guardando redes sociales...');
+      console.log('🆔 Barbero ID:', barberoID);
+      console.log('📱 Datos a enviar:', {
+        instagram: instagram || null,
+        facebook: facebook || null,
+        tiktok: tiktok || null
+      });
+
+      const response = await axios.patch(
         `https://vianney-server.onrender.com/barberos/${barberoID}`,
         {
           instagram: instagram || null,
@@ -132,10 +166,21 @@ const MiPerfilScreen = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
+      console.log('✅ Respuesta del servidor:', response.data);
       showInfo('¡Éxito!', 'Redes sociales actualizadas correctamente', 'success');
+      
     } catch (error) {
-      console.error('Error guardando:', error);
-      showInfo('Error', error.response?.data?.mensaje || 'No se pudieron guardar los cambios', 'error');
+      console.error('❌ Error guardando:', error);
+      console.error('❌ Error response:', error.response?.data);
+      console.error('❌ Error status:', error.response?.status);
+      
+      if (error.response?.status === 401) {
+        showInfo('Sesión expirada', 'Tu sesión ha expirado. Por favor inicia sesión nuevamente.', 'error');
+      } else if (error.response?.status === 404) {
+        showInfo('Error', 'No se encontró el endpoint. Verifica la URL: /barberos/' + barberoID, 'error');
+      } else {
+        showInfo('Error', error.response?.data?.mensaje || 'No se pudieron guardar los cambios', 'error');
+      }
     } finally {
       setSaving(false);
     }
