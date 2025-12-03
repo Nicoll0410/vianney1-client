@@ -21,7 +21,9 @@ const ROLE_MENU = {
     sections: {},
   },
   Barbero: {
-    topItems: [],
+    topItems: [
+      { label: "Mi Perfil", screen: "MiPerfil", icon: Ionicons, name: "person-circle-outline" }, // ✅ NUEVO
+    ],
     sections: {
       Usuarios: [
         { label: "Clientes", screen: "Clientes", icon: Feather, name: "user" },
@@ -40,6 +42,7 @@ const ROLE_MENU = {
   Administrador: {
     topItems: [
       { label: "Dashboard", screen: "Dashboard", icon: MaterialCommunityIcons, name: "view-dashboard-outline" },
+      { label: "Mi Perfil", screen: "MiPerfil", icon: Ionicons, name: "person-circle-outline" }, // ✅ NUEVO
     ],
     sections: {
       Usuarios: [

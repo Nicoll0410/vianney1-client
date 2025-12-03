@@ -34,6 +34,7 @@ import NotificacionesScreen from "../screens/agenda/NotificacionesScreen";
 import ControlInsumos from "../screens/insumos/ControlInsumos";
 import GaleriaScreen from "../screens/galeria/GaleriaScreen";
 import GestionGaleriaScreen from "../screens/galeria/GestionGaleriaScreen";
+import MiPerfilScreen from "../screens/perfil/MiPerfilScreen"; // ✅ NUEVO
 
 const Stack = createStackNavigator();
 
@@ -197,6 +198,14 @@ const CustomDrawerNavigator = ({ navigation: mainNavigation }) => {
         return (
           <>
             <Stack.Screen
+              name="MiPerfil"
+              component={MiPerfilScreen}
+              options={({ navigation }) => ({
+                ...commonOptions({ navigation }),
+                headerTitle: "Mi Perfil"
+              })}
+            />
+            <Stack.Screen
               name="Clientes"
               component={ClientesScreen}
               options={({ navigation }) => ({
@@ -245,6 +254,14 @@ const CustomDrawerNavigator = ({ navigation: mainNavigation }) => {
               options={({ navigation }) => ({
                 ...commonOptions({ navigation }),
                 headerTitle: "Dashboard"
+              })}
+            />
+            <Stack.Screen
+              name="MiPerfil"
+              component={MiPerfilScreen}
+              options={({ navigation }) => ({
+                ...commonOptions({ navigation }),
+                headerTitle: "Mi Perfil"
               })}
             />
             <Stack.Screen
