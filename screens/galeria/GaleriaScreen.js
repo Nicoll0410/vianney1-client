@@ -43,6 +43,15 @@ const GaleriaScreen = ({ navigation }) => {
       );
 
       if (data.success) {
+        console.log('📊 Galería cargada:', data.data.length, 'barberos');
+        // Debug: verificar redes sociales
+        data.data.forEach(item => {
+          console.log(`👤 ${item.barbero.nombre}:`, {
+            instagram: item.barbero.instagram || 'No configurado',
+            facebook: item.barbero.facebook || 'No configurado',
+            tiktok: item.barbero.tiktok || 'No configurado'
+          });
+        });
         setGaleriaPorBarbero(data.data);
       }
     } catch (error) {
@@ -73,9 +82,22 @@ const GaleriaScreen = ({ navigation }) => {
   };
 
   const abrirRedSocial = (url) => {
-    if (url) {
-      Linking.openURL(url);
+    if (!url) {
+      console.log('❌ URL vacía o inválida');
+      return;
     }
+
+    console.log('🔗 Abriendo URL:', url);
+    
+    Linking.canOpenURL(url)
+      .then(supported => {
+        if (supported) {
+          Linking.openURL(url);
+        } else {
+          console.log('❌ No se puede abrir la URL:', url);
+        }
+      })
+      .catch(err => console.error('❌ Error abriendo URL:', err));
   };
 
   const renderBarberoCard = (item, index) => {
@@ -91,6 +113,12 @@ const GaleriaScreen = ({ navigation }) => {
     const contenidoValido = contenidoDestacado?.contenido &&
                            typeof contenidoDestacado.contenido === 'string' &&
                            contenidoDestacado.contenido.length > 500;
+
+    // Debug: verificar redes sociales en cada render
+    const tieneRedes = barbero.instagram || barbero.facebook || barbero.tiktok;
+    if (tieneRedes) {
+      console.log(`✅ ${barbero.nombre} tiene redes sociales`);
+    }
 
     return (
       <View key={index} style={styles.barberoCard}>
@@ -119,12 +147,16 @@ const GaleriaScreen = ({ navigation }) => {
                   <Text style={styles.telefonoText}>{barbero.telefono}</Text>
                 </View>
               )}
-              {/* Redes sociales del barbero */}
+              
+              {/* ✅ REDES SOCIALES DEL BARBERO */}
               {(barbero.instagram || barbero.facebook || barbero.tiktok) && (
                 <View style={styles.redesBarberoContainer}>
                   {barbero.instagram && (
                     <TouchableOpacity
-                      onPress={() => abrirRedSocial(barbero.instagram)}
+                      onPress={() => {
+                        console.log('📱 Click en Instagram:', barbero.instagram);
+                        abrirRedSocial(barbero.instagram);
+                      }}
                       style={styles.redBarberoButton}
                     >
                       <FontAwesome name="instagram" size={16} color="#E4405F" />
@@ -132,7 +164,10 @@ const GaleriaScreen = ({ navigation }) => {
                   )}
                   {barbero.facebook && (
                     <TouchableOpacity
-                      onPress={() => abrirRedSocial(barbero.facebook)}
+                      onPress={() => {
+                        console.log('📱 Click en Facebook:', barbero.facebook);
+                        abrirRedSocial(barbero.facebook);
+                      }}
                       style={styles.redBarberoButton}
                     >
                       <FontAwesome name="facebook" size={16} color="#1877F2" />
@@ -140,7 +175,10 @@ const GaleriaScreen = ({ navigation }) => {
                   )}
                   {barbero.tiktok && (
                     <TouchableOpacity
-                      onPress={() => abrirRedSocial(barbero.tiktok)}
+                      onPress={() => {
+                        console.log('📱 Click en TikTok:', barbero.tiktok);
+                        abrirRedSocial(barbero.tiktok);
+                      }}
                       style={styles.redBarberoButton}
                     >
                       <FontAwesome name="music" size={16} color="#000" />
@@ -250,6 +288,35 @@ const GaleriaScreen = ({ navigation }) => {
               <Text style={styles.modalTitle}>
                 Trabajos de {barberoSeleccionado?.nombre}
               </Text>
+              {/* ✅ REDES SOCIALES EN EL MODAL */}
+              {barberoSeleccionado && (barberoSeleccionado.instagram || barberoSeleccionado.facebook || barberoSeleccionado.tiktok) && (
+                <View style={styles.redesModalContainer}>
+                  {barberoSeleccionado.instagram && (
+                    <TouchableOpacity
+                      onPress={() => abrirRedSocial(barberoSeleccionado.instagram)}
+                      style={styles.redModalButton}
+                    >
+                      <FontAwesome name="instagram" size={20} color="#E4405F" />
+                    </TouchableOpacity>
+                  )}
+                  {barberoSeleccionado.facebook && (
+                    <TouchableOpacity
+                      onPress={() => abrirRedSocial(barberoSeleccionado.facebook)}
+                      style={styles.redModalButton}
+                    >
+                      <FontAwesome name="facebook" size={20} color="#1877F2" />
+                    </TouchableOpacity>
+                  )}
+                  {barberoSeleccionado.tiktok && (
+                    <TouchableOpacity
+                      onPress={() => abrirRedSocial(barberoSeleccionado.tiktok)}
+                      style={styles.redModalButton}
+                    >
+                      <FontAwesome name="music" size={20} color="#000" />
+                    </TouchableOpacity>
+                  )}
+                </View>
+              )}
             </View>
             <TouchableOpacity
               onPress={() => setModalVisible(false)}
@@ -417,14 +484,21 @@ const styles = StyleSheet.create({
     color: '#666',
     marginLeft: 4
   },
+  // ✅ ESTILOS PARA REDES SOCIALES DEL BARBERO
   redesBarberoContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     marginTop: 8,
-    gap: 8
+    gap: 12,
+    paddingVertical: 4
   },
   redBarberoButton: {
-    padding: 4
+    padding: 6,
+    backgroundColor: '#f9f9f9',
+    borderRadius: 8,
+    minWidth: 32,
+    alignItems: 'center',
+    justifyContent: 'center'
   },
   trabajoContainerCompact: {
     borderRadius: 12,
@@ -462,19 +536,6 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     textAlign: 'center'
   },
-  redesSocialesCompact: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginBottom: 8,
-    paddingVertical: 8,
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: '#E0E0E0'
-  },
-  redSocialButtonCompact: {
-    marginHorizontal: 6,
-    padding: 4
-  },
   verMasButtonCompact: {
     flexDirection: 'row',
     backgroundColor: '#424242',
@@ -489,10 +550,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
     marginLeft: 4
-  },
-  // Estilos antiguos removidos (contacto, trabajo normal, etc)
-  contactoContainer: {
-    marginBottom: 16
   },
   emptyContainer: {
     flex: 1,
@@ -526,7 +583,22 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#212121'
+    color: '#212121',
+    marginBottom: 4
+  },
+  // ✅ ESTILOS PARA REDES SOCIALES EN EL MODAL
+  redesModalContainer: {
+    flexDirection: 'row',
+    marginTop: 8,
+    gap: 12
+  },
+  redModalButton: {
+    padding: 6,
+    backgroundColor: '#f9f9f9',
+    borderRadius: 8,
+    minWidth: 36,
+    alignItems: 'center',
+    justifyContent: 'center'
   },
   closeButton: {
     padding: 8
