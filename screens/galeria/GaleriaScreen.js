@@ -143,7 +143,7 @@ const GaleriaScreen = ({ navigation }) => {
               </Text>
               {barbero.telefono && (
                 <View style={styles.telefonoContainer}>
-                  <Ionicons name="call" size={12} color="#D4AF37" />
+                  <Ionicons name="call" size={16} color="#D4AF37" />
                   <Text style={styles.telefonoText}>{barbero.telefono}</Text>
                 </View>
               )}
@@ -158,7 +158,7 @@ const GaleriaScreen = ({ navigation }) => {
                     }}
                     style={styles.redBarberoButton}
                   >
-                    <FontAwesome name="instagram" size={16} color="#E4405F" />
+                    <FontAwesome name="instagram" size={20} color="#E4405F" />
                   </TouchableOpacity>
                 )}
                 {barbero.facebook && (
@@ -169,7 +169,7 @@ const GaleriaScreen = ({ navigation }) => {
                     }}
                     style={styles.redBarberoButton}
                   >
-                    <FontAwesome name="facebook" size={16} color="#1877F2" />
+                    <FontAwesome name="facebook" size={20} color="#1877F2" />
                   </TouchableOpacity>
                 )}
                 {barbero.tiktok && (
@@ -180,7 +180,7 @@ const GaleriaScreen = ({ navigation }) => {
                     }}
                     style={styles.redBarberoButton}
                   >
-                    <FontAwesome name="music" size={16} color="#000" />
+                    <FontAwesome name="music" size={20} color="#000" />
                   </TouchableOpacity>
                 )}
               </View>
@@ -204,7 +204,7 @@ const GaleriaScreen = ({ navigation }) => {
             </View>
           ) : (
             <View style={styles.sinContenidoCompact}>
-              <Ionicons name="images-outline" size={30} color="#ccc" />
+              <Ionicons name="images-outline" size={30} color="#666" />
               <Text style={styles.sinContenidoTextCompact}>Sin contenido</Text>
             </View>
           )}
@@ -275,7 +275,10 @@ const GaleriaScreen = ({ navigation }) => {
           </View>
         )}
 
-        <Footer />
+        {/* ✅ Footer con estilos personalizados */}
+        <View style={styles.footerCustom}>
+          <Footer />
+        </View>
       </ScrollView>
 
       {/* Modal de galería completa */}
@@ -374,20 +377,19 @@ const GaleriaScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  // ✅ 1. FONDO NEGRO EN TODA LA PANTALLA
   container: {
     flex: 1,
-    backgroundColor: '#000' // Cambiado de #fff a #000
+    backgroundColor: '#000'
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#000' // Fondo negro
+    backgroundColor: '#000'
   },
   loadingText: {
     marginTop: 10,
-    color: '#fff', // Texto blanco
+    color: '#fff',
     fontSize: 16
   },
   scrollView: {
@@ -425,28 +427,29 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     fontWeight: 'bold'
   },
-  // ✅ 2. GRID RESPONSIVE - 1 columna en móvil
   gridContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    padding: isMobile ? 16 : 8 // Más padding en móvil
+    padding: isMobile ? 16 : 8
   },
   barberoCard: {
-    width: isMobile ? '100%' : '33.33%', // 100% en móvil, 33.33% en desktop
+    width: isMobile ? '100%' : '33.33%',
     padding: isMobile ? 8 : 8,
-    marginBottom: isMobile ? 16 : 0 // Separación vertical en móvil
+    marginBottom: isMobile ? 16 : 0
   },
-  // ✅ 3. TARJETAS CON ALTURA FIJA Y UNIFORME
+  // ✅ TARJETA CON FONDO OSCURO Y BORDE DORADO
   cardInner: {
-    backgroundColor: '#fff',
+    backgroundColor: '#1a1a1a', // ✅ Fondo oscuro
     borderRadius: 16,
     padding: 16,
-    shadowColor: '#000',
+    borderWidth: 2, // ✅ Borde no muy grueso ni muy delgado
+    borderColor: '#D4AF37', // ✅ Borde dorado
+    shadowColor: '#D4AF37',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 6,
-    minHeight: isMobile ? 450 : 520, // Altura mínima uniforme
+    minHeight: isMobile ? 450 : 520,
     display: 'flex',
     flexDirection: 'column'
   },
@@ -458,18 +461,21 @@ const styles = StyleSheet.create({
   avatarContainer: {
     marginBottom: 8
   },
+  // ✅ AVATAR CON BORDE DORADO
   avatar: {
     width: 60,
     height: 60,
     borderRadius: 30,
-    borderWidth: 2,
-    borderColor: '#D4AF37'
+    borderWidth: 2.5, // ✅ Borde no muy grueso ni muy delgado
+    borderColor: '#D4AF37' // ✅ Borde dorado
   },
   avatarPlaceholder: {
     width: 60,
     height: 60,
     borderRadius: 30,
     backgroundColor: '#424242',
+    borderWidth: 2.5, // ✅ Borde no muy grueso ni muy delgado
+    borderColor: '#D4AF37', // ✅ Borde dorado
     justifyContent: 'center',
     alignItems: 'center'
   },
@@ -477,10 +483,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%'
   },
+  // ✅ NOMBRE EN BLANCO
   barberoNombre: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#212121',
+    color: '#fff', // ✅ Blanco
     textAlign: 'center'
   },
   telefonoContainer: {
@@ -489,25 +496,26 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: 4
   },
+  // ✅ TELÉFONO MÁS GRANDE
   telefonoText: {
-    fontSize: 12,
-    color: '#666',
-    marginLeft: 4
+    fontSize: 14, // ✅ Aumentado de 12 a 14
+    color: '#fff', // ✅ Blanco
+    marginLeft: 4,
+    fontWeight: '500'
   },
-  // ✅ REDES SOCIALES CON ALTURA FIJA (aunque esté vacío)
   redesBarberoContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     marginTop: 8,
     gap: 12,
     paddingVertical: 4,
-    minHeight: 36 // Altura mínima fija
+    minHeight: 40 // ✅ Aumentado para iconos más grandes
   },
   redBarberoButton: {
     padding: 6,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#2a2a2a', // Fondo más oscuro
     borderRadius: 8,
-    minWidth: 32,
+    minWidth: 36,
     alignItems: 'center',
     justifyContent: 'center'
   },
@@ -515,63 +523,68 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     overflow: 'hidden',
     marginBottom: 8,
-    height: 200 // Altura fija
+    height: 200,
+    borderWidth: 1,
+    borderColor: '#333'
   },
   trabajoImagenCompact: {
     width: '100%',
     height: '100%',
-    backgroundColor: '#f5f5f5'
+    backgroundColor: '#2a2a2a'
   },
   videoPlaceholderCompact: {
     width: '100%',
     height: '100%',
-    backgroundColor: '#424242',
+    backgroundColor: '#2a2a2a',
     justifyContent: 'center',
     alignItems: 'center'
   },
   sinContenidoCompact: {
-    height: 200, // Altura fija igual que la imagen
+    height: 200,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#2a2a2a',
     borderRadius: 12,
-    marginBottom: 8
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: '#333'
   },
   sinContenidoTextCompact: {
-    color: '#999',
+    color: '#666',
     marginTop: 4,
     fontSize: 11
   },
-  // ✅ DESCRIPCIÓN CON ALTURA FIJA (aunque esté vacía)
   descripcionContainer: {
-    minHeight: 40, // Altura mínima fija
+    minHeight: 40,
     marginBottom: 8,
     justifyContent: 'center'
   },
+  // ✅ DESCRIPCIÓN COLOR DORADO Y MÁS GRANDE
   descripcionCompact: {
-    fontSize: 11,
-    color: '#666',
+    fontSize: 13, // ✅ Aumentado de 11 a 13
+    color: '#D4AF37', // ✅ Color dorado
     textAlign: 'center',
-    lineHeight: 16
+    lineHeight: 18,
+    fontWeight: '500'
   },
   descripcionPlaceholder: {
-    fontSize: 11,
-    color: '#ccc',
+    fontSize: 13, // ✅ Aumentado de 11 a 13
+    color: '#666',
     textAlign: 'center',
     fontStyle: 'italic'
   },
   verMasButtonCompact: {
     flexDirection: 'row',
-    backgroundColor: '#D4AF37', // Cambiado a dorado
+    backgroundColor: '#D4AF37',
     paddingVertical: 10,
     paddingHorizontal: 16,
     borderRadius: 25,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 'auto' // Empuja el botón al fondo
+    marginTop: 'auto'
   },
   verMasTextCompact: {
-    color: '#000', // Texto negro
+    color: '#000',
     fontSize: 13,
     fontWeight: '700',
     marginLeft: 6
@@ -587,6 +600,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#999',
     textAlign: 'center'
+  },
+  // ✅ FOOTER CON FONDO NEGRO Y LETRAS BLANCAS
+  footerCustom: {
+    backgroundColor: '#000', // ✅ Fondo negro
+    paddingVertical: 20,
+    paddingHorizontal: 16,
+    marginTop: 20
   },
   // Modal styles
   modalContainer: {
