@@ -148,44 +148,42 @@ const GaleriaScreen = ({ navigation }) => {
                 </View>
               )}
               
-              {/* ✅ REDES SOCIALES DEL BARBERO */}
-              {(barbero.instagram || barbero.facebook || barbero.tiktok) && (
-                <View style={styles.redesBarberoContainer}>
-                  {barbero.instagram && (
-                    <TouchableOpacity
-                      onPress={() => {
-                        console.log('📱 Click en Instagram:', barbero.instagram);
-                        abrirRedSocial(barbero.instagram);
-                      }}
-                      style={styles.redBarberoButton}
-                    >
-                      <FontAwesome name="instagram" size={16} color="#E4405F" />
-                    </TouchableOpacity>
-                  )}
-                  {barbero.facebook && (
-                    <TouchableOpacity
-                      onPress={() => {
-                        console.log('📱 Click en Facebook:', barbero.facebook);
-                        abrirRedSocial(barbero.facebook);
-                      }}
-                      style={styles.redBarberoButton}
-                    >
-                      <FontAwesome name="facebook" size={16} color="#1877F2" />
-                    </TouchableOpacity>
-                  )}
-                  {barbero.tiktok && (
-                    <TouchableOpacity
-                      onPress={() => {
-                        console.log('📱 Click en TikTok:', barbero.tiktok);
-                        abrirRedSocial(barbero.tiktok);
-                      }}
-                      style={styles.redBarberoButton}
-                    >
-                      <FontAwesome name="music" size={16} color="#000" />
-                    </TouchableOpacity>
-                  )}
-                </View>
-              )}
+              {/* ✅ REDES SOCIALES DEL BARBERO - Con altura fija */}
+              <View style={styles.redesBarberoContainer}>
+                {barbero.instagram && (
+                  <TouchableOpacity
+                    onPress={() => {
+                      console.log('📱 Click en Instagram:', barbero.instagram);
+                      abrirRedSocial(barbero.instagram);
+                    }}
+                    style={styles.redBarberoButton}
+                  >
+                    <FontAwesome name="instagram" size={16} color="#E4405F" />
+                  </TouchableOpacity>
+                )}
+                {barbero.facebook && (
+                  <TouchableOpacity
+                    onPress={() => {
+                      console.log('📱 Click en Facebook:', barbero.facebook);
+                      abrirRedSocial(barbero.facebook);
+                    }}
+                    style={styles.redBarberoButton}
+                  >
+                    <FontAwesome name="facebook" size={16} color="#1877F2" />
+                  </TouchableOpacity>
+                )}
+                {barbero.tiktok && (
+                  <TouchableOpacity
+                    onPress={() => {
+                      console.log('📱 Click en TikTok:', barbero.tiktok);
+                      abrirRedSocial(barbero.tiktok);
+                    }}
+                    style={styles.redBarberoButton}
+                  >
+                    <FontAwesome name="music" size={16} color="#000" />
+                  </TouchableOpacity>
+                )}
+              </View>
             </View>
           </View>
 
@@ -211,19 +209,23 @@ const GaleriaScreen = ({ navigation }) => {
             </View>
           )}
 
-          {/* Descripción compacta */}
-          {contenidoDestacado?.descripcion && (
-            <Text style={styles.descripcionCompact} numberOfLines={2}>
-              {contenidoDestacado.descripcion}
-            </Text>
-          )}
+          {/* Descripción compacta - Con altura fija */}
+          <View style={styles.descripcionContainer}>
+            {contenidoDestacado?.descripcion ? (
+              <Text style={styles.descripcionCompact} numberOfLines={2}>
+                {contenidoDestacado.descripcion}
+              </Text>
+            ) : (
+              <Text style={styles.descripcionPlaceholder}>Sin descripción</Text>
+            )}
+          </View>
 
           {/* Botón ver más compacto */}
           <TouchableOpacity
             style={styles.verMasButtonCompact}
             onPress={() => abrirGaleriaCompleta(barbero.id, barbero)}
           >
-            <Ionicons name="images-outline" size={14} color="#fff" />
+            <Ionicons name="images-outline" size={14} color="#000" />
             <Text style={styles.verMasTextCompact}>Ver más</Text>
           </TouchableOpacity>
         </View>
@@ -234,7 +236,7 @@ const GaleriaScreen = ({ navigation }) => {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#424242" />
+        <ActivityIndicator size="large" color="#D4AF37" />
         <Text style={styles.loadingText}>Cargando galería...</Text>
       </View>
     );
@@ -262,7 +264,7 @@ const GaleriaScreen = ({ navigation }) => {
 
         {galeriaPorBarbero.length === 0 ? (
           <View style={styles.emptyContainer}>
-            <Ionicons name="images-outline" size={80} color="#ccc" />
+            <Ionicons name="images-outline" size={80} color="#666" />
             <Text style={styles.emptyText}>
               No hay contenido destacado disponible
             </Text>
@@ -372,18 +374,20 @@ const GaleriaScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
+  // ✅ 1. FONDO NEGRO EN TODA LA PANTALLA
   container: {
     flex: 1,
-    backgroundColor: '#fff'
+    backgroundColor: '#000' // Cambiado de #fff a #000
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    backgroundColor: '#000' // Fondo negro
   },
   loadingText: {
     marginTop: 10,
-    color: '#666',
+    color: '#fff', // Texto blanco
     fontSize: 16
   },
   scrollView: {
@@ -420,25 +424,30 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontStyle: 'italic'
   },
+  // ✅ 2. GRID RESPONSIVE - 1 columna en móvil
   gridContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    padding: 8
+    padding: isMobile ? 16 : 8 // Más padding en móvil
   },
   barberoCard: {
-    width: isMobile ? '50%' : '33.33%',
-    padding: 8
+    width: isMobile ? '100%' : '33.33%', // 100% en móvil, 33.33% en desktop
+    padding: isMobile ? 8 : 8,
+    marginBottom: isMobile ? 16 : 0 // Separación vertical en móvil
   },
+  // ✅ 3. TARJETAS CON ALTURA FIJA Y UNIFORME
   cardInner: {
     backgroundColor: '#fff',
     borderRadius: 16,
     padding: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.3,
     shadowRadius: 8,
-    elevation: 4,
-    height: '100%'
+    elevation: 6,
+    minHeight: isMobile ? 450 : 520, // Altura mínima uniforme
+    display: 'flex',
+    flexDirection: 'column'
   },
   cardHeader: {
     flexDirection: 'column',
@@ -484,13 +493,14 @@ const styles = StyleSheet.create({
     color: '#666',
     marginLeft: 4
   },
-  // ✅ ESTILOS PARA REDES SOCIALES DEL BARBERO
+  // ✅ REDES SOCIALES CON ALTURA FIJA (aunque esté vacío)
   redesBarberoContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     marginTop: 8,
     gap: 12,
-    paddingVertical: 4
+    paddingVertical: 4,
+    minHeight: 36 // Altura mínima fija
   },
   redBarberoButton: {
     padding: 6,
@@ -503,22 +513,23 @@ const styles = StyleSheet.create({
   trabajoContainerCompact: {
     borderRadius: 12,
     overflow: 'hidden',
-    marginBottom: 8
+    marginBottom: 8,
+    height: 200 // Altura fija
   },
   trabajoImagenCompact: {
     width: '100%',
-    height: 140,
+    height: '100%',
     backgroundColor: '#f5f5f5'
   },
   videoPlaceholderCompact: {
     width: '100%',
-    height: 140,
+    height: '100%',
     backgroundColor: '#424242',
     justifyContent: 'center',
     alignItems: 'center'
   },
   sinContenidoCompact: {
-    height: 140,
+    height: 200, // Altura fija igual que la imagen
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#f5f5f5',
@@ -530,26 +541,39 @@ const styles = StyleSheet.create({
     marginTop: 4,
     fontSize: 11
   },
+  // ✅ DESCRIPCIÓN CON ALTURA FIJA (aunque esté vacía)
+  descripcionContainer: {
+    minHeight: 40, // Altura mínima fija
+    marginBottom: 8,
+    justifyContent: 'center'
+  },
   descripcionCompact: {
     fontSize: 11,
     color: '#666',
-    marginBottom: 8,
-    textAlign: 'center'
+    textAlign: 'center',
+    lineHeight: 16
+  },
+  descripcionPlaceholder: {
+    fontSize: 11,
+    color: '#ccc',
+    textAlign: 'center',
+    fontStyle: 'italic'
   },
   verMasButtonCompact: {
     flexDirection: 'row',
-    backgroundColor: '#424242',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 20,
+    backgroundColor: '#D4AF37', // Cambiado a dorado
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 25,
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    marginTop: 'auto' // Empuja el botón al fondo
   },
   verMasTextCompact: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '600',
-    marginLeft: 4
+    color: '#000', // Texto negro
+    fontSize: 13,
+    fontWeight: '700',
+    marginLeft: 6
   },
   emptyContainer: {
     flex: 1,
@@ -586,7 +610,6 @@ const styles = StyleSheet.create({
     color: '#212121',
     marginBottom: 4
   },
-  // ✅ ESTILOS PARA REDES SOCIALES EN EL MODAL
   redesModalContainer: {
     flexDirection: 'row',
     marginTop: 8,
