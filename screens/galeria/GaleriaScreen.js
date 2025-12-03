@@ -275,10 +275,8 @@ const GaleriaScreen = ({ navigation }) => {
           </View>
         )}
 
-        {/* ✅ Footer con estilos personalizados */}
-        <View style={styles.footerCustom}>
-          <Footer />
-        </View>
+        {/* ✅ Footer con tema oscuro */}
+        <Footer dark />
       </ScrollView>
 
       {/* Modal de galería completa */}
