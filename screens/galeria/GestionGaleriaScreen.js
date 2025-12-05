@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
+import { Video } from 'expo-av'; // ✅ NUEVO: Para reproducir videos
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { AuthContext } from '../../contexts/AuthContext';
@@ -44,7 +45,9 @@ const GestionGaleriaScreen = () => {
   
   // Modal de subir contenido
   const [modalSubirVisible, setModalSubirVisible] = useState(false);
+  const [tipoContenido, setTipoContenido] = useState('imagen'); // ✅ NUEVO: 'imagen' o 'video'
   const [nuevaImagen, setNuevaImagen] = useState(null);
+  const [nuevoVideo, setNuevoVideo] = useState(null); // ✅ NUEVO: Para videos
   const [descripcion, setDescripcion] = useState('');
   const [destacado, setDestacado] = useState(false);
   
@@ -69,7 +72,7 @@ const GestionGaleriaScreen = () => {
       if (status !== 'granted') {
         Alert.alert(
           'Permisos requeridos',
-          'Necesitamos permisos para acceder a tus fotos'
+          'Necesitamos permisos para acceder a tus fotos y videos'
         );
       }
     }
@@ -184,6 +187,7 @@ const GestionGaleriaScreen = () => {
     }
   };
 
+  // ✅ MANTENER: Función para seleccionar imagen
   const seleccionarImagen = async () => {
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
@@ -197,6 +201,7 @@ const GestionGaleriaScreen = () => {
       if (!result.canceled) {
         const base64Image = `data:image/jpeg;base64,${result.assets[0].base64}`;
         setNuevaImagen(base64Image);
+        setNuevoVideo(null); // ✅ Limpiar video si había
       }
     } catch (error) {
       console.error('Error seleccionando imagen:', error);
@@ -204,9 +209,49 @@ const GestionGaleriaScreen = () => {
     }
   };
 
+  // ✅ NUEVO: Función para seleccionar video
+  const seleccionarVideo = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Videos,
+        allowsEditing: true,
+        quality: 0.7,
+        videoMaxDuration: 60, // Máximo 60 segundos
+      });
+
+      if (!result.canceled) {
+        const videoUri = result.assets[0].uri;
+        
+        // Verificar tamaño del video
+        if (result.assets[0].fileSize) {
+          const sizeInMB = result.assets[0].fileSize / (1024 * 1024);
+          if (sizeInMB > 50) {
+            showInfo('Archivo muy grande', 'El video no puede superar los 50MB', 'warning');
+            return;
+          }
+        }
+
+        // Convertir video a base64
+        const response = await fetch(videoUri);
+        const blob = await response.blob();
+        
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const base64Video = reader.result;
+          setNuevoVideo(base64Video);
+          setNuevaImagen(null); // ✅ Limpiar imagen si había
+        };
+        reader.readAsDataURL(blob);
+      }
+    } catch (error) {
+      console.error('Error seleccionando video:', error);
+      showInfo('Error', 'Error al seleccionar el video', 'error');
+    }
+  };
+
   const subirContenido = async () => {
-    if (!nuevaImagen) {
-      showInfo('Advertencia', 'Debes seleccionar una imagen', 'warning');
+    if (!nuevaImagen && !nuevoVideo) {
+      showInfo('Advertencia', 'Debes seleccionar una imagen o video', 'warning');
       return;
     }
 
@@ -286,8 +331,8 @@ const GestionGaleriaScreen = () => {
         'https://vianney-server.onrender.com/galeria',
         {
           barberoID,
-          tipo: 'imagen',
-          contenido: nuevaImagen,
+          tipo: tipoContenido, // ✅ 'imagen' o 'video'
+          contenido: nuevaImagen || nuevoVideo, // ✅ Enviar el que esté seleccionado
           descripcion: descripcion || null,
           destacado: destacado
         },
@@ -296,8 +341,10 @@ const GestionGaleriaScreen = () => {
 
       // Limpiar formulario
       setNuevaImagen(null);
+      setNuevoVideo(null);
       setDescripcion('');
       setDestacado(false);
+      setTipoContenido('imagen');
       setModalSubirVisible(false);
 
       await fetchContenidos();
@@ -364,14 +411,30 @@ const GestionGaleriaScreen = () => {
       <View key={index} style={styles.contenidoCard}>
         <View style={styles.imagenContainer}>
           {contenidoValido ? (
-            <Image
-              source={{ uri: item.contenido }}
-              style={styles.imagen}
-              resizeMode="cover"
-            />
+            item.tipo === 'video' ? (
+              // ✅ NUEVO: Renderizar video
+              <Video
+                source={{ uri: item.contenido }}
+                style={styles.imagen}
+                useNativeControls
+                resizeMode="cover"
+                isLooping={false}
+              />
+            ) : (
+              // Renderizar imagen (MANTENER)
+              <Image
+                source={{ uri: item.contenido }}
+                style={styles.imagen}
+                resizeMode="cover"
+              />
+            )
           ) : (
             <View style={styles.imagenPlaceholder}>
-              <Ionicons name="image-outline" size={40} color="#999" />
+              <Ionicons 
+                name={item.tipo === 'video' ? "videocam-outline" : "image-outline"} 
+                size={40} 
+                color="#999" 
+              />
             </View>
           )}
           
@@ -380,6 +443,18 @@ const GestionGaleriaScreen = () => {
               <Ionicons name="star" size={16} color="#FFD700" />
             </View>
           )}
+          
+          {/* ✅ NUEVO: Badge de tipo */}
+          <View style={[
+            styles.tipoBadge,
+            item.tipo === 'video' && styles.tipoBadgeVideo
+          ]}>
+            <Ionicons 
+              name={item.tipo === 'video' ? "videocam" : "image"} 
+              size={12} 
+              color="#fff" 
+            />
+          </View>
         </View>
 
         {item.descripcion && (
@@ -443,7 +518,7 @@ const GestionGaleriaScreen = () => {
               style={styles.emptyButton}
               onPress={() => setModalSubirVisible(true)}
             >
-              <Text style={styles.emptyButtonText}>Subir primera foto</Text>
+              <Text style={styles.emptyButtonText}>Subir contenido</Text>
             </TouchableOpacity>
           </View>
         ) : (
@@ -465,7 +540,14 @@ const GestionGaleriaScreen = () => {
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>Subir Contenido</Text>
             <TouchableOpacity
-              onPress={() => setModalSubirVisible(false)}
+              onPress={() => {
+                setModalSubirVisible(false);
+                setNuevaImagen(null);
+                setNuevoVideo(null);
+                setDescripcion('');
+                setDestacado(false);
+                setTipoContenido('imagen');
+              }}
               style={styles.closeButton}
             >
               <Ionicons name="close" size={28} color="#424242" />
@@ -473,10 +555,59 @@ const GestionGaleriaScreen = () => {
           </View>
 
           <ScrollView style={styles.modalContent}>
-            {/* Selector de imagen */}
+            {/* ✅ NUEVO: Selector de tipo */}
+            <View style={styles.tipoSelector}>
+              <TouchableOpacity
+                style={[
+                  styles.tipoButton,
+                  tipoContenido === 'imagen' && styles.tipoButtonActive
+                ]}
+                onPress={() => {
+                  setTipoContenido('imagen');
+                  setNuevoVideo(null);
+                }}
+              >
+                <Ionicons 
+                  name="image" 
+                  size={24} 
+                  color={tipoContenido === 'imagen' ? '#fff' : '#424242'} 
+                />
+                <Text style={[
+                  styles.tipoButtonText,
+                  tipoContenido === 'imagen' && styles.tipoButtonTextActive
+                ]}>
+                  Imagen
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[
+                  styles.tipoButton,
+                  tipoContenido === 'video' && styles.tipoButtonActive
+                ]}
+                onPress={() => {
+                  setTipoContenido('video');
+                  setNuevaImagen(null);
+                }}
+              >
+                <Ionicons 
+                  name="videocam" 
+                  size={24} 
+                  color={tipoContenido === 'video' ? '#fff' : '#424242'} 
+                />
+                <Text style={[
+                  styles.tipoButtonText,
+                  tipoContenido === 'video' && styles.tipoButtonTextActive
+                ]}>
+                  Video
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Selector de imagen o video */}
             <TouchableOpacity
               style={styles.imagenSelector}
-              onPress={seleccionarImagen}
+              onPress={tipoContenido === 'imagen' ? seleccionarImagen : seleccionarVideo}
             >
               {nuevaImagen ? (
                 <Image
@@ -484,12 +615,28 @@ const GestionGaleriaScreen = () => {
                   style={styles.imagenPreview}
                   resizeMode="cover"
                 />
+              ) : nuevoVideo ? (
+                <Video
+                  source={{ uri: nuevoVideo }}
+                  style={styles.imagenPreview}
+                  useNativeControls
+                  resizeMode="cover"
+                />
               ) : (
                 <View style={styles.imagenSelectorPlaceholder}>
-                  <Ionicons name="camera" size={50} color="#999" />
+                  <Ionicons 
+                    name={tipoContenido === 'imagen' ? "camera" : "videocam"} 
+                    size={50} 
+                    color="#999" 
+                  />
                   <Text style={styles.imagenSelectorText}>
-                    Toca para seleccionar imagen
+                    Toca para seleccionar {tipoContenido === 'imagen' ? 'imagen' : 'video'}
                   </Text>
+                  {tipoContenido === 'video' && (
+                    <Text style={styles.videoLimitText}>
+                      Máximo 60 segundos • 50MB
+                    </Text>
+                  )}
                 </View>
               )}
             </TouchableOpacity>
@@ -526,7 +673,14 @@ const GestionGaleriaScreen = () => {
             <View style={styles.modalButtons}>
               <TouchableOpacity
                 style={styles.cancelButton}
-                onPress={() => setModalSubirVisible(false)}
+                onPress={() => {
+                  setModalSubirVisible(false);
+                  setNuevaImagen(null);
+                  setNuevoVideo(null);
+                  setDescripcion('');
+                  setDestacado(false);
+                  setTipoContenido('imagen');
+                }}
               >
                 <Text style={styles.cancelButtonText}>Cancelar</Text>
               </TouchableOpacity>
@@ -653,6 +807,19 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 4
   },
+  // ✅ NUEVO: Badge de tipo
+  tipoBadge: {
+    position: 'absolute',
+    top: 8,
+    left: 8,
+    backgroundColor: 'rgba(66,66,66,0.8)',
+    borderRadius: 12,
+    padding: 4,
+    paddingHorizontal: 8
+  },
+  tipoBadgeVideo: {
+    backgroundColor: 'rgba(211,47,47,0.8)'
+  },
   descripcionCard: {
     fontSize: 12,
     color: '#666',
@@ -723,6 +890,36 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16
   },
+  // ✅ NUEVO: Selector de tipo
+  tipoSelector: {
+    flexDirection: 'row',
+    marginBottom: 20,
+    gap: 12
+  },
+  tipoButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: '#E0E0E0',
+    backgroundColor: '#fff'
+  },
+  tipoButtonActive: {
+    borderColor: '#424242',
+    backgroundColor: '#424242'
+  },
+  tipoButtonText: {
+    marginLeft: 8,
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#424242'
+  },
+  tipoButtonTextActive: {
+    color: '#fff'
+  },
   imagenSelector: {
     marginBottom: 20
   },
@@ -748,10 +945,15 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#999'
   },
+  // ✅ NUEVO: Texto de límite de video
+  videoLimitText: {
+    marginTop: 4,
+    fontSize: 12,
+    color: '#666',
+    fontStyle: 'italic'
+  },
   inputContainer: {
-    marginBottom: 16,
-    flexDirection: 'row',
-    alignItems: 'center'
+    marginBottom: 16
   },
   inputLabel: {
     fontSize: 14,
@@ -771,7 +973,6 @@ const styles = StyleSheet.create({
     marginRight: 12
   },
   textArea: {
-    flex: 1,
     borderWidth: 1,
     borderColor: '#E0E0E0',
     borderRadius: 8,

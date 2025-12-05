@@ -16,6 +16,7 @@ import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import Footer from '../../components/Footer';
+import { Video } from 'expo-av'; // ✅ NUEVO: Para reproducir videos
 
 const { width } = Dimensions.get('window');
 const isMobile = width < 768;
@@ -197,9 +198,14 @@ const GaleriaScreen = ({ navigation }) => {
                   resizeMode="cover"
                 />
               ) : (
-                <View style={styles.videoPlaceholderCompact}>
-                  <Ionicons name="play-circle" size={40} color="#fff" />
-                </View>
+                // ✅ NUEVO: Reproducir video
+                <Video
+                  source={{ uri: contenidoDestacado.contenido }}
+                  style={styles.trabajoImagenCompact}
+                  useNativeControls
+                  resizeMode="cover"
+                  isLooping={false}
+                />
               )}
             </View>
           ) : (
@@ -348,15 +354,30 @@ const GaleriaScreen = ({ navigation }) => {
 
                   return (
                     <View key={index} style={styles.galeriaItem}>
-                      {contenidoValido && contenido.tipo === 'imagen' ? (
-                        <Image
-                          source={{ uri: contenido.contenido }}
-                          style={styles.galeriaImagen}
-                          resizeMode="cover"
-                        />
+                      {contenidoValido ? (
+                        contenido.tipo === 'imagen' ? (
+                          <Image
+                            source={{ uri: contenido.contenido }}
+                            style={styles.galeriaImagen}
+                            resizeMode="cover"
+                          />
+                        ) : (
+                          // ✅ NUEVO: Reproducir video en modal
+                          <Video
+                            source={{ uri: contenido.contenido }}
+                            style={styles.galeriaImagen}
+                            useNativeControls
+                            resizeMode="cover"
+                            isLooping={false}
+                          />
+                        )
                       ) : (
                         <View style={styles.videoPlaceholderSmall}>
-                          <Ionicons name="play-circle" size={40} color="#fff" />
+                          <Ionicons 
+                            name={contenido.tipo === 'video' ? "videocam-outline" : "image-outline"} 
+                            size={40} 
+                            color="#fff" 
+                          />
                         </View>
                       )}
                       {contenido.descripcion && (
