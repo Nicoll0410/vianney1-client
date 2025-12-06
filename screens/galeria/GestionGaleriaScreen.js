@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
-import { Video } from 'expo-av'; // ✅ NUEVO: Para reproducir videos
+import { Video } from 'expo-av';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { AuthContext } from '../../contexts/AuthContext';
@@ -29,25 +29,15 @@ const isMobile = width < 768;
 const GestionGaleriaScreen = () => {
   const { user, userRole, barberData } = useContext(AuthContext);
   
-  // 🔍 DEBUG - Ver qué hay en user
-  useEffect(() => {
-    console.log('📊 DEBUG - Datos del usuario:');
-    console.log('user completo:', user);
-    console.log('user.userId:', user?.userId);
-    console.log('user.id:', user?.id);
-    console.log('userRole:', userRole);
-    console.log('barberData:', barberData);
-  }, [user, userRole, barberData]);
-  
   const [contenidos, setContenidos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0); // ✅ NUEVO: Progreso de subida
   
   // Modal de subir contenido
   const [modalSubirVisible, setModalSubirVisible] = useState(false);
-  const [tipoContenido, setTipoContenido] = useState('imagen'); // ✅ NUEVO: 'imagen' o 'video'
-  const [nuevaImagen, setNuevaImagen] = useState(null);
-  const [nuevoVideo, setNuevoVideo] = useState(null); // ✅ NUEVO: Para videos
+  const [tipoContenido, setTipoContenido] = useState('imagen');
+  const [archivoSeleccionado, setArchivoSeleccionado] = useState(null); // ✅ URI del archivo
   const [descripcion, setDescripcion] = useState('');
   const [destacado, setDestacado] = useState(false);
   
@@ -94,71 +84,41 @@ const GestionGaleriaScreen = () => {
       let barberoID;
       if (userRole === 'Barbero' && barberData?.id) {
         barberoID = barberData.id;
-        console.log('✅ Barbero - usando barberData.id:', barberoID);
       } else if (userRole === 'Administrador') {
-        // ✅ SOLUCIÓN: Buscar barbero por email (que SÍ está en el token)
         const email = user?.email;
         
-        console.log('📧 Buscando barbero por email:', email);
-        
         if (!email) {
-          console.error('❌ No se pudo obtener email del token:', user);
           showInfo('Error', 'No se pudo obtener el email del usuario', 'error');
           return;
         }
 
-        // Obtener todos los barberos y buscar por email
         const { data: respuestaBarberos } = await axios.get(
           'https://vianney-server.onrender.com/barberos',
           { 
-            headers: { 
-              Authorization: `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            },
+            headers: { Authorization: `Bearer ${token}` },
             params: { all: true }
           }
         );
         
-        console.log('📋 Respuesta completa:', respuestaBarberos);
-        console.log('📋 Tipo de respuesta:', typeof respuestaBarberos);
-        console.log('📋 Es array?:', Array.isArray(respuestaBarberos));
-        console.log('📋 Keys:', Object.keys(respuestaBarberos || {}));
-        
-        // Intentar múltiples estructuras posibles
         let barberosArray = [];
         
         if (Array.isArray(respuestaBarberos)) {
           barberosArray = respuestaBarberos;
-          console.log('✅ Estructura: Array directo');
-        } else if (respuestaBarberos.barberos && Array.isArray(respuestaBarberos.barberos)) {
+        } else if (respuestaBarberos.barberos) {
           barberosArray = respuestaBarberos.barberos;
-          console.log('✅ Estructura: respuestaBarberos.barberos');
-        } else if (respuestaBarberos.data && Array.isArray(respuestaBarberos.data)) {
-          barberosArray = respuestaBarberos.data;
-          console.log('✅ Estructura: respuestaBarberos.data');
-        } else if (respuestaBarberos.data && respuestaBarberos.data.barberos && Array.isArray(respuestaBarberos.data.barberos)) {
-          barberosArray = respuestaBarberos.data.barberos;
-          console.log('✅ Estructura: respuestaBarberos.data.barberos');
-        } else {
-          console.error('❌ Estructura desconocida de barberos');
-          console.log('Objeto completo:', JSON.stringify(respuestaBarberos, null, 2));
+        } else if (respuestaBarberos.data) {
+          barberosArray = respuestaBarberos.data.barberos || respuestaBarberos.data;
         }
         
-        console.log('🔍 Buscando email:', email, 'en', barberosArray.length, 'barberos');
-        console.log('🔍 Primer barbero (ejemplo):', barberosArray[0]);
-        
-        // Buscar el barbero cuyo usuario tenga este email
         const miBarbero = barberosArray.find(b => 
           b.usuario?.email?.toLowerCase() === email.toLowerCase()
         );
         
         if (!miBarbero) {
-          console.error('❌ No se encontró barbero con email:', email);
           showInfo('Error', 'No se encontró registro de barbero para este usuario', 'error');
           return;
         }
         
-        console.log('✅ Barbero encontrado:', miBarbero);
         barberoID = miBarbero.id;
       }
 
@@ -167,152 +127,118 @@ const GestionGaleriaScreen = () => {
         return;
       }
 
-      console.log('📸 Cargando galería para barberoID:', barberoID);
-
       const { data } = await axios.get(
         `https://vianney-server.onrender.com/galeria/barbero/${barberoID}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
       if (data.success) {
-        console.log('✅ Galería cargada:', data.data.length, 'items');
         setContenidos(data.data);
       }
     } catch (error) {
       console.error('❌ Error cargando contenidos:', error);
-      console.error('Error response:', error.response?.data);
       showInfo('Error', error.response?.data?.mensaje || 'No se pudo cargar el contenido', 'error');
     } finally {
       setLoading(false);
     }
   };
 
-  // ✅ MANTENER: Función para seleccionar imagen
-  const seleccionarImagen = async () => {
+  // ✅ NUEVO: Seleccionar archivo (imagen o video) SIN convertir a base64
+  const seleccionarArchivo = async () => {
     try {
+      const esImagen = tipoContenido === 'imagen';
+      
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: esImagen 
+          ? ImagePicker.MediaTypeOptions.Images 
+          : ImagePicker.MediaTypeOptions.Videos,
         allowsEditing: true,
-        aspect: [4, 3],
-        quality: 0.7,
-        base64: true
+        aspect: esImagen ? [4, 3] : undefined,
+        quality: esImagen ? 0.8 : 1,
+        videoMaxDuration: esImagen ? undefined : 120, // Máximo 2 minutos
       });
 
       if (!result.canceled) {
-        const base64Image = `data:image/jpeg;base64,${result.assets[0].base64}`;
-        setNuevaImagen(base64Image);
-        setNuevoVideo(null); // ✅ Limpiar video si había
-      }
-    } catch (error) {
-      console.error('Error seleccionando imagen:', error);
-      showInfo('Error', 'Error al seleccionar la imagen', 'error');
-    }
-  };
-
-  // ✅ NUEVO: Función para seleccionar video
-  const seleccionarVideo = async () => {
-    try {
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Videos,
-        allowsEditing: true,
-        quality: 0.7,
-        videoMaxDuration: 60, // Máximo 60 segundos
-      });
-
-      if (!result.canceled) {
-        const videoUri = result.assets[0].uri;
+        const asset = result.assets[0];
         
-        // Verificar tamaño del video
-        if (result.assets[0].fileSize) {
-          const sizeInMB = result.assets[0].fileSize / (1024 * 1024);
-          if (sizeInMB > 50) {
-            showInfo('Archivo muy grande', 'El video no puede superar los 50MB', 'warning');
+        // Verificar tamaño del archivo
+        if (asset.fileSize) {
+          const sizeInMB = asset.fileSize / (1024 * 1024);
+          const maxSize = esImagen ? 10 : 100; // 10MB imágenes, 100MB videos
+          
+          if (sizeInMB > maxSize) {
+            showInfo(
+              'Archivo muy grande', 
+              `El ${esImagen ? 'imagen' : 'video'} no puede superar los ${maxSize}MB. Tu archivo: ${sizeInMB.toFixed(2)}MB`,
+              'warning'
+            );
             return;
           }
+          
+          console.log(`📊 Tamaño del archivo: ${sizeInMB.toFixed(2)}MB`);
         }
 
-        // Convertir video a base64
-        const response = await fetch(videoUri);
-        const blob = await response.blob();
-        
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          const base64Video = reader.result;
-          setNuevoVideo(base64Video);
-          setNuevaImagen(null); // ✅ Limpiar imagen si había
-        };
-        reader.readAsDataURL(blob);
+        // ✅ Guardar solo la URI (NO convertir a base64)
+        setArchivoSeleccionado({
+          uri: asset.uri,
+          type: esImagen ? 'image/jpeg' : 'video/mp4',
+          name: `${esImagen ? 'image' : 'video'}_${Date.now()}.${esImagen ? 'jpg' : 'mp4'}`
+        });
       }
     } catch (error) {
-      console.error('Error seleccionando video:', error);
-      showInfo('Error', 'Error al seleccionar el video', 'error');
+      console.error('Error seleccionando archivo:', error);
+      showInfo('Error', 'Error al seleccionar el archivo', 'error');
     }
   };
 
+  // ✅ NUEVO: Subir archivo con FormData (sin base64)
   const subirContenido = async () => {
-    if (!nuevaImagen && !nuevoVideo) {
+    if (!archivoSeleccionado) {
       showInfo('Advertencia', 'Debes seleccionar una imagen o video', 'warning');
       return;
     }
 
     try {
       setUploading(true);
+      setUploadProgress(0);
+      
       const token = await AsyncStorage.getItem('token');
       
       // Obtener el barberoID
       let barberoID;
       if (userRole === 'Barbero' && barberData?.id) {
         barberoID = barberData.id;
-        console.log('✅ Barbero - usando barberData.id:', barberoID);
       } else if (userRole === 'Administrador') {
-        // ✅ SOLUCIÓN: Buscar barbero por email
         const email = user?.email;
         
-        console.log('📧 Subiendo contenido - buscando por email:', email);
-        
         if (!email) {
-          console.error('❌ No se pudo obtener email:', user);
           showInfo('Error', 'No se pudo obtener el email del usuario', 'error');
           return;
         }
 
-        // Obtener todos los barberos
         const { data: respuestaBarberos } = await axios.get(
           'https://vianney-server.onrender.com/barberos',
           { 
-            headers: { 
-              Authorization: `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            },
+            headers: { Authorization: `Bearer ${token}` },
             params: { all: true }
           }
         );
         
-        console.log('📋 Upload - Respuesta completa:', respuestaBarberos);
-        
-        // Intentar múltiples estructuras posibles
         let barberosArray = [];
         
         if (Array.isArray(respuestaBarberos)) {
           barberosArray = respuestaBarberos;
-        } else if (respuestaBarberos.barberos && Array.isArray(respuestaBarberos.barberos)) {
+        } else if (respuestaBarberos.barberos) {
           barberosArray = respuestaBarberos.barberos;
-        } else if (respuestaBarberos.data && Array.isArray(respuestaBarberos.data)) {
-          barberosArray = respuestaBarberos.data;
-        } else if (respuestaBarberos.data && respuestaBarberos.data.barberos) {
-          barberosArray = respuestaBarberos.data.barberos;
-        } else {
-          console.error('❌ Estructura desconocida');
-          barberosArray = [];
+        } else if (respuestaBarberos.data) {
+          barberosArray = respuestaBarberos.data.barberos || respuestaBarberos.data;
         }
         
-        // Buscar barbero por email
         const miBarbero = barberosArray.find(b => 
           b.usuario?.email?.toLowerCase() === email.toLowerCase()
         );
         
         if (!miBarbero) {
-          console.error('❌ No se encontró barbero con email:', email);
           showInfo('Error', 'No se encontró registro de barbero', 'error');
           return;
         }
@@ -325,36 +251,57 @@ const GestionGaleriaScreen = () => {
         return;
       }
 
-      console.log('📤 Subiendo contenido para barberoID:', barberoID);
+      // ✅ Crear FormData para enviar el archivo
+      const formData = new FormData();
+      formData.append('file', {
+        uri: archivoSeleccionado.uri,
+        type: archivoSeleccionado.type,
+        name: archivoSeleccionado.name
+      });
+      formData.append('barberoID', barberoID);
+      formData.append('tipo', tipoContenido);
+      formData.append('descripcion', descripcion || '');
+      formData.append('destacado', destacado);
+      formData.append('orden', '0');
 
-      await axios.post(
-        'https://vianney-server.onrender.com/galeria',
-        {
-          barberoID,
-          tipo: tipoContenido, // ✅ 'imagen' o 'video'
-          contenido: nuevaImagen || nuevoVideo, // ✅ Enviar el que esté seleccionado
-          descripcion: descripcion || null,
-          destacado: destacado
+      console.log('📤 Subiendo archivo...');
+
+      // ✅ Seleccionar endpoint según el tipo
+      const endpoint = tipoContenido === 'imagen' 
+        ? 'https://vianney-server.onrender.com/galeria/upload/image'
+        : 'https://vianney-server.onrender.com/galeria/upload/video';
+
+      // ✅ Subir con progreso
+      await axios.post(endpoint, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
         },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+        onUploadProgress: (progressEvent) => {
+          const percentCompleted = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total
+          );
+          setUploadProgress(percentCompleted);
+          console.log(`📊 Progreso: ${percentCompleted}%`);
+        }
+      });
 
       // Limpiar formulario
-      setNuevaImagen(null);
-      setNuevoVideo(null);
+      setArchivoSeleccionado(null);
       setDescripcion('');
       setDestacado(false);
       setTipoContenido('imagen');
       setModalSubirVisible(false);
+      setUploadProgress(0);
 
       await fetchContenidos();
       showInfo('¡Éxito!', 'Contenido subido correctamente', 'success');
     } catch (error) {
       console.error('❌ Error subiendo contenido:', error);
-      console.error('Error response:', error.response?.data);
       showInfo('Error', error.response?.data?.mensaje || 'No se pudo subir el contenido', 'error');
     } finally {
       setUploading(false);
+      setUploadProgress(0);
     }
   };
 
@@ -405,14 +352,13 @@ const GestionGaleriaScreen = () => {
   const renderContenido = (item, index) => {
     const contenidoValido = item.contenido &&
                            typeof item.contenido === 'string' &&
-                           item.contenido.length > 500;
+                           item.contenido.length > 10; // ✅ URL de Cloudinary (no base64)
 
     return (
       <View key={index} style={styles.contenidoCard}>
         <View style={styles.imagenContainer}>
           {contenidoValido ? (
             item.tipo === 'video' ? (
-              // ✅ NUEVO: Renderizar video
               <Video
                 source={{ uri: item.contenido }}
                 style={styles.imagen}
@@ -421,7 +367,6 @@ const GestionGaleriaScreen = () => {
                 isLooping={false}
               />
             ) : (
-              // Renderizar imagen (MANTENER)
               <Image
                 source={{ uri: item.contenido }}
                 style={styles.imagen}
@@ -444,7 +389,6 @@ const GestionGaleriaScreen = () => {
             </View>
           )}
           
-          {/* ✅ NUEVO: Badge de tipo */}
           <View style={[
             styles.tipoBadge,
             item.tipo === 'video' && styles.tipoBadgeVideo
@@ -542,8 +486,7 @@ const GestionGaleriaScreen = () => {
             <TouchableOpacity
               onPress={() => {
                 setModalSubirVisible(false);
-                setNuevaImagen(null);
-                setNuevoVideo(null);
+                setArchivoSeleccionado(null);
                 setDescripcion('');
                 setDestacado(false);
                 setTipoContenido('imagen');
@@ -555,7 +498,7 @@ const GestionGaleriaScreen = () => {
           </View>
 
           <ScrollView style={styles.modalContent}>
-            {/* ✅ NUEVO: Selector de tipo */}
+            {/* Selector de tipo */}
             <View style={styles.tipoSelector}>
               <TouchableOpacity
                 style={[
@@ -564,7 +507,7 @@ const GestionGaleriaScreen = () => {
                 ]}
                 onPress={() => {
                   setTipoContenido('imagen');
-                  setNuevoVideo(null);
+                  setArchivoSeleccionado(null);
                 }}
               >
                 <Ionicons 
@@ -587,7 +530,7 @@ const GestionGaleriaScreen = () => {
                 ]}
                 onPress={() => {
                   setTipoContenido('video');
-                  setNuevaImagen(null);
+                  setArchivoSeleccionado(null);
                 }}
               >
                 <Ionicons 
@@ -604,24 +547,26 @@ const GestionGaleriaScreen = () => {
               </TouchableOpacity>
             </View>
 
-            {/* Selector de imagen o video */}
+            {/* Selector de archivo */}
             <TouchableOpacity
               style={styles.imagenSelector}
-              onPress={tipoContenido === 'imagen' ? seleccionarImagen : seleccionarVideo}
+              onPress={seleccionarArchivo}
             >
-              {nuevaImagen ? (
-                <Image
-                  source={{ uri: nuevaImagen }}
-                  style={styles.imagenPreview}
-                  resizeMode="cover"
-                />
-              ) : nuevoVideo ? (
-                <Video
-                  source={{ uri: nuevoVideo }}
-                  style={styles.imagenPreview}
-                  useNativeControls
-                  resizeMode="cover"
-                />
+              {archivoSeleccionado ? (
+                tipoContenido === 'imagen' ? (
+                  <Image
+                    source={{ uri: archivoSeleccionado.uri }}
+                    style={styles.imagenPreview}
+                    resizeMode="cover"
+                  />
+                ) : (
+                  <Video
+                    source={{ uri: archivoSeleccionado.uri }}
+                    style={styles.imagenPreview}
+                    useNativeControls
+                    resizeMode="cover"
+                  />
+                )
               ) : (
                 <View style={styles.imagenSelectorPlaceholder}>
                   <Ionicons 
@@ -634,12 +579,22 @@ const GestionGaleriaScreen = () => {
                   </Text>
                   {tipoContenido === 'video' && (
                     <Text style={styles.videoLimitText}>
-                      Máximo 60 segundos • 50MB
+                      Máximo 2 minutos • 100MB
                     </Text>
                   )}
                 </View>
               )}
             </TouchableOpacity>
+
+            {/* ✅ NUEVO: Barra de progreso */}
+            {uploading && (
+              <View style={styles.progressContainer}>
+                <View style={styles.progressBar}>
+                  <View style={[styles.progressFill, { width: `${uploadProgress}%` }]} />
+                </View>
+                <Text style={styles.progressText}>{uploadProgress}%</Text>
+              </View>
+            )}
 
             {/* Descripción */}
             <View style={styles.inputContainer}>
@@ -675,8 +630,7 @@ const GestionGaleriaScreen = () => {
                 style={styles.cancelButton}
                 onPress={() => {
                   setModalSubirVisible(false);
-                  setNuevaImagen(null);
-                  setNuevoVideo(null);
+                  setArchivoSeleccionado(null);
                   setDescripcion('');
                   setDestacado(false);
                   setTipoContenido('imagen');
@@ -807,7 +761,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 4
   },
-  // ✅ NUEVO: Badge de tipo
   tipoBadge: {
     position: 'absolute',
     top: 8,
@@ -824,13 +777,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#666',
     marginBottom: 8
-  },
-  redesContainer: {
-    flexDirection: 'row',
-    marginBottom: 8
-  },
-  redIcon: {
-    marginRight: 8
   },
   accionesCard: {
     flexDirection: 'row',
@@ -865,7 +811,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600'
   },
-  // Modal styles
   modalContainer: {
     flex: 1,
     backgroundColor: '#fff'
@@ -890,7 +835,6 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16
   },
-  // ✅ NUEVO: Selector de tipo
   tipoSelector: {
     flexDirection: 'row',
     marginBottom: 20,
@@ -945,12 +889,34 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#999'
   },
-  // ✅ NUEVO: Texto de límite de video
   videoLimitText: {
     marginTop: 4,
     fontSize: 12,
     color: '#666',
     fontStyle: 'italic'
+  },
+  // ✅ NUEVO: Barra de progreso
+  progressContainer: {
+    marginBottom: 20,
+    alignItems: 'center'
+  },
+  progressBar: {
+    width: '100%',
+    height: 8,
+    backgroundColor: '#E0E0E0',
+    borderRadius: 4,
+    overflow: 'hidden',
+    marginBottom: 8
+  },
+  progressFill: {
+    height: '100%',
+    backgroundColor: '#4CAF50',
+    borderRadius: 4
+  },
+  progressText: {
+    fontSize: 14,
+    color: '#424242',
+    fontWeight: '600'
   },
   inputContainer: {
     marginBottom: 16
@@ -961,17 +927,6 @@ const styles = StyleSheet.create({
     color: '#212121',
     marginBottom: 8
   },
-  input: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 14
-  },
-  inputIcon: {
-    marginRight: 12
-  },
   textArea: {
     borderWidth: 1,
     borderColor: '#E0E0E0',
@@ -980,13 +935,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     minHeight: 80,
     textAlignVertical: 'top'
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#212121',
-    marginBottom: 12,
-    marginTop: 8
   },
   destacadoToggle: {
     flexDirection: 'row',
