@@ -152,8 +152,7 @@ const GestionGaleriaScreen = () => {
         mediaTypes: esImagen 
           ? ImagePicker.MediaTypeOptions.Images 
           : ImagePicker.MediaTypeOptions.Videos,
-        allowsEditing: true,
-        aspect: esImagen ? [4, 3] : undefined,
+        allowsEditing: false, // ✅ Cambiar a false para web
         quality: esImagen ? 0.8 : 1,
         videoMaxDuration: esImagen ? undefined : 120, // Máximo 2 minutos
       });
@@ -178,15 +177,51 @@ const GestionGaleriaScreen = () => {
           console.log(`📊 Tamaño del archivo: ${sizeInMB.toFixed(2)}MB`);
         }
 
+        // ✅ Determinar tipo MIME correcto
+        let mimeType;
+        if (esImagen) {
+          // Para imágenes, intentar detectar el tipo
+          if (asset.uri.includes('.png')) {
+            mimeType = 'image/png';
+          } else if (asset.uri.includes('.gif')) {
+            mimeType = 'image/gif';
+          } else if (asset.uri.includes('.webp')) {
+            mimeType = 'image/webp';
+          } else {
+            mimeType = 'image/jpeg';
+          }
+        } else {
+          // Para videos
+          if (asset.uri.includes('.mov')) {
+            mimeType = 'video/quicktime';
+          } else if (asset.uri.includes('.avi')) {
+            mimeType = 'video/x-msvideo';
+          } else if (asset.uri.includes('.mkv')) {
+            mimeType = 'video/x-matroska';
+          } else {
+            mimeType = 'video/mp4';
+          }
+        }
+
+        // ✅ Generar nombre de archivo
+        const extension = esImagen ? 'jpg' : 'mp4';
+        const fileName = `${esImagen ? 'image' : 'video'}_${Date.now()}.${extension}`;
+
         // ✅ Guardar solo la URI (NO convertir a base64)
         setArchivoSeleccionado({
           uri: asset.uri,
-          type: esImagen ? 'image/jpeg' : 'video/mp4',
-          name: `${esImagen ? 'image' : 'video'}_${Date.now()}.${esImagen ? 'jpg' : 'mp4'}`
+          type: mimeType,
+          name: fileName
+        });
+
+        console.log('✅ Archivo seleccionado:', {
+          uri: asset.uri.substring(0, 50) + '...',
+          type: mimeType,
+          name: fileName
         });
       }
     } catch (error) {
-      console.error('Error seleccionando archivo:', error);
+      console.error('❌ Error seleccionando archivo:', error);
       showInfo('Error', 'Error al seleccionar el archivo', 'error');
     }
   };
@@ -253,18 +288,32 @@ const GestionGaleriaScreen = () => {
 
       // ✅ Crear FormData para enviar el archivo
       const formData = new FormData();
-      formData.append('file', {
-        uri: archivoSeleccionado.uri,
-        type: archivoSeleccionado.type,
-        name: archivoSeleccionado.name
-      });
+      
+      // ✅ CORRECCIÓN: Manejar web y móvil de forma diferente
+      if (Platform.OS === 'web') {
+        // En WEB: Convertir URI a Blob primero
+        const response = await fetch(archivoSeleccionado.uri);
+        const blob = await response.blob();
+        formData.append('file', blob, archivoSeleccionado.name);
+      } else {
+        // En MÓVIL: Usar URI directamente
+        formData.append('file', {
+          uri: archivoSeleccionado.uri,
+          type: archivoSeleccionado.type,
+          name: archivoSeleccionado.name
+        });
+      }
+      
       formData.append('barberoID', barberoID);
       formData.append('tipo', tipoContenido);
       formData.append('descripcion', descripcion || '');
-      formData.append('destacado', destacado);
+      formData.append('destacado', destacado.toString());
       formData.append('orden', '0');
 
       console.log('📤 Subiendo archivo...');
+      console.log('📊 Tipo:', tipoContenido);
+      console.log('📊 Nombre:', archivoSeleccionado.name);
+      console.log('📊 Platform:', Platform.OS);
 
       // ✅ Seleccionar endpoint según el tipo
       const endpoint = tipoContenido === 'imagen' 
@@ -298,6 +347,7 @@ const GestionGaleriaScreen = () => {
       showInfo('¡Éxito!', 'Contenido subido correctamente', 'success');
     } catch (error) {
       console.error('❌ Error subiendo contenido:', error);
+      console.error('❌ Error response:', error.response?.data);
       showInfo('Error', error.response?.data?.mensaje || 'No se pudo subir el contenido', 'error');
     } finally {
       setUploading(false);
