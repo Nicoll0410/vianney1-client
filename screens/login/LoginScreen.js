@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
   },
   mobileContainer: {
     flex: 1,
-    backgroundColor: '#f0f0f0', // Mismo fondo que la animación
+    backgroundColor: '#ffffffff', // Mismo fondo que la animación
   },
   mobileContent: {
     width: '100%',

@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
   keyboardAvoidingView: {
     flex: 1,
     justifyContent: "center",
-    backgroundColor: "#f8f9fa",
+    backgroundColor: "#ffffffff",
   },
   formContainer: {
     width: isDesktop ? 400 : "90%",
