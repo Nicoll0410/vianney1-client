@@ -1,6 +1,6 @@
 // screens/login/AnimatedBriefcaseWeb.js
 import React, { useEffect, useRef, useState } from 'react';
-import { View, StyleSheet, Dimensions } from 'react-native';
+import { View, StyleSheet, Dimensions, Platform } from 'react-native';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -11,6 +11,12 @@ const AnimatedBriefcaseWeb = ({ onAnimationComplete, children }) => {
   const [showParticles, setShowParticles] = useState(false);
 
   useEffect(() => {
+    // Solo ejecutar en web
+    if (Platform.OS !== 'web') {
+      setShowContent(true);
+      return;
+    }
+
     let scene, camera, renderer, briefcaseGroup, lidGroup, particles;
     let animationPhase = 'falling';
     let startTime = Date.now();
@@ -20,6 +26,8 @@ const AnimatedBriefcaseWeb = ({ onAnimationComplete, children }) => {
       const THREE = window.THREE;
       if (!THREE) {
         console.error('Three.js no está disponible');
+        // Mostrar login directamente si Three.js falla
+        setShowContent(true);
         return;
       }
 
@@ -37,7 +45,11 @@ const AnimatedBriefcaseWeb = ({ onAnimationComplete, children }) => {
       camera.position.set(0, 0, 18);
 
       // Crear renderer
-      if (!canvasRef.current) return;
+      if (!canvasRef.current) {
+        setShowContent(true);
+        return;
+      }
+      
       renderer = new THREE.WebGLRenderer({
         canvas: canvasRef.current,
         antialias: true,
@@ -595,7 +607,7 @@ const AnimatedBriefcaseWeb = ({ onAnimationComplete, children }) => {
         }
 
         // Mostrar contenido (login) cuando está medio abierto
-        if (openProgress >= 0.6 && !showContent) {
+        if (openProgress >= 0.6) {
           setShowContent(true);
         }
 
@@ -635,6 +647,10 @@ const AnimatedBriefcaseWeb = ({ onAnimationComplete, children }) => {
       const script = document.createElement('script');
       script.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
       script.onload = () => initScene();
+      script.onerror = () => {
+        console.error('Error cargando Three.js');
+        setShowContent(true);
+      };
       document.head.appendChild(script);
     }
 
@@ -647,13 +663,15 @@ const AnimatedBriefcaseWeb = ({ onAnimationComplete, children }) => {
         renderer.dispose();
       }
     };
-  }, [onAnimationComplete, showParticles]);
+  }, [onAnimationComplete]);
 
   return (
     <View style={styles.container}>
-      <canvas ref={canvasRef} style={styles.canvas} />
+      {Platform.OS === 'web' && <canvas ref={canvasRef} style={styles.canvas} />}
       {showContent && (
-        <View style={styles.contentContainer}>{children}</View>
+        <View style={styles.contentContainer}>
+          {children}
+        </View>
       )}
     </View>
   );
@@ -670,6 +688,7 @@ const styles = StyleSheet.create({
     left: 0,
     width: '100%',
     height: '100%',
+    zIndex: 1,
   },
   contentContainer: {
     position: 'absolute',
@@ -680,6 +699,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'flex-end',
     paddingRight: 20,
+    zIndex: 100,
   },
 });
 

@@ -28,94 +28,52 @@ const LoginScreen = () => {
   };
 
   // Renderizar la animación para web
-  if (isWeb && !animationComplete) {
+  if (isWeb) {
     return (
-      <AnimatedBriefcaseWeb onAnimationComplete={handleAnimationComplete}>
-        <View style={styles.loginContentWeb}>
-          <View style={styles.logoTitleContainer}>
-            <Text style={styles.title}>NEW YORK</Text>
-            <Text style={styles.title}>BARBER</Text>
-            <Image 
-              source={require('../../assets/images/newYorkBarber.jpeg')} 
-              style={styles.logoInAnimation} 
-              resizeMode="contain"
-            />
+      <View style={{ flex: 1 }}>
+        <AnimatedBriefcaseWeb onAnimationComplete={handleAnimationComplete}>
+          <View style={styles.loginContentWeb}>
+            <View style={styles.logoTitleContainer}>
+              <Text style={styles.title}>NEW YORK</Text>
+              <Text style={styles.title}>BARBER</Text>
+              <Image 
+                source={require('../../assets/images/newYorkBarber.jpeg')} 
+                style={styles.logoInAnimation} 
+                resizeMode="contain"
+              />
+            </View>
+            <LoginForm />
+            <View style={styles.footerInAnimation}>
+              <Footer />
+            </View>
           </View>
-          <LoginForm />
-          <View style={styles.footerInAnimation}>
-            <Footer />
-          </View>
-        </View>
-      </AnimatedBriefcaseWeb>
+        </AnimatedBriefcaseWeb>
+      </View>
     );
   }
 
   // Renderizar la animación para móvil
-  if (!isWeb && !animationComplete) {
+  if (!isWeb) {
     return (
-      <AnimatedBriefcaseMobile onAnimationComplete={handleAnimationComplete}>
-        <View style={styles.loginContentMobile}>
-          <View style={styles.logoTitleContainer}>
-            <Text style={styles.titleMobile}>NEW YORK BARBER</Text>
-            <Image 
-              source={require('../../assets/images/newYorkBarber.jpeg')} 
-              style={styles.logoInAnimationMobile} 
-              resizeMode="contain"
-            />
-          </View>
-          <LoginForm />
-        </View>
-      </AnimatedBriefcaseMobile>
-    );
-  }
-
-  // Vista normal después de la animación (fallback)
-  return (
-    <View style={styles.container}>
-      {isMobile ? (
-        <View style={styles.mobileContainer}>
-          <ScrollView 
-            contentContainerStyle={styles.scrollContainer}
-            keyboardShouldPersistTaps="handled"
-          >
-            <View style={styles.mobileContent}>
-              <View style={styles.titleContainerMobile}>
-                <Text style={styles.title}>NEW YORK BARBER</Text>
-              </View>
+      <View style={{ flex: 1 }}>
+        <AnimatedBriefcaseMobile onAnimationComplete={handleAnimationComplete}>
+          <View style={styles.loginContentMobile}>
+            <View style={styles.logoTitleContainer}>
+              <Text style={styles.titleMobile}>NEW YORK BARBER</Text>
               <Image 
                 source={require('../../assets/images/newYorkBarber.jpeg')} 
-                style={styles.logo} 
-                resizeMode="contain"
-              />
-              <LoginForm />
-            </View>
-          </ScrollView>
-          <View style={styles.mobileFooter}>
-            <Footer />
-          </View>
-        </View>
-      ) : (
-        <View style={styles.desktopContainer}>
-          <View style={styles.desktopContent}>
-            <View style={styles.logoContainer}>
-              <View style={styles.titleContainerDesktop}>
-                <Text style={styles.title}>NEW YORK BARBER</Text>
-              </View>
-              <Image 
-                source={require('../../assets/images/newYorkBarber.jpeg')} 
-                style={styles.logo} 
+                style={styles.logoInAnimationMobile} 
                 resizeMode="contain"
               />
             </View>
             <LoginForm />
           </View>
-          <View style={styles.desktopFooter}>
-            <Footer />
-          </View>
-        </View>
-      )}
-    </View>
-  );
+        </AnimatedBriefcaseMobile>
+      </View>
+    );
+  }
+
+  return null;
 };
 
 const styles = StyleSheet.create({
