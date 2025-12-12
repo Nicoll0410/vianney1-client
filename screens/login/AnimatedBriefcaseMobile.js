@@ -14,19 +14,80 @@ const AnimatedBriefcaseMobile = ({ onAnimationComplete, children }) => {
   const [showContent, setShowContent] = useState(false);
   const [hideCase, setHideCase] = useState(false);
   const [showParticles, setShowParticles] = useState(false);
+  const [showTools, setShowTools] = useState(false);
 
-  // Valores animados
+  // Valores animados del maletín
   const briefcaseY = useRef(new Animated.Value(-screenHeight)).current;
   const briefcaseRotate = useRef(new Animated.Value(0)).current;
-  const briefcaseScale = useRef(new Animated.Value(1)).current;
+  const briefcaseScale = useRef(new Animated.Value(0.6)).current; // MÁS PEQUEÑO
   const briefcaseOpacity = useRef(new Animated.Value(1)).current;
   const lidRotate = useRef(new Animated.Value(0)).current;
   const contentOpacity = useRef(new Animated.Value(0)).current;
   const contentTranslateY = useRef(new Animated.Value(50)).current;
 
-  // Partículas (se crean después)
+  // Herramientas que vuelan
+  const toolsRef = useRef([]);
   const particlesRef = useRef([]);
   const particleCount = 25;
+
+  // Inicializar herramientas
+  useEffect(() => {
+    toolsRef.current = [
+      // Tijeras doradas
+      { x: new Animated.Value(screenWidth / 2 - 140), y: new Animated.Value(screenHeight * 0.25), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'gold', type: 'scissors' },
+      // Tijeras plateadas
+      { x: new Animated.Value(screenWidth / 2 - 100), y: new Animated.Value(screenHeight * 0.25), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'silver', type: 'scissors' },
+      // Navaja dorada
+      { x: new Animated.Value(screenWidth / 2 - 130), y: new Animated.Value(screenHeight * 0.25), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'gold', type: 'razor' },
+      // Navaja plateada
+      { x: new Animated.Value(screenWidth / 2 - 110), y: new Animated.Value(screenHeight * 0.25), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'silver', type: 'razor' },
+      // Peine dorado
+      { x: new Animated.Value(screenWidth / 2 - 125), y: new Animated.Value(screenHeight * 0.25), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'gold', type: 'comb' },
+      // Peine plateado
+      { x: new Animated.Value(screenWidth / 2 - 115), y: new Animated.Value(screenHeight * 0.25), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'silver', type: 'comb' },
+    ];
+  }, []);
+
+  const animateToolsFlying = () => {
+    const animations = toolsRef.current.map((tool, index) => {
+      const randomX = (Math.random() - 0.5) * screenWidth * 0.8;
+      const randomRotate = Math.random() * 720 - 360;
+      
+      return Animated.parallel([
+        Animated.timing(tool.opacity, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.sequence([
+          Animated.parallel([
+            Animated.timing(tool.x, {
+              toValue: tool.x._value + randomX,
+              duration: 1200,
+              useNativeDriver: true,
+            }),
+            Animated.timing(tool.y, {
+              toValue: -100 + Math.random() * screenHeight * 0.3,
+              duration: 1200,
+              useNativeDriver: true,
+            }),
+            Animated.timing(tool.rotate, {
+              toValue: randomRotate,
+              duration: 1200,
+              useNativeDriver: true,
+            }),
+          ]),
+          Animated.timing(tool.opacity, {
+            toValue: 0,
+            duration: 400,
+            useNativeDriver: true,
+          }),
+        ]),
+      ]);
+    });
+
+    Animated.stagger(80, animations).start();
+  };
 
   const animateParticles = () => {
     particlesRef.current.forEach((particle, index) => {
@@ -59,12 +120,11 @@ const AnimatedBriefcaseMobile = ({ onAnimationComplete, children }) => {
   };
 
   useEffect(() => {
-    // Secuencia de animación
     Animated.sequence([
-      // 1. Caída del maletín
+      // 1. Caída
       Animated.parallel([
         Animated.timing(briefcaseY, {
-          toValue: screenHeight * 0.3,
+          toValue: screenHeight * 0.25,
           duration: 1500,
           useNativeDriver: true,
         }),
@@ -77,82 +137,68 @@ const AnimatedBriefcaseMobile = ({ onAnimationComplete, children }) => {
 
       // 2. Rebote
       Animated.spring(briefcaseY, {
-        toValue: screenHeight * 0.25,
+        toValue: screenHeight * 0.22,
         friction: 3,
         tension: 40,
         useNativeDriver: true,
       }),
 
-      // 3. Pausa
-      Animated.delay(600),
-
-      // 4. Abrir tapa
-      Animated.timing(lidRotate, {
-        toValue: -110,
-        duration: 1200,
-        useNativeDriver: true,
-      }),
-
-      // 5. Pausa y mostrar partículas + contenido
-      Animated.delay(400),
-
-      // 6. Mostrar contenido
-      Animated.parallel([
-        Animated.timing(contentOpacity, {
-          toValue: 1,
-          duration: 800,
-          useNativeDriver: true,
-        }),
-        Animated.timing(contentTranslateY, {
-          toValue: 0,
-          duration: 800,
-          useNativeDriver: true,
-        }),
-      ]),
-
-      // 7. Pausa
-      Animated.delay(500),
-
-      // 8. Ocultar maletín
-      Animated.parallel([
-        Animated.timing(briefcaseScale, {
-          toValue: 0,
-          duration: 1000,
-          useNativeDriver: true,
-        }),
-        Animated.timing(briefcaseOpacity, {
-          toValue: 0,
-          duration: 1000,
-          useNativeDriver: true,
-        }),
-      ]),
+      // 3. Pausa antes de soltar herramientas
+      Animated.delay(300),
     ]).start(() => {
-      setHideCase(true);
-      if (onAnimationComplete) onAnimationComplete();
+      // Soltar herramientas
+      setShowTools(true);
+      animateToolsFlying();
+
+      // Esperar que las herramientas vuelen, luego ocultar maletín
+      setTimeout(() => {
+        Animated.parallel([
+          Animated.timing(briefcaseScale, {
+            toValue: 0,
+            duration: 600,
+            useNativeDriver: true,
+          }),
+          Animated.timing(briefcaseOpacity, {
+            toValue: 0,
+            duration: 600,
+            useNativeDriver: true,
+          }),
+        ]).start(() => {
+          setHideCase(true);
+          
+          // Mostrar login
+          setTimeout(() => {
+            setShowContent(true);
+            Animated.parallel([
+              Animated.timing(contentOpacity, {
+                toValue: 1,
+                duration: 800,
+                useNativeDriver: true,
+              }),
+              Animated.timing(contentTranslateY, {
+                toValue: 0,
+                duration: 800,
+                useNativeDriver: true,
+              }),
+            ]).start();
+
+            // Iniciar partículas DESPUÉS del login
+            setTimeout(() => {
+              particlesRef.current = Array.from({ length: particleCount }, () => ({
+                x: new Animated.Value(Math.random() * screenWidth),
+                y: new Animated.Value(-Math.random() * 100),
+                opacity: new Animated.Value(0.8),
+                color: ['#0066cc', '#cc0000', '#1a1a1a'][Math.floor(Math.random() * 3)],
+              }));
+              setShowParticles(true);
+              animateParticles();
+            }, 500);
+
+            if (onAnimationComplete) onAnimationComplete();
+          }, 400);
+        });
+      }, 1300);
     });
-
-    // Mostrar partículas cuando se abre
-    const particlesTimeout = setTimeout(() => {
-      // Inicializar partículas
-      particlesRef.current = Array.from({ length: particleCount }, () => ({
-        x: new Animated.Value(Math.random() * screenWidth),
-        y: new Animated.Value(-Math.random() * 100),
-        opacity: new Animated.Value(0.8),
-        color: ['#0066cc', '#cc0000', '#1a1a1a'][Math.floor(Math.random() * 3)],
-      }));
-      setShowParticles(true);
-      animateParticles();
-    }, 3700); // Cuando la tapa se abre
-
-    // Mostrar contenido
-    const contentTimeout = setTimeout(() => {
-      setShowContent(true);
-    }, 4300);
-
-    return () => {
-      clearTimeout(particlesTimeout);
-      clearTimeout(contentTimeout);
-    };
   }, []);
 
   const rotateInterpolate = briefcaseRotate.interpolate({
@@ -162,7 +208,7 @@ const AnimatedBriefcaseMobile = ({ onAnimationComplete, children }) => {
 
   return (
     <View style={styles.container}>
-      {/* Partículas SOLO después de abrir */}
+      {/* Partículas SOLO después del login */}
       {showParticles &&
         particlesRef.current.map((particle, index) => (
           <Animated.View
@@ -181,7 +227,7 @@ const AnimatedBriefcaseMobile = ({ onAnimationComplete, children }) => {
           />
         ))}
 
-      {/* Maletín */}
+      {/* Maletín MÁS PEQUEÑO */}
       {!hideCase && (
         <Animated.View
           style={[
@@ -196,102 +242,38 @@ const AnimatedBriefcaseMobile = ({ onAnimationComplete, children }) => {
             },
           ]}
         >
-          {/* Cuerpo del maletín */}
           <View style={styles.briefcaseBody}>
-            {/* Costuras punteadas realistas */}
+            {/* Costuras */}
             <View style={styles.stitchingContainer}>
-              {[...Array(40)].map((_, i) => {
-                const angle = (i / 40) * Math.PI * 2;
+              {[...Array(30)].map((_, i) => {
+                const angle = (i / 30) * Math.PI * 2;
                 const radius = 110;
                 const x = 120 + Math.cos(angle) * radius;
                 const y = 70 + Math.sin(angle) * (radius * 0.55);
                 return (
                   <View
                     key={i}
-                    style={[
-                      styles.stitch,
-                      { left: x - 2, top: y - 2 },
-                    ]}
+                    style={[styles.stitch, { left: x - 2, top: y - 2 }]}
                   />
                 );
               })}
             </View>
 
-            {/* Herramientas DORADAS Y PLATEADAS */}
-            <View style={styles.toolsContainer}>
-              {/* Tijeras DORADAS (izquierda) */}
-              <View style={[styles.scissors, styles.goldTool, { left: '20%', top: '20%', transform: [{ rotate: '-30deg' }] }]}>
-                <View style={[styles.scissorBlade, styles.goldTool]} />
-                <View style={[styles.scissorBlade, styles.goldTool, { transform: [{ rotate: '20deg' }] }]} />
-                <View style={[styles.scissorHandle, styles.darkGoldTool]} />
+            {/* Esquinas */}
+            {[styles.cornerTL, styles.cornerTR, styles.cornerBL, styles.cornerBR].map((cornerStyle, i) => (
+              <View key={i} style={[styles.corner, cornerStyle]}>
+                <View style={[styles.rivet, styles.rivetTL]} />
+                <View style={[styles.rivet, styles.rivetTR]} />
+                <View style={[styles.rivet, styles.rivetBL]} />
+                <View style={[styles.rivet, styles.rivetBR]} />
               </View>
+            ))}
 
-              {/* Tijeras PLATEADAS (derecha) */}
-              <View style={[styles.scissors, styles.silverTool, { right: '20%', top: '20%', transform: [{ rotate: '30deg' }] }]}>
-                <View style={[styles.scissorBlade, styles.silverTool]} />
-                <View style={[styles.scissorBlade, styles.silverTool, { transform: [{ rotate: '20deg' }] }]} />
-                <View style={[styles.scissorHandle, styles.darkSilverTool]} />
-              </View>
-
-              {/* Navaja DORADA (izquierda) */}
-              <View style={[styles.razor, styles.goldTool, { left: '8%', top: '50%' }]} />
-              
-              {/* Navaja PLATEADA (derecha) */}
-              <View style={[styles.razor, styles.silverTool, { right: '8%', top: '50%' }]} />
-
-              {/* Peine DORADO (izquierda) */}
-              <View style={[styles.comb, styles.darkGoldTool, { left: '12%', bottom: '12%' }]}>
-                {[...Array(8)].map((_, i) => (
-                  <View key={i} style={[styles.combTooth, styles.darkGoldTool]} />
-                ))}
-              </View>
-
-              {/* Peine PLATEADO (derecha) */}
-              <View style={[styles.comb, styles.darkSilverTool, { right: '12%', bottom: '12%' }]}>
-                {[...Array(8)].map((_, i) => (
-                  <View key={i} style={[styles.combTooth, styles.darkSilverTool]} />
-                ))}
-              </View>
-
-              {/* Máquina cortapelo (centro - dorado y plateado) */}
-              <View style={styles.clipper}>
-                <View style={[styles.clipperBody, styles.silverTool]} />
-                <View style={[styles.clipperHead, styles.goldTool]} />
-              </View>
-            </View>
-
-            {/* Esquinas plateadas con remaches */}
-            <View style={[styles.corner, styles.cornerTL]}>
-              <View style={[styles.rivet, styles.rivetTL]} />
-              <View style={[styles.rivet, styles.rivetTR]} />
-              <View style={[styles.rivet, styles.rivetBL]} />
-              <View style={[styles.rivet, styles.rivetBR]} />
-            </View>
-            <View style={[styles.corner, styles.cornerTR]}>
-              <View style={[styles.rivet, styles.rivetTL]} />
-              <View style={[styles.rivet, styles.rivetTR]} />
-              <View style={[styles.rivet, styles.rivetBL]} />
-              <View style={[styles.rivet, styles.rivetBR]} />
-            </View>
-            <View style={[styles.corner, styles.cornerBL]}>
-              <View style={[styles.rivet, styles.rivetTL]} />
-              <View style={[styles.rivet, styles.rivetTR]} />
-              <View style={[styles.rivet, styles.rivetBL]} />
-              <View style={[styles.rivet, styles.rivetBR]} />
-            </View>
-            <View style={[styles.corner, styles.cornerBR]}>
-              <View style={[styles.rivet, styles.rivetTL]} />
-              <View style={[styles.rivet, styles.rivetTR]} />
-              <View style={[styles.rivet, styles.rivetBL]} />
-              <View style={[styles.rivet, styles.rivetBR]} />
-            </View>
-
-            {/* Manija mejorada */}
+            {/* Manija */}
             <View style={styles.handleContainer}>
               <View style={styles.handleSupport} />
               <View style={[styles.handleSupport, { right: 60 }]} />
               <View style={styles.handle} />
-              <View style={styles.handleStitching} />
             </View>
 
             {/* Cerradura */}
@@ -300,41 +282,49 @@ const AnimatedBriefcaseMobile = ({ onAnimationComplete, children }) => {
               <View style={styles.lockLatch} />
             </View>
           </View>
-
-          {/* Tapa (se abre) */}
-          <Animated.View
-            style={[
-              styles.briefcaseLid,
-              {
-                transform: [
-                  { translateY: -110 },
-                  {
-                    rotateX: lidRotate.interpolate({
-                      inputRange: [-110, 0],
-                      outputRange: ['-110deg', '0deg'],
-                    }),
-                  },
-                ],
-              },
-            ]}
-          >
-            <View style={[styles.corner, styles.cornerTL]}>
-              <View style={[styles.rivet, styles.rivetTL]} />
-              <View style={[styles.rivet, styles.rivetTR]} />
-              <View style={[styles.rivet, styles.rivetBL]} />
-              <View style={[styles.rivet, styles.rivetBR]} />
-            </View>
-            <View style={[styles.corner, styles.cornerTR]}>
-              <View style={[styles.rivet, styles.rivetTL]} />
-              <View style={[styles.rivet, styles.rivetTR]} />
-              <View style={[styles.rivet, styles.rivetBL]} />
-              <View style={[styles.rivet, styles.rivetBR]} />
-            </View>
-          </Animated.View>
         </Animated.View>
       )}
 
-      {/* Contenido (Login) - UNA SOLA VEZ */}
+      {/* Herramientas volando */}
+      {showTools &&
+        toolsRef.current.map((tool, index) => (
+          <Animated.View
+            key={index}
+            style={[
+              styles.toolFlying,
+              {
+                transform: [
+                  { translateX: tool.x },
+                  { translateY: tool.y },
+                  { rotate: tool.rotate.interpolate({
+                    inputRange: [-360, 360],
+                    outputRange: ['-360deg', '360deg'],
+                  })},
+                ],
+                opacity: tool.opacity,
+              },
+            ]}
+          >
+            {tool.type === 'scissors' && (
+              <View style={styles.scissors}>
+                <View style={[styles.scissorBlade, tool.color === 'gold' ? styles.goldTool : styles.silverTool]} />
+                <View style={[styles.scissorBlade, tool.color === 'gold' ? styles.goldTool : styles.silverTool, { transform: [{ rotate: '20deg' }] }]} />
+              </View>
+            )}
+            {tool.type === 'razor' && (
+              <View style={[styles.razor, tool.color === 'gold' ? styles.goldTool : styles.silverTool]} />
+            )}
+            {tool.type === 'comb' && (
+              <View style={[styles.comb, tool.color === 'gold' ? styles.darkGoldTool : styles.darkSilverTool]}>
+                {[...Array(6)].map((_, i) => (
+                  <View key={i} style={[styles.combTooth, tool.color === 'gold' ? styles.darkGoldTool : styles.darkSilverTool]} />
+                ))}
+              </View>
+            )}
+          </Animated.View>
+        ))}
+
+      {/* Contenido (Login) */}
       {showContent && (
         <Animated.View
           style={[
@@ -361,7 +351,7 @@ const AnimatedBriefcaseMobile = ({ onAnimationComplete, children }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff', // Fondo blanco
+    backgroundColor: '#ffffff',
   },
   particle: {
     position: 'absolute',
@@ -387,16 +377,6 @@ const styles = StyleSheet.create({
     shadowRadius: 25,
     elevation: 15,
   },
-  briefcaseLid: {
-    position: 'absolute',
-    top: 0,
-    width: '100%',
-    height: 35,
-    backgroundColor: '#1a1a1a',
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
-    transformOrigin: 'top',
-  },
   stitchingContainer: {
     position: 'absolute',
     width: '100%',
@@ -408,83 +388,6 @@ const styles = StyleSheet.create({
     height: 4,
     borderRadius: 2,
     backgroundColor: '#e8e8e8',
-  },
-  toolsContainer: {
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-    padding: 10,
-  },
-  goldTool: {
-    backgroundColor: '#ffd700',
-  },
-  silverTool: {
-    backgroundColor: '#e8e8e8',
-  },
-  darkGoldTool: {
-    backgroundColor: '#b8860b',
-  },
-  darkSilverTool: {
-    backgroundColor: '#a8a8a8',
-  },
-  scissors: {
-    position: 'absolute',
-    width: 40,
-    height: 40,
-  },
-  scissorBlade: {
-    width: 3,
-    height: 30,
-    position: 'absolute',
-    left: 18,
-    borderRadius: 2,
-  },
-  scissorHandle: {
-    width: 15,
-    height: 15,
-    borderRadius: 7.5,
-    borderWidth: 2,
-    position: 'absolute',
-    bottom: 0,
-    left: 12,
-  },
-  razor: {
-    position: 'absolute',
-    width: 4,
-    height: 35,
-    borderRadius: 2,
-  },
-  comb: {
-    position: 'absolute',
-    width: 30,
-    height: 6,
-    borderRadius: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'flex-end',
-  },
-  combTooth: {
-    width: 2,
-    height: 10,
-  },
-  clipper: {
-    position: 'absolute',
-    left: '50%',
-    top: '55%',
-    marginLeft: -12,
-    marginTop: -20,
-  },
-  clipperBody: {
-    width: 24,
-    height: 35,
-    borderRadius: 3,
-  },
-  clipperHead: {
-    width: 26,
-    height: 8,
-    marginTop: -2,
-    marginLeft: -1,
-    borderRadius: 2,
   },
   corner: {
     position: 'absolute',
@@ -533,13 +436,6 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#c8c8c8',
   },
-  handleStitching: {
-    position: 'absolute',
-    width: 100,
-    height: 2,
-    backgroundColor: '#e8e8e8',
-    top: 8,
-  },
   lockContainer: {
     position: 'absolute',
     bottom: 15,
@@ -562,12 +458,57 @@ const styles = StyleSheet.create({
     borderRadius: 2,
     marginTop: -4,
   },
+  toolFlying: {
+    position: 'absolute',
+    width: 40,
+    height: 40,
+  },
+  goldTool: {
+    backgroundColor: '#ffd700',
+  },
+  silverTool: {
+    backgroundColor: '#e8e8e8',
+  },
+  darkGoldTool: {
+    backgroundColor: '#b8860b',
+  },
+  darkSilverTool: {
+    backgroundColor: '#a8a8a8',
+  },
+  scissors: {
+    width: 30,
+    height: 30,
+  },
+  scissorBlade: {
+    width: 3,
+    height: 25,
+    position: 'absolute',
+    left: 13,
+    borderRadius: 2,
+  },
+  razor: {
+    width: 4,
+    height: 30,
+    borderRadius: 2,
+  },
+  comb: {
+    width: 25,
+    height: 6,
+    borderRadius: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'flex-end',
+  },
+  combTooth: {
+    width: 2,
+    height: 8,
+  },
   contentContainer: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
-    bottom: 80, // Espacio para el footer
+    bottom: 80,
     paddingHorizontal: 20,
     zIndex: 10,
   },
