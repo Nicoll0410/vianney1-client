@@ -56,23 +56,30 @@ const LoginScreen = () => {
   // ANIMACIÓN PARA MÓVIL
   if (!isWeb) {
     return (
-      <View style={styles.mobileContainer}>
+      <View style={styles.container}>
         <AnimatedBriefcaseMobile onAnimationComplete={handleAnimationComplete}>
-          <View style={styles.mobileContent}>
-            <View style={styles.titleContainerMobile}>
-              <Text style={styles.title}>NEW YORK BARBER</Text>
+          <View style={styles.mobileContainer}>
+            <ScrollView 
+              contentContainerStyle={styles.scrollContainer}
+              keyboardShouldPersistTaps="handled"
+            >
+              <View style={styles.mobileContent}>
+                <View style={styles.titleContainerMobile}>
+                  <Text style={styles.title}>NEW YORK BARBER</Text>
+                </View>
+                <Image 
+                  source={require('../../assets/images/newYorkBarber.jpeg')} 
+                  style={styles.logo} 
+                  resizeMode="contain"
+                />
+                <LoginForm />
+              </View>
+            </ScrollView>
+            <View style={styles.mobileFooter}>
+              <Footer />
             </View>
-            <Image 
-              source={require('../../assets/images/newYorkBarber.jpeg')} 
-              style={styles.logoMobile} 
-              resizeMode="contain"
-            />
-            <LoginForm />
           </View>
         </AnimatedBriefcaseMobile>
-        <View style={styles.mobileFooter}>
-          <Footer />
-        </View>
       </View>
     );
   }
@@ -81,24 +88,22 @@ const LoginScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  // Estilos originales de tu LoginScreen
   container: {
     flex: 1,
     backgroundColor: '#fff',
   },
   mobileContainer: {
     flex: 1,
-    backgroundColor: '#ffffff', // Fondo blanco
-  },
-  mobileContent: {
-    width: '100%',
-    alignItems: 'center',
-    padding: 20,
   },
   scrollContainer: {
     flexGrow: 1,
     justifyContent: 'center',
     paddingBottom: 80,
+  },
+  mobileContent: {
+    width: '100%',
+    alignItems: 'center',
+    padding: 20,
   },
   mobileFooter: {
     position: 'absolute',
@@ -106,11 +111,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     zIndex: 1000,
-  },
-  logoMobile: {
-    width: 150,
-    height: 150,
-    marginBottom: 20,
   },
   desktopContent: {
     flexDirection: 'row',

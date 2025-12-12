@@ -30,21 +30,41 @@ const AnimatedBriefcaseMobile = ({ onAnimationComplete, children }) => {
   const particlesRef = useRef([]);
   const particleCount = 25;
 
-  // Inicializar herramientas
+  // Inicializar herramientas - MUCHAS MÁS Y MÁS GRANDES
   useEffect(() => {
+    const centerX = screenWidth / 2;
+    const centerY = screenHeight * 0.22;
+    
     toolsRef.current = [
-      // Tijeras doradas
-      { x: new Animated.Value(screenWidth / 2 - 140), y: new Animated.Value(screenHeight * 0.25), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'gold', type: 'scissors' },
-      // Tijeras plateadas
-      { x: new Animated.Value(screenWidth / 2 - 100), y: new Animated.Value(screenHeight * 0.25), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'silver', type: 'scissors' },
-      // Navaja dorada
-      { x: new Animated.Value(screenWidth / 2 - 130), y: new Animated.Value(screenHeight * 0.25), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'gold', type: 'razor' },
-      // Navaja plateada
-      { x: new Animated.Value(screenWidth / 2 - 110), y: new Animated.Value(screenHeight * 0.25), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'silver', type: 'razor' },
-      // Peine dorado
-      { x: new Animated.Value(screenWidth / 2 - 125), y: new Animated.Value(screenHeight * 0.25), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'gold', type: 'comb' },
-      // Peine plateado
-      { x: new Animated.Value(screenWidth / 2 - 115), y: new Animated.Value(screenHeight * 0.25), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'silver', type: 'comb' },
+      // Tijeras (6 pares)
+      { x: new Animated.Value(centerX - 20), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'gold', type: 'scissors', size: 1.5 },
+      { x: new Animated.Value(centerX + 20), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'silver', type: 'scissors', size: 1.5 },
+      { x: new Animated.Value(centerX - 15), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'gold', type: 'scissors', size: 1.3 },
+      { x: new Animated.Value(centerX + 15), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'silver', type: 'scissors', size: 1.3 },
+      { x: new Animated.Value(centerX - 10), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'gold', type: 'scissors', size: 1.2 },
+      { x: new Animated.Value(centerX + 10), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'silver', type: 'scissors', size: 1.2 },
+      
+      // Navajas (6)
+      { x: new Animated.Value(centerX - 5), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'gold', type: 'razor', size: 1.4 },
+      { x: new Animated.Value(centerX + 5), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'silver', type: 'razor', size: 1.4 },
+      { x: new Animated.Value(centerX - 8), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'gold', type: 'razor', size: 1.3 },
+      { x: new Animated.Value(centerX + 8), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'silver', type: 'razor', size: 1.3 },
+      { x: new Animated.Value(centerX - 12), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'gold', type: 'razor', size: 1.2 },
+      { x: new Animated.Value(centerX + 12), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'silver', type: 'razor', size: 1.2 },
+      
+      // Peines (6)
+      { x: new Animated.Value(centerX - 3), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'gold', type: 'comb', size: 1.4 },
+      { x: new Animated.Value(centerX + 3), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'silver', type: 'comb', size: 1.4 },
+      { x: new Animated.Value(centerX - 7), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'gold', type: 'comb', size: 1.3 },
+      { x: new Animated.Value(centerX + 7), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'silver', type: 'comb', size: 1.3 },
+      { x: new Animated.Value(centerX - 11), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'gold', type: 'comb', size: 1.2 },
+      { x: new Animated.Value(centerX + 11), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'silver', type: 'comb', size: 1.2 },
+      
+      // Clippers (4)
+      { x: new Animated.Value(centerX - 2), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'gold', type: 'clipper', size: 1.3 },
+      { x: new Animated.Value(centerX + 2), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'silver', type: 'clipper', size: 1.3 },
+      { x: new Animated.Value(centerX - 6), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'gold', type: 'clipper', size: 1.2 },
+      { x: new Animated.Value(centerX + 6), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'silver', type: 'clipper', size: 1.2 },
     ];
   }, []);
 
@@ -293,6 +313,8 @@ const AnimatedBriefcaseMobile = ({ onAnimationComplete, children }) => {
             style={[
               styles.toolFlying,
               {
+                width: 60 * (tool.size || 1),
+                height: 60 * (tool.size || 1),
                 transform: [
                   { translateX: tool.x },
                   { translateY: tool.y },
@@ -300,6 +322,7 @@ const AnimatedBriefcaseMobile = ({ onAnimationComplete, children }) => {
                     inputRange: [-360, 360],
                     outputRange: ['-360deg', '360deg'],
                   })},
+                  { scale: tool.size || 1 },
                 ],
                 opacity: tool.opacity,
               },
@@ -309,6 +332,7 @@ const AnimatedBriefcaseMobile = ({ onAnimationComplete, children }) => {
               <View style={styles.scissors}>
                 <View style={[styles.scissorBlade, tool.color === 'gold' ? styles.goldTool : styles.silverTool]} />
                 <View style={[styles.scissorBlade, tool.color === 'gold' ? styles.goldTool : styles.silverTool, { transform: [{ rotate: '20deg' }] }]} />
+                <View style={[styles.scissorHandle, tool.color === 'gold' ? styles.darkGoldTool : styles.darkSilverTool]} />
               </View>
             )}
             {tool.type === 'razor' && (
@@ -316,9 +340,15 @@ const AnimatedBriefcaseMobile = ({ onAnimationComplete, children }) => {
             )}
             {tool.type === 'comb' && (
               <View style={[styles.comb, tool.color === 'gold' ? styles.darkGoldTool : styles.darkSilverTool]}>
-                {[...Array(6)].map((_, i) => (
+                {[...Array(8)].map((_, i) => (
                   <View key={i} style={[styles.combTooth, tool.color === 'gold' ? styles.darkGoldTool : styles.darkSilverTool]} />
                 ))}
+              </View>
+            )}
+            {tool.type === 'clipper' && (
+              <View style={styles.clipper}>
+                <View style={[styles.clipperBody, tool.color === 'silver' ? styles.silverTool : styles.darkSilverTool]} />
+                <View style={[styles.clipperHead, tool.color === 'gold' ? styles.goldTool : styles.darkGoldTool]} />
               </View>
             )}
           </Animated.View>
@@ -335,13 +365,7 @@ const AnimatedBriefcaseMobile = ({ onAnimationComplete, children }) => {
             },
           ]}
         >
-          <ScrollView
-            contentContainerStyle={styles.scrollContent}
-            keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={false}
-          >
-            {children}
-          </ScrollView>
+          {children}
         </Animated.View>
       )}
     </View>
@@ -460,8 +484,6 @@ const styles = StyleSheet.create({
   },
   toolFlying: {
     position: 'absolute',
-    width: 40,
-    height: 40,
   },
   goldTool: {
     backgroundColor: '#ffd700',
@@ -476,24 +498,33 @@ const styles = StyleSheet.create({
     backgroundColor: '#a8a8a8',
   },
   scissors: {
-    width: 30,
-    height: 30,
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   scissorBlade: {
-    width: 3,
-    height: 25,
+    width: 4,
+    height: 35,
     position: 'absolute',
-    left: 13,
     borderRadius: 2,
   },
+  scissorHandle: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    borderWidth: 2,
+    position: 'absolute',
+    bottom: 5,
+  },
   razor: {
-    width: 4,
-    height: 30,
+    width: 5,
+    height: 40,
     borderRadius: 2,
   },
   comb: {
-    width: 25,
-    height: 6,
+    width: 30,
+    height: 8,
     borderRadius: 1,
     flexDirection: 'row',
     justifyContent: 'space-around',
@@ -501,21 +532,28 @@ const styles = StyleSheet.create({
   },
   combTooth: {
     width: 2,
-    height: 8,
+    height: 12,
+  },
+  clipper: {
+    width: 30,
+    height: 45,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  clipperBody: {
+    width: 28,
+    height: 38,
+    borderRadius: 3,
+  },
+  clipperHead: {
+    width: 30,
+    height: 10,
+    marginTop: -3,
+    borderRadius: 2,
   },
   contentContainer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 80,
-    paddingHorizontal: 20,
+    flex: 1,
     zIndex: 10,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    paddingVertical: 20,
   },
 });
 

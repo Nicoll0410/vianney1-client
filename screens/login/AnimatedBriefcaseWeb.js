@@ -253,37 +253,66 @@ const AnimatedBriefcaseWeb = ({ onAnimationComplete, children }) => {
         metalness: 0.85,
       });
 
-      // Crear herramientas como objetos separados
+      // MUCHAS MÁS HERRAMIENTAS - 24 en total
       const tools = [
-        { type: 'scissors', material: goldMaterial, handle: darkGoldMaterial, pos: [-1.2, 0, 0.5] },
-        { type: 'scissors', material: silverMaterial, handle: darkSilverMaterial, pos: [1.2, 0, 0.5] },
-        { type: 'razor', material: goldMaterial, handle: darkGoldMaterial, pos: [-2, 0, 0.3] },
-        { type: 'razor', material: silverMaterial, handle: darkSilverMaterial, pos: [2, 0, 0.3] },
-        { type: 'comb', material: darkGoldMaterial, pos: [-1.5, 0, 0.2] },
-        { type: 'comb', material: darkSilverMaterial, pos: [1.5, 0, 0.2] },
+        // Tijeras grandes (6)
+        { type: 'scissors', material: goldMaterial, handle: darkGoldMaterial, pos: [-1.5, 0, 0.5], scale: 1.3 },
+        { type: 'scissors', material: silverMaterial, handle: darkSilverMaterial, pos: [1.5, 0, 0.5], scale: 1.3 },
+        { type: 'scissors', material: goldMaterial, handle: darkGoldMaterial, pos: [-1.8, 0, 0.4], scale: 1.2 },
+        { type: 'scissors', material: silverMaterial, handle: darkSilverMaterial, pos: [1.8, 0, 0.4], scale: 1.2 },
+        { type: 'scissors', material: goldMaterial, handle: darkGoldMaterial, pos: [-1.2, 0, 0.6], scale: 1.1 },
+        { type: 'scissors', material: silverMaterial, handle: darkSilverMaterial, pos: [1.2, 0, 0.6], scale: 1.1 },
+        
+        // Navajas (6)
+        { type: 'razor', material: goldMaterial, handle: darkGoldMaterial, pos: [-2.2, 0, 0.3], scale: 1.2 },
+        { type: 'razor', material: silverMaterial, handle: darkSilverMaterial, pos: [2.2, 0, 0.3], scale: 1.2 },
+        { type: 'razor', material: goldMaterial, handle: darkGoldMaterial, pos: [-2.0, 0, 0.25], scale: 1.1 },
+        { type: 'razor', material: silverMaterial, handle: darkSilverMaterial, pos: [2.0, 0, 0.25], scale: 1.1 },
+        { type: 'razor', material: goldMaterial, handle: darkGoldMaterial, pos: [-2.4, 0, 0.35], scale: 1.0 },
+        { type: 'razor', material: silverMaterial, handle: darkSilverMaterial, pos: [2.4, 0, 0.35], scale: 1.0 },
+        
+        // Peines (6)
+        { type: 'comb', material: darkGoldMaterial, pos: [-1.6, 0, 0.2], scale: 1.2 },
+        { type: 'comb', material: darkSilverMaterial, pos: [1.6, 0, 0.2], scale: 1.2 },
+        { type: 'comb', material: darkGoldMaterial, pos: [-1.4, 0, 0.15], scale: 1.1 },
+        { type: 'comb', material: darkSilverMaterial, pos: [1.4, 0, 0.15], scale: 1.1 },
+        { type: 'comb', material: darkGoldMaterial, pos: [-1.8, 0, 0.25], scale: 1.0 },
+        { type: 'comb', material: darkSilverMaterial, pos: [1.8, 0, 0.25], scale: 1.0 },
+        
+        // Clippers (6)
+        { type: 'clipper', gold: goldMaterial, silver: silverMaterial, pos: [-0.5, 0, 0.3], scale: 1.2 },
+        { type: 'clipper', gold: goldMaterial, silver: silverMaterial, pos: [0.5, 0, 0.3], scale: 1.2 },
+        { type: 'clipper', gold: darkGoldMaterial, silver: darkSilverMaterial, pos: [-0.3, 0, 0.35], scale: 1.1 },
+        { type: 'clipper', gold: darkGoldMaterial, silver: darkSilverMaterial, pos: [0.3, 0, 0.35], scale: 1.1 },
+        { type: 'clipper', gold: goldMaterial, silver: silverMaterial, pos: [-0.7, 0, 0.25], scale: 1.0 },
+        { type: 'clipper', gold: goldMaterial, silver: silverMaterial, pos: [0.7, 0, 0.25], scale: 1.0 },
       ];
 
       tools.forEach((toolData) => {
         let tool;
+        const scale = toolData.scale || 1.0;
+        
         if (toolData.type === 'scissors') {
-          tool = createScissors(THREE, toolData.material, toolData.handle, 0.8);
+          tool = createScissors(THREE, toolData.material, toolData.handle, scale);
         } else if (toolData.type === 'razor') {
-          tool = createRazor(THREE, toolData.material, toolData.handle);
+          tool = createRazor(THREE, toolData.material, toolData.handle, scale);
         } else if (toolData.type === 'comb') {
-          tool = createComb(THREE, toolData.material);
+          tool = createComb(THREE, toolData.material, scale);
+        } else if (toolData.type === 'clipper') {
+          tool = createClipper(THREE, toolData.gold, toolData.silver, scale);
         }
 
         tool.position.set(...toolData.pos);
-        tool.visible = false; // Ocultas inicialmente
+        tool.visible = false;
         
-        // Guardar velocidades para la animación de expulsión
+        // Velocidades más dramáticas
         tool.userData.velocity = {
-          x: (Math.random() - 0.5) * 0.15,
-          y: Math.random() * 0.2 + 0.15,
-          z: (Math.random() - 0.5) * 0.1,
-          rotX: (Math.random() - 0.5) * 0.1,
-          rotY: (Math.random() - 0.5) * 0.1,
-          rotZ: (Math.random() - 0.5) * 0.1,
+          x: (Math.random() - 0.5) * 0.25,
+          y: Math.random() * 0.25 + 0.2,
+          z: (Math.random() - 0.5) * 0.15,
+          rotX: (Math.random() - 0.5) * 0.15,
+          rotY: (Math.random() - 0.5) * 0.15,
+          rotZ: (Math.random() - 0.5) * 0.15,
         };
         
         scene.add(tool);
@@ -309,29 +338,40 @@ const AnimatedBriefcaseWeb = ({ onAnimationComplete, children }) => {
       return group;
     };
 
-    const createRazor = (THREE, metalMat, handleMat) => {
+    const createRazor = (THREE, metalMat, handleMat, scale = 1.0) => {
       const group = new THREE.Group();
-      const bladeGeo = new THREE.BoxGeometry(0.1, 1.2, 0.03);
+      const bladeGeo = new THREE.BoxGeometry(0.1 * scale, 1.2 * scale, 0.03 * scale);
       const blade = new THREE.Mesh(bladeGeo, metalMat);
-      blade.position.y = 0.3;
-      const handleGeo = new THREE.BoxGeometry(0.18, 0.8, 0.12);
+      blade.position.y = 0.3 * scale;
+      const handleGeo = new THREE.BoxGeometry(0.18 * scale, 0.8 * scale, 0.12 * scale);
       const handle = new THREE.Mesh(handleGeo, handleMat);
-      handle.position.y = -0.4;
+      handle.position.y = -0.4 * scale;
       group.add(blade, handle);
       return group;
     };
 
-    const createComb = (THREE, material) => {
+    const createComb = (THREE, material, scale = 1.0) => {
       const group = new THREE.Group();
-      const baseGeo = new THREE.BoxGeometry(0.25, 1.0, 0.04);
+      const baseGeo = new THREE.BoxGeometry(0.25 * scale, 1.0 * scale, 0.04 * scale);
       const base = new THREE.Mesh(baseGeo, material);
       group.add(base);
       for (let i = 0; i < 15; i++) {
-        const toothGeo = new THREE.BoxGeometry(0.2, 0.03, 0.02);
+        const toothGeo = new THREE.BoxGeometry(0.2 * scale, 0.03 * scale, 0.02 * scale);
         const tooth = new THREE.Mesh(toothGeo, material);
-        tooth.position.set(0.11, 0.45 - i * 0.06, 0);
+        tooth.position.set(0.11 * scale, (0.45 - i * 0.06) * scale, 0);
         group.add(tooth);
       }
+      return group;
+    };
+
+    const createClipper = (THREE, goldMat, silverMat, scale = 1.0) => {
+      const group = new THREE.Group();
+      const bodyGeo = new THREE.BoxGeometry(0.35 * scale, 1.0 * scale, 0.25 * scale);
+      const body = new THREE.Mesh(bodyGeo, silverMat);
+      const headGeo = new THREE.BoxGeometry(0.4 * scale, 0.25 * scale, 0.27 * scale);
+      const head = new THREE.Mesh(headGeo, goldMat);
+      head.position.y = 0.625 * scale;
+      group.add(body, head);
       return group;
     };
 
