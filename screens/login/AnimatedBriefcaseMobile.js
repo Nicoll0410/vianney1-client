@@ -361,7 +361,7 @@ const AnimatedBriefcaseMobile = ({ onAnimationComplete, children }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#ffffff', // Fondo blanco
   },
   particle: {
     position: 'absolute',

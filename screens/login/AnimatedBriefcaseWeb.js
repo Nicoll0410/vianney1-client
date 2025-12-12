@@ -33,7 +33,7 @@ const AnimatedBriefcaseWeb = ({ onAnimationComplete, children }) => {
 
       // Crear escena
       scene = new THREE.Scene();
-      scene.background = new THREE.Color(0xf0f0f0);
+      scene.background = new THREE.Color(0xffffff); // Fondo blanco
 
       // Crear cámara
       camera = new THREE.PerspectiveCamera(
