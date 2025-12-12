@@ -21,55 +21,51 @@ const isWeb = Platform.OS === 'web';
 
 const LoginScreen = () => {
   const [animationComplete, setAnimationComplete] = useState(false);
-  const [showLoginForm, setShowLoginForm] = useState(false);
 
   const handleAnimationComplete = () => {
     setAnimationComplete(true);
   };
 
-  // Renderizar la animación para web
+  // ANIMACIÓN PARA WEB
   if (isWeb) {
     return (
-      <View style={{ flex: 1 }}>
-        <AnimatedBriefcaseWeb onAnimationComplete={handleAnimationComplete}>
-          <View style={styles.loginContentWeb}>
-            <View style={styles.logoTitleContainer}>
-              <Text style={styles.title}>NEW YORK</Text>
-              <Text style={styles.title}>BARBER</Text>
-              <Image 
-                source={require('../../assets/images/newYorkBarber.jpeg')} 
-                style={styles.logoInAnimation} 
-                resizeMode="contain"
-              />
-            </View>
-            <LoginForm />
-            <View style={styles.footerInAnimation}>
-              <Footer />
-            </View>
+      <AnimatedBriefcaseWeb onAnimationComplete={handleAnimationComplete}>
+        {/* Tu LoginForm original dentro del maletín */}
+        <View style={styles.webAnimatedContainer}>
+          <View style={styles.titleContainerDesktop}>
+            <Text style={styles.title}>NEW YORK BARBER</Text>
           </View>
-        </AnimatedBriefcaseWeb>
-      </View>
+          <Image 
+            source={require('../../assets/images/newYorkBarber.jpeg')} 
+            style={styles.logoInAnimation} 
+            resizeMode="contain"
+          />
+          <LoginForm />
+          <View style={styles.footerInAnimation}>
+            <Footer />
+          </View>
+        </View>
+      </AnimatedBriefcaseWeb>
     );
   }
 
-  // Renderizar la animación para móvil
+  // ANIMACIÓN PARA MÓVIL
   if (!isWeb) {
     return (
-      <View style={{ flex: 1 }}>
-        <AnimatedBriefcaseMobile onAnimationComplete={handleAnimationComplete}>
-          <View style={styles.loginContentMobile}>
-            <View style={styles.logoTitleContainer}>
-              <Text style={styles.titleMobile}>NEW YORK BARBER</Text>
-              <Image 
-                source={require('../../assets/images/newYorkBarber.jpeg')} 
-                style={styles.logoInAnimationMobile} 
-                resizeMode="contain"
-              />
-            </View>
-            <LoginForm />
+      <AnimatedBriefcaseMobile onAnimationComplete={handleAnimationComplete}>
+        {/* Tu LoginForm original dentro del maletín */}
+        <View style={styles.mobileAnimatedContainer}>
+          <View style={styles.titleContainerMobile}>
+            <Text style={styles.titleMobile}>NEW YORK BARBER</Text>
           </View>
-        </AnimatedBriefcaseMobile>
-      </View>
+          <Image 
+            source={require('../../assets/images/newYorkBarber.jpeg')} 
+            style={styles.logoInAnimationMobile} 
+            resizeMode="contain"
+          />
+          <LoginForm />
+        </View>
+      </AnimatedBriefcaseMobile>
     );
   }
 
@@ -77,140 +73,67 @@ const LoginScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  
-  // Estilos para contenido dentro de la animación WEB
-  loginContentWeb: {
-    backgroundColor: 'white',
-    borderRadius: 24,
-    padding: isDesktop ? 40 : 30,
-    maxWidth: 500,
+  // Estilos para la animación WEB
+  webAnimatedContainer: {
+    backgroundColor: 'transparent',
+    padding: 20,
+    maxWidth: 450,
     width: '90%',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 20 },
-    shadowOpacity: 0.3,
-    shadowRadius: 40,
-    elevation: 20,
-  },
-  logoTitleContainer: {
-    alignItems: 'center',
-    marginBottom: 30,
   },
   logoInAnimation: {
     width: 120,
     height: 120,
-    marginTop: 15,
+    alignSelf: 'center',
+    marginBottom: 20,
     borderRadius: 60,
     borderWidth: 3,
     borderColor: '#000',
   },
   footerInAnimation: {
-    marginTop: 30,
-    paddingTop: 20,
-    borderTopWidth: 1,
-    borderTopColor: '#e5e5e5',
+    marginTop: 20,
   },
 
-  // Estilos para contenido dentro de la animación MÓVIL
-  loginContentMobile: {
-    backgroundColor: 'white',
-    borderRadius: 20,
-    padding: 24,
-    width: '90%',
+  // Estilos para la animación MÓVIL
+  mobileAnimatedContainer: {
+    backgroundColor: 'transparent',
+    padding: 20,
+    width: '100%',
     maxWidth: 400,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.25,
-    shadowRadius: 20,
-    elevation: 15,
   },
   logoInAnimationMobile: {
     width: 100,
     height: 100,
-    marginTop: 12,
+    alignSelf: 'center',
+    marginBottom: 15,
     borderRadius: 50,
     borderWidth: 3,
     borderColor: '#000',
   },
-  titleMobile: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    letterSpacing: 2,
-    color: '#000',
-    textAlign: 'center',
-    textTransform: 'uppercase',
-  },
 
-  // Estilos originales
-  mobileContainer: {
-    flex: 1,
-  },
-  scrollContainer: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    paddingBottom: 80,
-  },
-  mobileContent: {
-    width: '100%',
-    alignItems: 'center',
-    padding: 20,
-  },
-  mobileFooter: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    zIndex: 1000,
-  },
-  desktopContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 40,
-  },
-  desktopContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '100%',
-    maxWidth: 1200,
-    flex: 1,
-  },
-  logoContainer: {
-    marginRight: isDesktop ? 120 : 80,
-    marginLeft: isDesktop ? 80 : 40,
-    width: isDesktop ? 300 : 200,
-    alignItems: 'center',
-  },
-  logo: {
-    width: '100%',
-    height: isDesktop ? 300 : 200,
-    marginBottom: isMobile ? 20 : 0,
-  },
-  desktopFooter: {
-    width: '100%',
-    maxWidth: 1200,
-    paddingBottom: 40,
-    alignSelf: 'center',
-  },
+  // Títulos
   titleContainerMobile: {
-    marginBottom: 20,
+    marginBottom: 15,
     alignItems: 'center',
   },
   titleContainerDesktop: {
-    marginBottom: 30,
+    marginBottom: 20,
     alignItems: 'center',
   },
   title: {
-    fontSize: isDesktop ? 28 : isMobile ? 22 : 24,
+    fontSize: isDesktop ? 28 : 24,
     fontWeight: 'bold',
     letterSpacing: 2,
     color: '#000',
     textAlign: 'center',
     fontFamily: Platform.OS === 'ios' ? 'Helvetica Neue' : 'sans-serif',
+    textTransform: 'uppercase',
+  },
+  titleMobile: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    letterSpacing: 2,
+    color: '#000',
+    textAlign: 'center',
     textTransform: 'uppercase',
   },
 });
