@@ -53,7 +53,7 @@ const LoginScreen = () => {
     );
   }
 
-  // ANIMACIÓN PARA MÓVIL (CORREGIDO - Centrado exacto como en la imagen)
+  // ANIMACIÓN PARA MÓVIL (CORREGIDO - Centrado)
   return (
     <View style={styles.container}>
       <AnimatedBriefcaseMobile onAnimationComplete={handleAnimationComplete}>
@@ -69,19 +69,17 @@ const LoginScreen = () => {
               </View>
               <Image 
                 source={require('../../assets/images/newYorkBarber.jpeg')} 
-                style={styles.mobileLogo} 
+                style={styles.logo} 
                 resizeMode="contain"
               />
               <LoginForm />
             </View>
           </ScrollView>
+          <View style={styles.mobileFooter}>
+            <Footer />
+          </View>
         </View>
       </AnimatedBriefcaseMobile>
-      
-      {/* Footer separado fuera del scroll para que esté siempre visible */}
-      <View style={styles.mobileFooter}>
-        <Footer />
-      </View>
     </View>
   );
 };
@@ -93,24 +91,29 @@ const styles = StyleSheet.create({
   },
   mobileContainer: {
     flex: 1,
+    width: '100%',
   },
   scrollContainer: {
     flexGrow: 1,
-    paddingBottom: 100, // Espacio para el footer
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingBottom: 80,
+    minHeight: height,
   },
   mobileContent: {
     width: '100%',
+    maxWidth: 400,
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    minHeight: height - 100, // Altura mínima menos el footer
+    padding: 20,
+    flex: 1,
+    justifyContent: 'center',
   },
   mobileFooter: {
-    width: '100%',
-    paddingVertical: 10,
-    backgroundColor: '#fff',
-    borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1000,
   },
   desktopContent: {
     flexDirection: 'row',
@@ -135,11 +138,6 @@ const styles = StyleSheet.create({
     height: isDesktop ? 300 : 200,
     marginBottom: isMobile ? 20 : 0,
   },
-  mobileLogo: {
-    width: 150,
-    height: 150,
-    marginVertical: 20,
-  },
   desktopFooter: {
     width: '100%',
     maxWidth: 1200,
@@ -147,22 +145,22 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   titleContainerMobile: {
-    marginBottom: 10,
+    marginBottom: 20,
     alignItems: 'center',
+    width: '100%',
   },
   titleContainerDesktop: {
     marginBottom: 30,
     alignItems: 'center',
   },
   title: {
-    fontSize: isDesktop ? 28 : 24,
+    fontSize: isDesktop ? 28 : isMobile ? 22 : 24,
     fontWeight: 'bold',
     letterSpacing: 2,
     color: '#000',
     textAlign: 'center',
     fontFamily: Platform.OS === 'ios' ? 'Helvetica Neue' : 'sans-serif',
     textTransform: 'uppercase',
-    marginTop: 10,
   },
 });
 
