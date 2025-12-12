@@ -5,7 +5,6 @@ import {
   StyleSheet,
   Animated,
   Dimensions,
-  Image,
 } from 'react-native';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
@@ -13,6 +12,7 @@ const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 const AnimatedBriefcaseMobile = ({ onAnimationComplete, children }) => {
   const [showContent, setShowContent] = useState(false);
   const [hideCase, setHideCase] = useState(false);
+  const [showParticles, setShowParticles] = useState(false);
 
   // Valores animados
   const briefcaseY = useRef(new Animated.Value(-screenHeight)).current;
@@ -23,22 +23,9 @@ const AnimatedBriefcaseMobile = ({ onAnimationComplete, children }) => {
   const contentOpacity = useRef(new Animated.Value(0)).current;
   const contentTranslateY = useRef(new Animated.Value(50)).current;
 
-  // Partículas
+  // Partículas (se crean después)
   const particlesRef = useRef([]);
-  const particleCount = 30;
-
-  // Inicializar partículas
-  useEffect(() => {
-    particlesRef.current = Array.from({ length: particleCount }, () => ({
-      x: new Animated.Value(Math.random() * screenWidth),
-      y: new Animated.Value(-Math.random() * screenHeight),
-      opacity: new Animated.Value(0.8),
-      color: ['#0066cc', '#cc0000', '#1a1a1a'][Math.floor(Math.random() * 3)],
-    }));
-
-    // Animar partículas continuamente
-    animateParticles();
-  }, []);
+  const particleCount = 25;
 
   const animateParticles = () => {
     particlesRef.current.forEach((particle, index) => {
@@ -88,17 +75,15 @@ const AnimatedBriefcaseMobile = ({ onAnimationComplete, children }) => {
       ]),
 
       // 2. Rebote
-      Animated.sequence([
-        Animated.spring(briefcaseY, {
-          toValue: screenHeight * 0.25,
-          friction: 3,
-          tension: 40,
-          useNativeDriver: true,
-        }),
-      ]),
+      Animated.spring(briefcaseY, {
+        toValue: screenHeight * 0.25,
+        friction: 3,
+        tension: 40,
+        useNativeDriver: true,
+      }),
 
       // 3. Pausa
-      Animated.delay(800),
+      Animated.delay(600),
 
       // 4. Abrir tapa
       Animated.timing(lidRotate, {
@@ -107,26 +92,27 @@ const AnimatedBriefcaseMobile = ({ onAnimationComplete, children }) => {
         useNativeDriver: true,
       }),
 
-      // 5. Mostrar contenido
+      // 5. Pausa y mostrar partículas + contenido
+      Animated.delay(400),
+
+      // 6. Mostrar contenido
       Animated.parallel([
         Animated.timing(contentOpacity, {
           toValue: 1,
           duration: 800,
-          delay: 400,
           useNativeDriver: true,
         }),
         Animated.timing(contentTranslateY, {
           toValue: 0,
           duration: 800,
-          delay: 400,
           useNativeDriver: true,
         }),
       ]),
 
-      // 6. Pausa antes de ocultar
+      // 7. Pausa
       Animated.delay(500),
 
-      // 7. Ocultar maletín
+      // 8. Ocultar maletín
       Animated.parallel([
         Animated.timing(briefcaseScale, {
           toValue: 0,
@@ -144,12 +130,28 @@ const AnimatedBriefcaseMobile = ({ onAnimationComplete, children }) => {
       if (onAnimationComplete) onAnimationComplete();
     });
 
-    // Mostrar contenido cuando la tapa se abre
-    const timeout = setTimeout(() => {
-      setShowContent(true);
-    }, 4000);
+    // Mostrar partículas cuando se abre
+    const particlesTimeout = setTimeout(() => {
+      // Inicializar partículas
+      particlesRef.current = Array.from({ length: particleCount }, () => ({
+        x: new Animated.Value(Math.random() * screenWidth),
+        y: new Animated.Value(-Math.random() * 100),
+        opacity: new Animated.Value(0.8),
+        color: ['#0066cc', '#cc0000', '#1a1a1a'][Math.floor(Math.random() * 3)],
+      }));
+      setShowParticles(true);
+      animateParticles();
+    }, 3700); // Cuando la tapa se abre
 
-    return () => clearTimeout(timeout);
+    // Mostrar contenido
+    const contentTimeout = setTimeout(() => {
+      setShowContent(true);
+    }, 4300);
+
+    return () => {
+      clearTimeout(particlesTimeout);
+      clearTimeout(contentTimeout);
+    };
   }, []);
 
   const rotateInterpolate = briefcaseRotate.interpolate({
@@ -159,23 +161,24 @@ const AnimatedBriefcaseMobile = ({ onAnimationComplete, children }) => {
 
   return (
     <View style={styles.container}>
-      {/* Partículas de fondo */}
-      {particlesRef.current.map((particle, index) => (
-        <Animated.View
-          key={index}
-          style={[
-            styles.particle,
-            {
-              backgroundColor: particle.color,
-              transform: [
-                { translateX: particle.x },
-                { translateY: particle.y },
-              ],
-              opacity: particle.opacity,
-            },
-          ]}
-        />
-      ))}
+      {/* Partículas SOLO después de abrir */}
+      {showParticles &&
+        particlesRef.current.map((particle, index) => (
+          <Animated.View
+            key={index}
+            style={[
+              styles.particle,
+              {
+                backgroundColor: particle.color,
+                transform: [
+                  { translateX: particle.x },
+                  { translateY: particle.y },
+                ],
+                opacity: particle.opacity,
+              },
+            ]}
+          />
+        ))}
 
       {/* Maletín */}
       {!hideCase && (
@@ -194,55 +197,107 @@ const AnimatedBriefcaseMobile = ({ onAnimationComplete, children }) => {
         >
           {/* Cuerpo del maletín */}
           <View style={styles.briefcaseBody}>
-            {/* Herramientas doradas en el frente */}
+            {/* Costuras punteadas realistas */}
+            <View style={styles.stitchingContainer}>
+              {[...Array(40)].map((_, i) => {
+                const angle = (i / 40) * Math.PI * 2;
+                const radius = 110;
+                const x = 120 + Math.cos(angle) * radius;
+                const y = 70 + Math.sin(angle) * (radius * 0.55);
+                return (
+                  <View
+                    key={i}
+                    style={[
+                      styles.stitch,
+                      { left: x - 2, top: y - 2 },
+                    ]}
+                  />
+                );
+              })}
+            </View>
+
+            {/* Herramientas DORADAS Y PLATEADAS */}
             <View style={styles.toolsContainer}>
-              {/* Tijeras cruzadas */}
-              <View style={[styles.scissors, { left: '25%', top: '20%', transform: [{ rotate: '-30deg' }] }]}>
-                <View style={styles.scissorBlade} />
-                <View style={[styles.scissorBlade, { transform: [{ rotate: '20deg' }] }]} />
-                <View style={styles.scissorHandle} />
+              {/* Tijeras DORADAS (izquierda) */}
+              <View style={[styles.scissors, styles.goldTool, { left: '20%', top: '20%', transform: [{ rotate: '-30deg' }] }]}>
+                <View style={[styles.scissorBlade, styles.goldTool]} />
+                <View style={[styles.scissorBlade, styles.goldTool, { transform: [{ rotate: '20deg' }] }]} />
+                <View style={[styles.scissorHandle, styles.darkGoldTool]} />
               </View>
 
-              <View style={[styles.scissors, { right: '25%', top: '20%', transform: [{ rotate: '30deg' }] }]}>
-                <View style={styles.scissorBlade} />
-                <View style={[styles.scissorBlade, { transform: [{ rotate: '20deg' }] }]} />
-                <View style={styles.scissorHandle} />
+              {/* Tijeras PLATEADAS (derecha) */}
+              <View style={[styles.scissors, styles.silverTool, { right: '20%', top: '20%', transform: [{ rotate: '30deg' }] }]}>
+                <View style={[styles.scissorBlade, styles.silverTool]} />
+                <View style={[styles.scissorBlade, styles.silverTool, { transform: [{ rotate: '20deg' }] }]} />
+                <View style={[styles.scissorHandle, styles.darkSilverTool]} />
               </View>
 
-              {/* Navajas */}
-              <View style={[styles.razor, { left: '10%', top: '50%' }]} />
-              <View style={[styles.razor, { right: '10%', top: '50%' }]} />
+              {/* Navaja DORADA (izquierda) */}
+              <View style={[styles.razor, styles.goldTool, { left: '8%', top: '50%' }]} />
+              
+              {/* Navaja PLATEADA (derecha) */}
+              <View style={[styles.razor, styles.silverTool, { right: '8%', top: '50%' }]} />
 
-              {/* Peines */}
-              <View style={[styles.comb, { left: '15%', bottom: '15%' }]}>
+              {/* Peine DORADO (izquierda) */}
+              <View style={[styles.comb, styles.darkGoldTool, { left: '12%', bottom: '12%' }]}>
                 {[...Array(8)].map((_, i) => (
-                  <View key={i} style={styles.combTooth} />
+                  <View key={i} style={[styles.combTooth, styles.darkGoldTool]} />
                 ))}
               </View>
-              <View style={[styles.comb, { right: '15%', bottom: '15%' }]}>
+
+              {/* Peine PLATEADO (derecha) */}
+              <View style={[styles.comb, styles.darkSilverTool, { right: '12%', bottom: '12%' }]}>
                 {[...Array(8)].map((_, i) => (
-                  <View key={i} style={styles.combTooth} />
+                  <View key={i} style={[styles.combTooth, styles.darkSilverTool]} />
                 ))}
               </View>
 
-              {/* Máquina cortapelo centro */}
+              {/* Máquina cortapelo (centro - dorado y plateado) */}
               <View style={styles.clipper}>
-                <View style={styles.clipperBody} />
-                <View style={styles.clipperHead} />
+                <View style={[styles.clipperBody, styles.silverTool]} />
+                <View style={[styles.clipperHead, styles.goldTool]} />
               </View>
             </View>
 
-            {/* Esquinas plateadas */}
-            <View style={[styles.corner, styles.cornerTL]} />
-            <View style={[styles.corner, styles.cornerTR]} />
-            <View style={[styles.corner, styles.cornerBL]} />
-            <View style={[styles.corner, styles.cornerBR]} />
+            {/* Esquinas plateadas con remaches */}
+            <View style={[styles.corner, styles.cornerTL]}>
+              <View style={[styles.rivet, styles.rivetTL]} />
+              <View style={[styles.rivet, styles.rivetTR]} />
+              <View style={[styles.rivet, styles.rivetBL]} />
+              <View style={[styles.rivet, styles.rivetBR]} />
+            </View>
+            <View style={[styles.corner, styles.cornerTR]}>
+              <View style={[styles.rivet, styles.rivetTL]} />
+              <View style={[styles.rivet, styles.rivetTR]} />
+              <View style={[styles.rivet, styles.rivetBL]} />
+              <View style={[styles.rivet, styles.rivetBR]} />
+            </View>
+            <View style={[styles.corner, styles.cornerBL]}>
+              <View style={[styles.rivet, styles.rivetTL]} />
+              <View style={[styles.rivet, styles.rivetTR]} />
+              <View style={[styles.rivet, styles.rivetBL]} />
+              <View style={[styles.rivet, styles.rivetBR]} />
+            </View>
+            <View style={[styles.corner, styles.cornerBR]}>
+              <View style={[styles.rivet, styles.rivetTL]} />
+              <View style={[styles.rivet, styles.rivetTR]} />
+              <View style={[styles.rivet, styles.rivetBL]} />
+              <View style={[styles.rivet, styles.rivetBR]} />
+            </View>
 
-            {/* Manija */}
-            <View style={styles.handle} />
+            {/* Manija mejorada */}
+            <View style={styles.handleContainer}>
+              <View style={styles.handleSupport} />
+              <View style={[styles.handleSupport, { right: 60 }]} />
+              <View style={styles.handle} />
+              <View style={styles.handleStitching} />
+            </View>
 
             {/* Cerradura */}
-            <View style={styles.lock} />
+            <View style={styles.lockContainer}>
+              <View style={styles.lock} />
+              <View style={styles.lockLatch} />
+            </View>
           </View>
 
           {/* Tapa (se abre) */}
@@ -252,21 +307,33 @@ const AnimatedBriefcaseMobile = ({ onAnimationComplete, children }) => {
               {
                 transform: [
                   { translateY: -110 },
-                  { rotateX: lidRotate.interpolate({
-                    inputRange: [-110, 0],
-                    outputRange: ['-110deg', '0deg'],
-                  }) },
+                  {
+                    rotateX: lidRotate.interpolate({
+                      inputRange: [-110, 0],
+                      outputRange: ['-110deg', '0deg'],
+                    }),
+                  },
                 ],
               },
             ]}
           >
-            <View style={[styles.corner, styles.cornerTL]} />
-            <View style={[styles.corner, styles.cornerTR]} />
+            <View style={[styles.corner, styles.cornerTL]}>
+              <View style={[styles.rivet, styles.rivetTL]} />
+              <View style={[styles.rivet, styles.rivetTR]} />
+              <View style={[styles.rivet, styles.rivetBL]} />
+              <View style={[styles.rivet, styles.rivetBR]} />
+            </View>
+            <View style={[styles.corner, styles.cornerTR]}>
+              <View style={[styles.rivet, styles.rivetTL]} />
+              <View style={[styles.rivet, styles.rivetTR]} />
+              <View style={[styles.rivet, styles.rivetBL]} />
+              <View style={[styles.rivet, styles.rivetBR]} />
+            </View>
           </Animated.View>
         </Animated.View>
       )}
 
-      {/* Contenido (Login) */}
+      {/* Contenido (Login) - UNA SOLA VEZ */}
       {showContent && (
         <Animated.View
           style={[
@@ -287,7 +354,7 @@ const AnimatedBriefcaseMobile = ({ onAnimationComplete, children }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#f0f0f0',
   },
   particle: {
     position: 'absolute',
@@ -304,30 +371,54 @@ const styles = StyleSheet.create({
   briefcaseBody: {
     width: '100%',
     height: 140,
-    backgroundColor: '#0a0a0a',
-    borderRadius: 8,
+    backgroundColor: '#1a1a1a',
+    borderRadius: 12,
     position: 'relative',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.5,
-    shadowRadius: 20,
-    elevation: 10,
+    shadowOffset: { width: 0, height: 15 },
+    shadowOpacity: 0.6,
+    shadowRadius: 25,
+    elevation: 15,
   },
   briefcaseLid: {
     position: 'absolute',
     top: 0,
     width: '100%',
-    height: 30,
-    backgroundColor: '#0a0a0a',
-    borderTopLeftRadius: 8,
-    borderTopRightRadius: 8,
+    height: 35,
+    backgroundColor: '#1a1a1a',
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
     transformOrigin: 'top',
+  },
+  stitchingContainer: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+  },
+  stitch: {
+    position: 'absolute',
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: '#e8e8e8',
   },
   toolsContainer: {
     position: 'absolute',
     width: '100%',
     height: '100%',
     padding: 10,
+  },
+  goldTool: {
+    backgroundColor: '#ffd700',
+  },
+  silverTool: {
+    backgroundColor: '#e8e8e8',
+  },
+  darkGoldTool: {
+    backgroundColor: '#b8860b',
+  },
+  darkSilverTool: {
+    backgroundColor: '#a8a8a8',
   },
   scissors: {
     position: 'absolute',
@@ -337,7 +428,6 @@ const styles = StyleSheet.create({
   scissorBlade: {
     width: 3,
     height: 30,
-    backgroundColor: '#ffd700',
     position: 'absolute',
     left: 18,
     borderRadius: 2,
@@ -347,7 +437,6 @@ const styles = StyleSheet.create({
     height: 15,
     borderRadius: 7.5,
     borderWidth: 2,
-    borderColor: '#b8860b',
     position: 'absolute',
     bottom: 0,
     left: 12,
@@ -356,14 +445,12 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: 4,
     height: 35,
-    backgroundColor: '#ffd700',
     borderRadius: 2,
   },
   comb: {
     position: 'absolute',
     width: 30,
     height: 6,
-    backgroundColor: '#b8860b',
     borderRadius: 1,
     flexDirection: 'row',
     justifyContent: 'space-around',
@@ -372,7 +459,6 @@ const styles = StyleSheet.create({
   combTooth: {
     width: 2,
     height: 10,
-    backgroundColor: '#b8860b',
   },
   clipper: {
     position: 'absolute',
@@ -384,50 +470,90 @@ const styles = StyleSheet.create({
   clipperBody: {
     width: 24,
     height: 35,
-    backgroundColor: '#b8860b',
     borderRadius: 3,
   },
   clipperHead: {
     width: 26,
     height: 8,
-    backgroundColor: '#ffd700',
     marginTop: -2,
     marginLeft: -1,
     borderRadius: 2,
   },
   corner: {
     position: 'absolute',
-    width: 25,
-    height: 25,
+    width: 28,
+    height: 28,
     backgroundColor: '#c8c8c8',
     borderWidth: 1,
     borderColor: '#999',
   },
-  cornerTL: { top: 5, left: 5, borderTopLeftRadius: 4 },
-  cornerTR: { top: 5, right: 5, borderTopRightRadius: 4 },
-  cornerBL: { bottom: 5, left: 5, borderBottomLeftRadius: 4 },
-  cornerBR: { bottom: 5, right: 5, borderBottomRightRadius: 4 },
-  handle: {
+  cornerTL: { top: 5, left: 5, borderTopLeftRadius: 6 },
+  cornerTR: { top: 5, right: 5, borderTopRightRadius: 6 },
+  cornerBL: { bottom: 5, left: 5, borderBottomLeftRadius: 6 },
+  cornerBR: { bottom: 5, right: 5, borderBottomRightRadius: 6 },
+  rivet: {
     position: 'absolute',
-    top: -20,
-    left: '50%',
-    marginLeft: -40,
-    width: 80,
-    height: 15,
-    backgroundColor: '#0a0a0a',
-    borderRadius: 10,
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: '#888',
+  },
+  rivetTL: { top: 4, left: 4 },
+  rivetTR: { top: 4, right: 4 },
+  rivetBL: { bottom: 4, left: 4 },
+  rivetBR: { bottom: 4, right: 4 },
+  handleContainer: {
+    position: 'absolute',
+    top: -25,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+  },
+  handleSupport: {
+    position: 'absolute',
+    left: 60,
+    width: 15,
+    height: 20,
+    backgroundColor: '#c8c8c8',
+    borderRadius: 3,
+    top: 0,
+  },
+  handle: {
+    width: 100,
+    height: 18,
+    backgroundColor: '#0f0f0f',
+    borderRadius: 12,
     borderWidth: 2,
     borderColor: '#c8c8c8',
   },
-  lock: {
+  handleStitching: {
+    position: 'absolute',
+    width: 100,
+    height: 2,
+    backgroundColor: '#e8e8e8',
+    top: 8,
+  },
+  lockContainer: {
     position: 'absolute',
     bottom: 15,
     left: '50%',
-    marginLeft: -12,
-    width: 24,
-    height: 12,
+    marginLeft: -15,
+    alignItems: 'center',
+  },
+  lock: {
+    width: 30,
+    height: 14,
     backgroundColor: '#c8c8c8',
     borderRadius: 3,
+    borderWidth: 1,
+    borderColor: '#999',
+  },
+  lockLatch: {
+    width: 10,
+    height: 8,
+    backgroundColor: '#c8c8c8',
+    borderRadius: 2,
+    marginTop: -4,
   },
   contentContainer: {
     flex: 1,
