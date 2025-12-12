@@ -5,6 +5,7 @@ import {
   StyleSheet,
   Animated,
   Dimensions,
+  ScrollView,
 } from 'react-native';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
@@ -344,7 +345,13 @@ const AnimatedBriefcaseMobile = ({ onAnimationComplete, children }) => {
             },
           ]}
         >
-          {children}
+          <ScrollView
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            {children}
+          </ScrollView>
         </Animated.View>
       )}
     </View>
@@ -556,10 +563,18 @@ const styles = StyleSheet.create({
     marginTop: -4,
   },
   contentContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 80, // Espacio para el footer
     paddingHorizontal: 20,
+    zIndex: 10,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    paddingVertical: 20,
   },
 });
 

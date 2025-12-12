@@ -56,25 +56,19 @@ const LoginScreen = () => {
   // ANIMACIÓN PARA MÓVIL
   if (!isWeb) {
     return (
-      <View style={{ flex: 1 }}>
+      <View style={styles.mobileContainer}>
         <AnimatedBriefcaseMobile onAnimationComplete={handleAnimationComplete}>
-          {/* Layout original móvil: todo centrado */}
-          <ScrollView 
-            contentContainerStyle={styles.scrollContainer}
-            keyboardShouldPersistTaps="handled"
-          >
-            <View style={styles.mobileContent}>
-              <View style={styles.titleContainerMobile}>
-                <Text style={styles.title}>NEW YORK BARBER</Text>
-              </View>
-              <Image 
-                source={require('../../assets/images/newYorkBarber.jpeg')} 
-                style={styles.logo} 
-                resizeMode="contain"
-              />
-              <LoginForm />
+          <View style={styles.mobileContent}>
+            <View style={styles.titleContainerMobile}>
+              <Text style={styles.title}>NEW YORK BARBER</Text>
             </View>
-          </ScrollView>
+            <Image 
+              source={require('../../assets/images/newYorkBarber.jpeg')} 
+              style={styles.logoMobile} 
+              resizeMode="contain"
+            />
+            <LoginForm />
+          </View>
         </AnimatedBriefcaseMobile>
         <View style={styles.mobileFooter}>
           <Footer />
@@ -92,6 +86,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
+  mobileContainer: {
+    flex: 1,
+    backgroundColor: '#f0f0f0', // Mismo fondo que la animación
+  },
   mobileContent: {
     width: '100%',
     alignItems: 'center',
@@ -108,6 +106,11 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     zIndex: 1000,
+  },
+  logoMobile: {
+    width: 150,
+    height: 150,
+    marginBottom: 20,
   },
   desktopContent: {
     flexDirection: 'row',
