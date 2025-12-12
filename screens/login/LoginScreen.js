@@ -53,38 +53,37 @@ const LoginScreen = () => {
     );
   }
 
-  // ANIMACIÓN PARA MÓVIL
-  if (!isWeb) {
-    return (
-      <View style={styles.container}>
-        <AnimatedBriefcaseMobile onAnimationComplete={handleAnimationComplete}>
-          <View style={styles.mobileContainer}>
-            <ScrollView 
-              contentContainerStyle={styles.scrollContainer}
-              keyboardShouldPersistTaps="handled"
-            >
-              <View style={styles.mobileContent}>
-                <View style={styles.titleContainerMobile}>
-                  <Text style={styles.title}>NEW YORK BARBER</Text>
-                </View>
-                <Image 
-                  source={require('../../assets/images/newYorkBarber.jpeg')} 
-                  style={styles.logo} 
-                  resizeMode="contain"
-                />
-                <LoginForm />
+  // ANIMACIÓN PARA MÓVIL (CORREGIDO - Centrado exacto como en la imagen)
+  return (
+    <View style={styles.container}>
+      <AnimatedBriefcaseMobile onAnimationComplete={handleAnimationComplete}>
+        <View style={styles.mobileContainer}>
+          <ScrollView 
+            contentContainerStyle={styles.scrollContainer}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.mobileContent}>
+              <View style={styles.titleContainerMobile}>
+                <Text style={styles.title}>NEW YORK BARBER</Text>
               </View>
-            </ScrollView>
-            <View style={styles.mobileFooter}>
-              <Footer />
+              <Image 
+                source={require('../../assets/images/newYorkBarber.jpeg')} 
+                style={styles.mobileLogo} 
+                resizeMode="contain"
+              />
+              <LoginForm />
             </View>
-          </View>
-        </AnimatedBriefcaseMobile>
+          </ScrollView>
+        </View>
+      </AnimatedBriefcaseMobile>
+      
+      {/* Footer separado fuera del scroll para que esté siempre visible */}
+      <View style={styles.mobileFooter}>
+        <Footer />
       </View>
-    );
-  }
-
-  return null;
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
@@ -97,20 +96,21 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     flexGrow: 1,
-    justifyContent: 'center',
-    paddingBottom: 80,
+    paddingBottom: 100, // Espacio para el footer
   },
   mobileContent: {
     width: '100%',
     alignItems: 'center',
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    minHeight: height - 100, // Altura mínima menos el footer
   },
   mobileFooter: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    zIndex: 1000,
+    width: '100%',
+    paddingVertical: 10,
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderTopColor: '#f0f0f0',
   },
   desktopContent: {
     flexDirection: 'row',
@@ -135,6 +135,11 @@ const styles = StyleSheet.create({
     height: isDesktop ? 300 : 200,
     marginBottom: isMobile ? 20 : 0,
   },
+  mobileLogo: {
+    width: 150,
+    height: 150,
+    marginVertical: 20,
+  },
   desktopFooter: {
     width: '100%',
     maxWidth: 1200,
@@ -142,7 +147,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   titleContainerMobile: {
-    marginBottom: 20,
+    marginBottom: 10,
     alignItems: 'center',
   },
   titleContainerDesktop: {
@@ -150,13 +155,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontSize: isDesktop ? 28 : isMobile ? 22 : 24,
+    fontSize: isDesktop ? 28 : 24,
     fontWeight: 'bold',
     letterSpacing: 2,
     color: '#000',
     textAlign: 'center',
     fontFamily: Platform.OS === 'ios' ? 'Helvetica Neue' : 'sans-serif',
     textTransform: 'uppercase',
+    marginTop: 10,
   },
 });
 
