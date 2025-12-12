@@ -30,20 +30,24 @@ const LoginScreen = () => {
   if (isWeb) {
     return (
       <AnimatedBriefcaseWeb onAnimationComplete={handleAnimationComplete}>
-        {/* Tu LoginForm original dentro del maletín */}
-        <View style={styles.webAnimatedContainer}>
-          <View style={styles.titleContainerDesktop}>
-            <Text style={styles.title}>NEW YORK BARBER</Text>
+        {/* Layout original: logo izquierda, form derecha */}
+        <View style={styles.desktopContent}>
+          <View style={styles.logoContainer}>
+            <View style={styles.titleContainerDesktop}>
+              <Text style={styles.title}>NEW YORK BARBER</Text>
+            </View>
+            <Image 
+              source={require('../../assets/images/newYorkBarber.jpeg')} 
+              style={styles.logo} 
+              resizeMode="contain"
+            />
           </View>
-          <Image 
-            source={require('../../assets/images/newYorkBarber.jpeg')} 
-            style={styles.logoInAnimation} 
-            resizeMode="contain"
-          />
-          <LoginForm />
-          <View style={styles.footerInAnimation}>
-            <Footer />
+          <View style={styles.formWrapper}>
+            <LoginForm />
           </View>
+        </View>
+        <View style={styles.desktopFooter}>
+          <Footer />
         </View>
       </AnimatedBriefcaseWeb>
     );
@@ -52,20 +56,30 @@ const LoginScreen = () => {
   // ANIMACIÓN PARA MÓVIL
   if (!isWeb) {
     return (
-      <AnimatedBriefcaseMobile onAnimationComplete={handleAnimationComplete}>
-        {/* Tu LoginForm original dentro del maletín */}
-        <View style={styles.mobileAnimatedContainer}>
-          <View style={styles.titleContainerMobile}>
-            <Text style={styles.titleMobile}>NEW YORK BARBER</Text>
-          </View>
-          <Image 
-            source={require('../../assets/images/newYorkBarber.jpeg')} 
-            style={styles.logoInAnimationMobile} 
-            resizeMode="contain"
-          />
-          <LoginForm />
+      <View style={{ flex: 1 }}>
+        <AnimatedBriefcaseMobile onAnimationComplete={handleAnimationComplete}>
+          {/* Layout original móvil: todo centrado */}
+          <ScrollView 
+            contentContainerStyle={styles.scrollContainer}
+            keyboardShouldPersistTaps="handled"
+          >
+            <View style={styles.mobileContent}>
+              <View style={styles.titleContainerMobile}>
+                <Text style={styles.title}>NEW YORK BARBER</Text>
+              </View>
+              <Image 
+                source={require('../../assets/images/newYorkBarber.jpeg')} 
+                style={styles.logo} 
+                resizeMode="contain"
+              />
+              <LoginForm />
+            </View>
+          </ScrollView>
+        </AnimatedBriefcaseMobile>
+        <View style={styles.mobileFooter}>
+          <Footer />
         </View>
-      </AnimatedBriefcaseMobile>
+      </View>
     );
   }
 
@@ -73,67 +87,72 @@ const LoginScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  // Estilos para la animación WEB
-  webAnimatedContainer: {
-    backgroundColor: 'transparent',
-    padding: 20,
-    maxWidth: 450,
-    width: '90%',
+  // Estilos originales de tu LoginScreen
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
   },
-  logoInAnimation: {
-    width: 120,
-    height: 120,
-    alignSelf: 'center',
-    marginBottom: 20,
-    borderRadius: 60,
-    borderWidth: 3,
-    borderColor: '#000',
-  },
-  footerInAnimation: {
-    marginTop: 20,
-  },
-
-  // Estilos para la animación MÓVIL
-  mobileAnimatedContainer: {
-    backgroundColor: 'transparent',
-    padding: 20,
+  mobileContent: {
     width: '100%',
-    maxWidth: 400,
+    alignItems: 'center',
+    padding: 20,
   },
-  logoInAnimationMobile: {
-    width: 100,
-    height: 100,
+  scrollContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    paddingBottom: 80,
+  },
+  mobileFooter: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1000,
+  },
+  desktopContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    maxWidth: 1200,
+    flex: 1,
+  },
+  logoContainer: {
+    marginRight: isDesktop ? 120 : 80,
+    marginLeft: isDesktop ? 80 : 40,
+    width: isDesktop ? 300 : 200,
+    alignItems: 'center',
+  },
+  formWrapper: {
+    flex: 1,
+    maxWidth: 450,
+  },
+  logo: {
+    width: '100%',
+    height: isDesktop ? 300 : 200,
+    marginBottom: isMobile ? 20 : 0,
+  },
+  desktopFooter: {
+    width: '100%',
+    maxWidth: 1200,
+    paddingBottom: 40,
     alignSelf: 'center',
-    marginBottom: 15,
-    borderRadius: 50,
-    borderWidth: 3,
-    borderColor: '#000',
   },
-
-  // Títulos
   titleContainerMobile: {
-    marginBottom: 15,
+    marginBottom: 20,
     alignItems: 'center',
   },
   titleContainerDesktop: {
-    marginBottom: 20,
+    marginBottom: 30,
     alignItems: 'center',
   },
   title: {
-    fontSize: isDesktop ? 28 : 24,
+    fontSize: isDesktop ? 28 : isMobile ? 22 : 24,
     fontWeight: 'bold',
     letterSpacing: 2,
     color: '#000',
     textAlign: 'center',
     fontFamily: Platform.OS === 'ios' ? 'Helvetica Neue' : 'sans-serif',
-    textTransform: 'uppercase',
-  },
-  titleMobile: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    letterSpacing: 2,
-    color: '#000',
-    textAlign: 'center',
     textTransform: 'uppercase',
   },
 });

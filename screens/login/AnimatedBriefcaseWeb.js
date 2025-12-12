@@ -697,8 +697,8 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     justifyContent: 'center',
-    alignItems: 'flex-end',
-    paddingRight: 20,
+    alignItems: 'center',
+    padding: 20,
     zIndex: 100,
   },
 });
