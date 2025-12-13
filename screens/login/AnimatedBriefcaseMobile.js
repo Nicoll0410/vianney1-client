@@ -154,13 +154,15 @@ const AnimatedBriefcaseMobile = ({ onAnimationComplete, children }) => {
         }),
       ]),
 
-      // 2. Rebote
-      Animated.spring(briefcaseY, {
-        toValue: screenHeight * 0.22,
-        friction: 3,
-        tension: 40,
-        useNativeDriver: true,
-      }),
+      // 2. Rebote e INCLINACIÓN
+      Animated.parallel([
+        Animated.spring(briefcaseY, {
+          toValue: screenHeight * 0.22,
+          friction: 3,
+          tension: 40,
+          useNativeDriver: true,
+        }),
+      ]),
 
       // 3. Pausa antes de soltar herramientas
       Animated.delay(300),
@@ -256,6 +258,8 @@ const AnimatedBriefcaseMobile = ({ onAnimationComplete, children }) => {
                 { translateY: briefcaseY },
                 { rotate: rotateInterpolate },
                 { scale: briefcaseScale },
+                { perspective: 1000 },
+                { rotateX: '-15deg' }, // INCLINADO HACIA ARRIBA
               ],
               opacity: briefcaseOpacity,
             },
@@ -344,27 +348,32 @@ const styles = StyleSheet.create({
     height: 130,
     backgroundColor: '#000000',
     borderWidth: 2,
-    borderColor: '#d4af37',
+    borderColor: '#ffd700', // Dorado más brillante
     borderRadius: 12,
     position: 'relative',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#d4af37',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.5,
-    shadowRadius: 10,
-    elevation: 10,
+    // SOMBRA MÁS DRAMÁTICA
+    shadowColor: '#ffd700',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.8,
+    shadowRadius: 20,
+    elevation: 20,
   },
-  // Línea dorada horizontal superior
+  // Línea dorada horizontal superior MÁS BRILLANTE
   topGoldLine: {
     position: 'absolute',
     top: 25,
     left: 2,
     right: 2,
     height: 2,
-    backgroundColor: '#d4af37',
+    backgroundColor: '#ffd700',
+    shadowColor: '#ffd700',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 1,
+    shadowRadius: 8,
   },
-  // Tijeras doradas en el centro
+  // Tijeras doradas en el centro MÁS BRILLANTES
   scissorsInside: {
     width: 70,
     height: 50,
@@ -377,31 +386,43 @@ const styles = StyleSheet.create({
     width: 35,
     height: 35,
     borderWidth: 3,
-    borderColor: '#d4af37',
+    borderColor: '#ffd700',
     borderRadius: 17.5,
     left: 0,
     top: 7,
     transform: [{ rotate: '15deg' }],
+    shadowColor: '#ffd700',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 1,
+    shadowRadius: 6,
   },
   scissorCircleRight: {
     position: 'absolute',
     width: 35,
     height: 35,
     borderWidth: 3,
-    borderColor: '#d4af37',
+    borderColor: '#ffd700',
     borderRadius: 17.5,
     right: 0,
     top: 7,
     transform: [{ rotate: '-15deg' }],
+    shadowColor: '#ffd700',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 1,
+    shadowRadius: 6,
   },
   scissorCenter: {
     position: 'absolute',
     width: 10,
     height: 10,
-    backgroundColor: '#d4af37',
+    backgroundColor: '#ffd700',
     borderRadius: 5,
     top: 20,
     left: 30,
+    shadowColor: '#ffd700',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 1,
+    shadowRadius: 6,
   },
   toolFlying: {
     position: 'absolute',

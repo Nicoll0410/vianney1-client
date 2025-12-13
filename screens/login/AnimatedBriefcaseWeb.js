@@ -73,16 +73,25 @@ const AnimatedBriefcaseWeb = ({ onAnimationComplete, children }) => {
       // Material negro para el maletín
       const blackMaterial = new THREE.MeshPhysicalMaterial({
         color: 0x000000,
-        roughness: 0.3,
-        metalness: 0.1,
-        clearcoat: 0.5,
+        roughness: 0.2,
+        metalness: 0.2,
+        clearcoat: 0.8,
       });
 
-      // Material dorado para detalles
+      // Material dorado MÁS BRILLANTE
       const goldMaterial = new THREE.MeshPhysicalMaterial({
-        color: 0xd4af37,
-        roughness: 0.2,
-        metalness: 0.9,
+        color: 0xffd700, // Dorado más brillante
+        roughness: 0.1,
+        metalness: 1.0,
+        clearcoat: 1.0,
+        emissive: 0xffd700,
+        emissiveIntensity: 0.3, // BRILLO DORADO
+      });
+
+      const silverMaterial = new THREE.MeshPhysicalMaterial({
+        color: 0xe8e8e8,
+        roughness: 0.1,
+        metalness: 1.0,
         clearcoat: 1.0,
       });
 
@@ -90,22 +99,23 @@ const AnimatedBriefcaseWeb = ({ onAnimationComplete, children }) => {
       const bodyGeometry = new THREE.BoxGeometry(7, 5, 1.2);
       const mainBody = new THREE.Mesh(bodyGeometry, blackMaterial);
       mainBody.castShadow = true;
+      mainBody.receiveShadow = true;
       briefcaseGroup.add(mainBody);
 
-      // BORDE DORADO
+      // BORDE DORADO MÁS GRUESO Y BRILLANTE
       const edgeGeometry = new THREE.EdgesGeometry(bodyGeometry);
-      const edgeMaterial = new THREE.LineBasicMaterial({ color: 0xd4af37, linewidth: 2 });
+      const edgeMaterial = new THREE.LineBasicMaterial({ color: 0xffd700, linewidth: 3 });
       const edges = new THREE.LineSegments(edgeGeometry, edgeMaterial);
       briefcaseGroup.add(edges);
 
       // LÍNEA DORADA SUPERIOR
-      const lineGeometry = new THREE.BoxGeometry(7, 0.05, 0.01);
+      const lineGeometry = new THREE.BoxGeometry(7, 0.08, 0.02);
       const topLine = new THREE.Mesh(lineGeometry, goldMaterial);
       topLine.position.set(0, 1.8, 0.61);
       briefcaseGroup.add(topLine);
 
       // TIJERAS DORADAS EN EL CENTRO
-      const circleGeo = new THREE.TorusGeometry(0.4, 0.06, 16, 32);
+      const circleGeo = new THREE.TorusGeometry(0.4, 0.08, 16, 32);
       
       const leftCircle = new THREE.Mesh(circleGeo, goldMaterial);
       leftCircle.position.set(-0.35, 0, 0.61);
@@ -117,51 +127,134 @@ const AnimatedBriefcaseWeb = ({ onAnimationComplete, children }) => {
       rightCircle.rotation.z = -Math.PI / 12;
       briefcaseGroup.add(rightCircle);
 
-      const centerGeo = new THREE.SphereGeometry(0.1, 16, 16);
+      const centerGeo = new THREE.SphereGeometry(0.12, 16, 16);
       const center = new THREE.Mesh(centerGeo, goldMaterial);
       center.position.set(0, 0, 0.61);
       briefcaseGroup.add(center);
 
-      // HERRAMIENTAS QUE SALDRÁN VOLANDO
-      createFlyingTools(THREE, scene, goldMaterial);
+      // SOMBRA DEBAJO DEL MALETÍN
+      const shadowGeometry = new THREE.PlaneGeometry(8, 6);
+      const shadowMaterial = new THREE.ShadowMaterial({ opacity: 0.5 });
+      const shadow = new THREE.Mesh(shadowGeometry, shadowMaterial);
+      shadow.rotation.x = -Math.PI / 2;
+      shadow.position.y = -2.6;
+      shadow.receiveShadow = true;
+      scene.add(shadow);
+
+      // HERRAMIENTAS 3D REALES QUE SALDRÁN VOLANDO
+      createRealTools(THREE, scene, goldMaterial, silverMaterial);
 
       briefcaseGroup.position.y = 20;
-      briefcaseGroup.rotation.x = 0.1;
+      briefcaseGroup.rotation.x = 0.3; // MÁS INCLINADO HACIA ARRIBA
     };
 
-    const createFlyingTools = (THREE, scene, goldMat) => {
-      const silverMat = new THREE.MeshPhysicalMaterial({
-        color: 0xe8e8e8,
-        roughness: 0.1,
-        metalness: 1.0,
-      });
+    const createRealTools = (THREE, scene, goldMat, silverMat) => {
+      const tools = [];
+      
+      // TIJERAS (8)
+      for (let i = 0; i < 8; i++) {
+        const scissors = createScissors3D(THREE, i % 2 === 0 ? goldMat : silverMat);
+        const angle = (i / 8) * Math.PI * 2;
+        scissors.position.set(Math.cos(angle) * 0.8, Math.sin(angle) * 0.4, 0.3);
+        scissors.visible = false;
+        tools.push(scissors);
+      }
 
-      // 24 herramientas simples (esferas representando herramientas)
-      for (let i = 0; i < 24; i++) {
-        const toolGeo = new THREE.SphereGeometry(0.15 + Math.random() * 0.1, 16, 16);
-        const tool = new THREE.Mesh(toolGeo, i % 2 === 0 ? goldMat : silverMat);
-        
-        const angle = (i / 24) * Math.PI * 2;
-        const radius = 0.5 + Math.random() * 0.3;
-        tool.position.set(
-          Math.cos(angle) * radius,
-          Math.sin(angle) * radius * 0.5,
-          0.3
-        );
-        tool.visible = false;
-        
+      // NAVAJAS (8)
+      for (let i = 0; i < 8; i++) {
+        const razor = createRazor3D(THREE, i % 2 === 0 ? goldMat : silverMat);
+        const angle = (i / 8) * Math.PI * 2 + Math.PI / 16;
+        razor.position.set(Math.cos(angle) * 0.6, Math.sin(angle) * 0.3, 0.25);
+        razor.visible = false;
+        tools.push(razor);
+      }
+
+      // PEINES (6)
+      for (let i = 0; i < 6; i++) {
+        const comb = createComb3D(THREE, i % 2 === 0 ? goldMat : silverMat);
+        const angle = (i / 6) * Math.PI * 2 + Math.PI / 12;
+        comb.position.set(Math.cos(angle) * 0.5, Math.sin(angle) * 0.25, 0.2);
+        comb.visible = false;
+        tools.push(comb);
+      }
+
+      tools.forEach(tool => {
         tool.userData.velocity = {
-          x: (Math.random() - 0.5) * 0.25,
-          y: Math.random() * 0.25 + 0.2,
-          z: (Math.random() - 0.5) * 0.15,
-          rotX: (Math.random() - 0.5) * 0.15,
-          rotY: (Math.random() - 0.5) * 0.15,
-          rotZ: (Math.random() - 0.5) * 0.15,
+          x: (Math.random() - 0.5) * 0.3,
+          y: Math.random() * 0.3 + 0.25,
+          z: (Math.random() - 0.5) * 0.2,
+          rotX: (Math.random() - 0.5) * 0.2,
+          rotY: (Math.random() - 0.5) * 0.2,
+          rotZ: (Math.random() - 0.5) * 0.2,
         };
-        
         scene.add(tool);
         toolsArray.push(tool);
+      });
+    };
+
+    const createScissors3D = (THREE, material) => {
+      const group = new THREE.Group();
+      
+      // Hojas de tijeras
+      const bladeGeo = new THREE.BoxGeometry(0.08, 0.8, 0.02);
+      const blade1 = new THREE.Mesh(bladeGeo, material);
+      blade1.position.set(-0.1, 0.3, 0);
+      blade1.rotation.z = 0.15;
+      group.add(blade1);
+      
+      const blade2 = new THREE.Mesh(bladeGeo, material);
+      blade2.position.set(0.1, 0.3, 0);
+      blade2.rotation.z = -0.15;
+      group.add(blade2);
+      
+      // Mangos
+      const handleGeo = new THREE.TorusGeometry(0.15, 0.03, 12, 20);
+      const handle1 = new THREE.Mesh(handleGeo, material);
+      handle1.position.set(-0.12, -0.4, 0);
+      group.add(handle1);
+      
+      const handle2 = new THREE.Mesh(handleGeo, material);
+      handle2.position.set(0.12, -0.4, 0);
+      group.add(handle2);
+      
+      return group;
+    };
+
+    const createRazor3D = (THREE, material) => {
+      const group = new THREE.Group();
+      
+      // Hoja
+      const bladeGeo = new THREE.BoxGeometry(0.06, 0.8, 0.02);
+      const blade = new THREE.Mesh(bladeGeo, material);
+      blade.position.y = 0.2;
+      group.add(blade);
+      
+      // Mango
+      const handleGeo = new THREE.BoxGeometry(0.12, 0.5, 0.08);
+      const handle = new THREE.Mesh(handleGeo, material);
+      handle.position.y = -0.3;
+      group.add(handle);
+      
+      return group;
+    };
+
+    const createComb3D = (THREE, material) => {
+      const group = new THREE.Group();
+      
+      // Base del peine
+      const baseGeo = new THREE.BoxGeometry(0.18, 0.7, 0.03);
+      const base = new THREE.Mesh(baseGeo, material);
+      group.add(base);
+      
+      // Dientes
+      for (let i = 0; i < 12; i++) {
+        const toothGeo = new THREE.BoxGeometry(0.15, 0.02, 0.015);
+        const tooth = new THREE.Mesh(toothGeo, material);
+        tooth.position.set(0.085, 0.32 - i * 0.055, 0);
+        group.add(tooth);
       }
+      
+      return group;
     };
 
     const createParticlesAfterLogin = (THREE, scene) => {
