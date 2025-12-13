@@ -53,35 +53,38 @@ const LoginScreen = () => {
     );
   }
 
-  // ANIMACIÓN PARA MÓVIL (CORREGIDO - Centrado)
-  return (
-    <View style={styles.container}>
-      <AnimatedBriefcaseMobile onAnimationComplete={handleAnimationComplete}>
-        <View style={styles.mobileContainer}>
-          <ScrollView 
-            contentContainerStyle={styles.scrollContainer}
-            keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={false}
-          >
-            <View style={styles.mobileContent}>
-              <View style={styles.titleContainerMobile}>
-                <Text style={styles.title}>NEW YORK BARBER</Text>
+  // ANIMACIÓN PARA MÓVIL
+  if (!isWeb) {
+    return (
+      <View style={styles.container}>
+        <AnimatedBriefcaseMobile onAnimationComplete={handleAnimationComplete}>
+          <View style={styles.mobileContainer}>
+            <ScrollView 
+              contentContainerStyle={styles.scrollContainer}
+              keyboardShouldPersistTaps="handled"
+            >
+              <View style={styles.mobileContent}>
+                <View style={styles.titleContainerMobile}>
+                  <Text style={styles.title}>NEW YORK BARBER</Text>
+                </View>
+                <Image 
+                  source={require('../../assets/images/newYorkBarber.jpeg')} 
+                  style={styles.logo} 
+                  resizeMode="contain"
+                />
+                <LoginForm />
               </View>
-              <Image 
-                source={require('../../assets/images/newYorkBarber.jpeg')} 
-                style={styles.logo} 
-                resizeMode="contain"
-              />
-              <LoginForm />
+            </ScrollView>
+            <View style={styles.mobileFooter}>
+              <Footer />
             </View>
-          </ScrollView>
-          <View style={styles.mobileFooter}>
-            <Footer />
           </View>
-        </View>
-      </AnimatedBriefcaseMobile>
-    </View>
-  );
+        </AnimatedBriefcaseMobile>
+      </View>
+    );
+  }
+
+  return null;
 };
 
 const styles = StyleSheet.create({
@@ -91,22 +94,16 @@ const styles = StyleSheet.create({
   },
   mobileContainer: {
     flex: 1,
-    width: '100%',
   },
   scrollContainer: {
     flexGrow: 1,
     justifyContent: 'center',
-    alignItems: 'center',
     paddingBottom: 80,
-    minHeight: height,
   },
   mobileContent: {
     width: '100%',
-    maxWidth: 400,
     alignItems: 'center',
     padding: 20,
-    flex: 1,
-    justifyContent: 'center',
   },
   mobileFooter: {
     position: 'absolute',
@@ -147,7 +144,6 @@ const styles = StyleSheet.create({
   titleContainerMobile: {
     marginBottom: 20,
     alignItems: 'center',
-    width: '100%',
   },
   titleContainerDesktop: {
     marginBottom: 30,

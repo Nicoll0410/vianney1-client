@@ -7,6 +7,7 @@ import {
   Dimensions,
   ScrollView,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -30,41 +31,39 @@ const AnimatedBriefcaseMobile = ({ onAnimationComplete, children }) => {
   const particlesRef = useRef([]);
   const particleCount = 25;
 
-  // Inicializar herramientas - MUCHAS MÁS Y MÁS GRANDES
+  // Inicializar herramientas - ÍCONOS BONITOS
   useEffect(() => {
     const centerX = screenWidth / 2;
     const centerY = screenHeight * 0.22;
     
     toolsRef.current = [
-      // Tijeras (6 pares)
-      { x: new Animated.Value(centerX - 20), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'gold', type: 'scissors', size: 1.5 },
-      { x: new Animated.Value(centerX + 20), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'silver', type: 'scissors', size: 1.5 },
-      { x: new Animated.Value(centerX - 15), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'gold', type: 'scissors', size: 1.3 },
-      { x: new Animated.Value(centerX + 15), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'silver', type: 'scissors', size: 1.3 },
-      { x: new Animated.Value(centerX - 10), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'gold', type: 'scissors', size: 1.2 },
-      { x: new Animated.Value(centerX + 10), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'silver', type: 'scissors', size: 1.2 },
+      // Tijeras (8)
+      { x: new Animated.Value(centerX - 20), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'gold', icon: 'cut-outline', size: 1.8 },
+      { x: new Animated.Value(centerX + 20), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'silver', icon: 'cut-outline', size: 1.8 },
+      { x: new Animated.Value(centerX - 15), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'gold', icon: 'cut', size: 1.5 },
+      { x: new Animated.Value(centerX + 15), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'silver', icon: 'cut', size: 1.5 },
+      { x: new Animated.Value(centerX - 10), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'gold', icon: 'cut-outline', size: 1.3 },
+      { x: new Animated.Value(centerX + 10), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'silver', icon: 'cut-outline', size: 1.3 },
+      { x: new Animated.Value(centerX - 25), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'gold', icon: 'cut', size: 1.2 },
+      { x: new Animated.Value(centerX + 25), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'silver', icon: 'cut', size: 1.2 },
       
-      // Navajas (6)
-      { x: new Animated.Value(centerX - 5), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'gold', type: 'razor', size: 1.4 },
-      { x: new Animated.Value(centerX + 5), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'silver', type: 'razor', size: 1.4 },
-      { x: new Animated.Value(centerX - 8), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'gold', type: 'razor', size: 1.3 },
-      { x: new Animated.Value(centerX + 8), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'silver', type: 'razor', size: 1.3 },
-      { x: new Animated.Value(centerX - 12), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'gold', type: 'razor', size: 1.2 },
-      { x: new Animated.Value(centerX + 12), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'silver', type: 'razor', size: 1.2 },
+      // Navajas/Cuchillas (8)
+      { x: new Animated.Value(centerX - 5), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'gold', icon: 'fitness-outline', size: 1.6 },
+      { x: new Animated.Value(centerX + 5), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'silver', icon: 'fitness-outline', size: 1.6 },
+      { x: new Animated.Value(centerX - 8), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'gold', icon: 'fitness', size: 1.4 },
+      { x: new Animated.Value(centerX + 8), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'silver', icon: 'fitness', size: 1.4 },
+      { x: new Animated.Value(centerX - 12), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'gold', icon: 'fitness-outline', size: 1.3 },
+      { x: new Animated.Value(centerX + 12), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'silver', icon: 'fitness-outline', size: 1.3 },
+      { x: new Animated.Value(centerX - 18), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'gold', icon: 'fitness', size: 1.2 },
+      { x: new Animated.Value(centerX + 18), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'silver', icon: 'fitness', size: 1.2 },
       
       // Peines (6)
-      { x: new Animated.Value(centerX - 3), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'gold', type: 'comb', size: 1.4 },
-      { x: new Animated.Value(centerX + 3), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'silver', type: 'comb', size: 1.4 },
-      { x: new Animated.Value(centerX - 7), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'gold', type: 'comb', size: 1.3 },
-      { x: new Animated.Value(centerX + 7), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'silver', type: 'comb', size: 1.3 },
-      { x: new Animated.Value(centerX - 11), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'gold', type: 'comb', size: 1.2 },
-      { x: new Animated.Value(centerX + 11), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'silver', type: 'comb', size: 1.2 },
-      
-      // Clippers (4)
-      { x: new Animated.Value(centerX - 2), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'gold', type: 'clipper', size: 1.3 },
-      { x: new Animated.Value(centerX + 2), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'silver', type: 'clipper', size: 1.3 },
-      { x: new Animated.Value(centerX - 6), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'gold', type: 'clipper', size: 1.2 },
-      { x: new Animated.Value(centerX + 6), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'silver', type: 'clipper', size: 1.2 },
+      { x: new Animated.Value(centerX - 3), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'gold', icon: 'menu-outline', size: 1.5 },
+      { x: new Animated.Value(centerX + 3), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'silver', icon: 'menu-outline', size: 1.5 },
+      { x: new Animated.Value(centerX - 7), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'gold', icon: 'menu', size: 1.3 },
+      { x: new Animated.Value(centerX + 7), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'silver', icon: 'menu', size: 1.3 },
+      { x: new Animated.Value(centerX - 11), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'gold', icon: 'menu-outline', size: 1.2 },
+      { x: new Animated.Value(centerX + 11), y: new Animated.Value(centerY), rotate: new Animated.Value(0), opacity: new Animated.Value(0), color: 'silver', icon: 'menu-outline', size: 1.2 },
     ];
   }, []);
 
@@ -263,49 +262,28 @@ const AnimatedBriefcaseMobile = ({ onAnimationComplete, children }) => {
           ]}
         >
           <View style={styles.briefcaseBody}>
-            {/* Costuras */}
-            <View style={styles.stitchingContainer}>
-              {[...Array(30)].map((_, i) => {
-                const angle = (i / 30) * Math.PI * 2;
-                const radius = 110;
-                const x = 120 + Math.cos(angle) * radius;
-                const y = 70 + Math.sin(angle) * (radius * 0.55);
-                return (
-                  <View
-                    key={i}
-                    style={[styles.stitch, { left: x - 2, top: y - 2 }]}
-                  />
-                );
-              })}
-            </View>
-
-            {/* Esquinas */}
+            {/* Borde dorado superior */}
+            <View style={styles.goldBorderTop} />
+            
+            {/* Esquinas doradas */}
             {[styles.cornerTL, styles.cornerTR, styles.cornerBL, styles.cornerBR].map((cornerStyle, i) => (
-              <View key={i} style={[styles.corner, cornerStyle]}>
-                <View style={[styles.rivet, styles.rivetTL]} />
-                <View style={[styles.rivet, styles.rivetTR]} />
-                <View style={[styles.rivet, styles.rivetBL]} />
-                <View style={[styles.rivet, styles.rivetBR]} />
-              </View>
+              <View key={i} style={[styles.cornerGold, cornerStyle]} />
             ))}
 
-            {/* Manija */}
+            {/* Manija dorada */}
             <View style={styles.handleContainer}>
-              <View style={styles.handleSupport} />
-              <View style={[styles.handleSupport, { right: 60 }]} />
-              <View style={styles.handle} />
+              <View style={styles.handleGold} />
             </View>
 
-            {/* Cerradura */}
+            {/* Cerradura dorada */}
             <View style={styles.lockContainer}>
-              <View style={styles.lock} />
-              <View style={styles.lockLatch} />
+              <View style={styles.lockGold} />
             </View>
           </View>
         </Animated.View>
       )}
 
-      {/* Herramientas volando */}
+      {/* Herramientas volando - ÍCONOS BONITOS */}
       {showTools &&
         toolsRef.current.map((tool, index) => (
           <Animated.View
@@ -313,8 +291,6 @@ const AnimatedBriefcaseMobile = ({ onAnimationComplete, children }) => {
             style={[
               styles.toolFlying,
               {
-                width: 60 * (tool.size || 1),
-                height: 60 * (tool.size || 1),
                 transform: [
                   { translateX: tool.x },
                   { translateY: tool.y },
@@ -328,29 +304,11 @@ const AnimatedBriefcaseMobile = ({ onAnimationComplete, children }) => {
               },
             ]}
           >
-            {tool.type === 'scissors' && (
-              <View style={styles.scissors}>
-                <View style={[styles.scissorBlade, tool.color === 'gold' ? styles.goldTool : styles.silverTool]} />
-                <View style={[styles.scissorBlade, tool.color === 'gold' ? styles.goldTool : styles.silverTool, { transform: [{ rotate: '20deg' }] }]} />
-                <View style={[styles.scissorHandle, tool.color === 'gold' ? styles.darkGoldTool : styles.darkSilverTool]} />
-              </View>
-            )}
-            {tool.type === 'razor' && (
-              <View style={[styles.razor, tool.color === 'gold' ? styles.goldTool : styles.silverTool]} />
-            )}
-            {tool.type === 'comb' && (
-              <View style={[styles.comb, tool.color === 'gold' ? styles.darkGoldTool : styles.darkSilverTool]}>
-                {[...Array(8)].map((_, i) => (
-                  <View key={i} style={[styles.combTooth, tool.color === 'gold' ? styles.darkGoldTool : styles.darkSilverTool]} />
-                ))}
-              </View>
-            )}
-            {tool.type === 'clipper' && (
-              <View style={styles.clipper}>
-                <View style={[styles.clipperBody, tool.color === 'silver' ? styles.silverTool : styles.darkSilverTool]} />
-                <View style={[styles.clipperHead, tool.color === 'gold' ? styles.goldTool : styles.darkGoldTool]} />
-              </View>
-            )}
+            <Ionicons 
+              name={tool.icon} 
+              size={50 * (tool.size || 1)} 
+              color={tool.color === 'gold' ? '#ffd700' : '#e8e8e8'} 
+            />
           </Animated.View>
         ))}
 
@@ -392,8 +350,10 @@ const styles = StyleSheet.create({
   briefcaseBody: {
     width: '100%',
     height: 140,
-    backgroundColor: '#1a1a1a',
-    borderRadius: 12,
+    backgroundColor: '#000000', // Negro como en HTML
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: '#d4af37', // Dorado como en HTML
     position: 'relative',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 15 },
@@ -401,64 +361,41 @@ const styles = StyleSheet.create({
     shadowRadius: 25,
     elevation: 15,
   },
-  stitchingContainer: {
+  goldBorderTop: {
     position: 'absolute',
-    width: '100%',
-    height: '100%',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 3,
+    backgroundColor: '#d4af37',
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
   },
-  stitch: {
+  cornerGold: {
     position: 'absolute',
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: '#e8e8e8',
+    width: 12,
+    height: 12,
+    backgroundColor: '#d4af37',
+    borderRadius: 6,
   },
-  corner: {
-    position: 'absolute',
-    width: 28,
-    height: 28,
-    backgroundColor: '#c8c8c8',
-    borderWidth: 1,
-    borderColor: '#999',
-  },
-  cornerTL: { top: 5, left: 5, borderTopLeftRadius: 6 },
-  cornerTR: { top: 5, right: 5, borderTopRightRadius: 6 },
-  cornerBL: { bottom: 5, left: 5, borderBottomLeftRadius: 6 },
-  cornerBR: { bottom: 5, right: 5, borderBottomRightRadius: 6 },
-  rivet: {
-    position: 'absolute',
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: '#888',
-  },
-  rivetTL: { top: 4, left: 4 },
-  rivetTR: { top: 4, right: 4 },
-  rivetBL: { bottom: 4, left: 4 },
-  rivetBR: { bottom: 4, right: 4 },
+  cornerTL: { top: 8, left: 8 },
+  cornerTR: { top: 8, right: 8 },
+  cornerBL: { bottom: 8, left: 8 },
+  cornerBR: { bottom: 8, right: 8 },
   handleContainer: {
     position: 'absolute',
     top: -25,
-    left: 0,
-    right: 0,
+    left: '50%',
+    marginLeft: -40,
     alignItems: 'center',
   },
-  handleSupport: {
-    position: 'absolute',
-    left: 60,
-    width: 15,
+  handleGold: {
+    width: 80,
     height: 20,
-    backgroundColor: '#c8c8c8',
-    borderRadius: 3,
-    top: 0,
-  },
-  handle: {
-    width: 100,
-    height: 18,
-    backgroundColor: '#0f0f0f',
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: '#c8c8c8',
+    backgroundColor: '#d4af37',
+    borderRadius: 10,
+    borderWidth: 3,
+    borderColor: '#000',
   },
   lockContainer: {
     position: 'absolute',
@@ -467,89 +404,18 @@ const styles = StyleSheet.create({
     marginLeft: -15,
     alignItems: 'center',
   },
-  lock: {
+  lockGold: {
     width: 30,
-    height: 14,
-    backgroundColor: '#c8c8c8',
-    borderRadius: 3,
-    borderWidth: 1,
-    borderColor: '#999',
-  },
-  lockLatch: {
-    width: 10,
-    height: 8,
-    backgroundColor: '#c8c8c8',
-    borderRadius: 2,
-    marginTop: -4,
+    height: 15,
+    backgroundColor: '#d4af37',
+    borderRadius: 4,
+    borderWidth: 2,
+    borderColor: '#000',
   },
   toolFlying: {
     position: 'absolute',
-  },
-  goldTool: {
-    backgroundColor: '#ffd700',
-  },
-  silverTool: {
-    backgroundColor: '#e8e8e8',
-  },
-  darkGoldTool: {
-    backgroundColor: '#b8860b',
-  },
-  darkSilverTool: {
-    backgroundColor: '#a8a8a8',
-  },
-  scissors: {
-    width: '100%',
-    height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  scissorBlade: {
-    width: 4,
-    height: 35,
-    position: 'absolute',
-    borderRadius: 2,
-  },
-  scissorHandle: {
-    width: 18,
-    height: 18,
-    borderRadius: 9,
-    borderWidth: 2,
-    position: 'absolute',
-    bottom: 5,
-  },
-  razor: {
-    width: 5,
-    height: 40,
-    borderRadius: 2,
-  },
-  comb: {
-    width: 30,
-    height: 8,
-    borderRadius: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'flex-end',
-  },
-  combTooth: {
-    width: 2,
-    height: 12,
-  },
-  clipper: {
-    width: 30,
-    height: 45,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  clipperBody: {
-    width: 28,
-    height: 38,
-    borderRadius: 3,
-  },
-  clipperHead: {
-    width: 30,
-    height: 10,
-    marginTop: -3,
-    borderRadius: 2,
   },
   contentContainer: {
     flex: 1,

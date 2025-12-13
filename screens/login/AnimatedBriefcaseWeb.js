@@ -71,25 +71,19 @@ const AnimatedBriefcaseWeb = ({ onAnimationComplete, children }) => {
       scene.add(briefcaseGroup);
 
       const blackLeatherMaterial = new THREE.MeshPhysicalMaterial({
-        color: 0x1a1a1a,
-        roughness: 0.45,
-        metalness: 0.05,
-        clearcoat: 0.6,
-        clearcoatRoughness: 0.25,
+        color: 0x000000, // Negro puro como HTML
+        roughness: 0.3,
+        metalness: 0.1,
+        clearcoat: 0.5,
+        clearcoatRoughness: 0.2,
       });
 
-      const silverMetalMaterial = new THREE.MeshPhysicalMaterial({
-        color: 0xc8c8c8,
-        roughness: 0.15,
-        metalness: 0.95,
+      const goldMaterial = new THREE.MeshPhysicalMaterial({
+        color: 0xd4af37, // Dorado exacto del HTML
+        roughness: 0.2,
+        metalness: 0.9,
         clearcoat: 1.0,
-        clearcoatRoughness: 0.08,
-      });
-
-      const stitchingMaterial = new THREE.MeshPhysicalMaterial({
-        color: 0xe8e8e8,
-        roughness: 0.7,
-        metalness: 0.0,
+        clearcoatRoughness: 0.1,
       });
 
       // Cuerpo del maletín
@@ -147,7 +141,7 @@ const AnimatedBriefcaseWeb = ({ onAnimationComplete, children }) => {
       briefcaseGroup.add(lidGroup);
 
       // Costuras
-      createStitching(THREE, briefcaseGroup, stitchingMaterial);
+      createStitching(THREE, briefcaseGroup, goldMaterial);
 
       // Esquinas plateadas
       const cornerGeometry = new THREE.BoxGeometry(0.7, 0.7, 0.2);
@@ -157,7 +151,7 @@ const AnimatedBriefcaseWeb = ({ onAnimationComplete, children }) => {
       ];
 
       cornerPositions.forEach((pos) => {
-        const corner = new THREE.Mesh(cornerGeometry, silverMetalMaterial);
+        const corner = new THREE.Mesh(cornerGeometry, goldMaterial);
         corner.position.set(...pos);
         corner.castShadow = true;
         briefcaseGroup.add(corner);
@@ -165,20 +159,20 @@ const AnimatedBriefcaseWeb = ({ onAnimationComplete, children }) => {
 
       // Bordes laterales
       const sideEdgeGeometry = new THREE.BoxGeometry(0.12, 5.2, 0.12);
-      const leftEdge = new THREE.Mesh(sideEdgeGeometry, silverMetalMaterial);
+      const leftEdge = new THREE.Mesh(sideEdgeGeometry, goldMaterial);
       leftEdge.position.set(-3.5, 0, 0.9);
       briefcaseGroup.add(leftEdge);
 
-      const rightEdge = new THREE.Mesh(sideEdgeGeometry, silverMetalMaterial);
+      const rightEdge = new THREE.Mesh(sideEdgeGeometry, goldMaterial);
       rightEdge.position.set(3.5, 0, 0.9);
       briefcaseGroup.add(rightEdge);
 
       // Manija
-      createHandle(THREE, briefcaseGroup, silverMetalMaterial, stitchingMaterial);
+      createHandle(THREE, briefcaseGroup, goldMaterial, goldMaterial);
 
       // Cerradura
       const lockBaseGeo = new THREE.BoxGeometry(0.9, 0.35, 0.25);
-      const lockBase = new THREE.Mesh(lockBaseGeo, silverMetalMaterial);
+      const lockBase = new THREE.Mesh(lockBaseGeo, goldMaterial);
       lockBase.position.set(0, -1.8, 0.95);
       briefcaseGroup.add(lockBase);
 
