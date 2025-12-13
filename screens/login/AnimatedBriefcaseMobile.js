@@ -262,22 +262,14 @@ const AnimatedBriefcaseMobile = ({ onAnimationComplete, children }) => {
           ]}
         >
           <View style={styles.briefcaseBody}>
-            {/* Borde dorado superior */}
-            <View style={styles.goldBorderTop} />
+            {/* Línea dorada superior (separación de tapa) */}
+            <View style={styles.topGoldLine} />
             
-            {/* Esquinas doradas */}
-            {[styles.cornerTL, styles.cornerTR, styles.cornerBL, styles.cornerBR].map((cornerStyle, i) => (
-              <View key={i} style={[styles.cornerGold, cornerStyle]} />
-            ))}
-
-            {/* Manija dorada */}
-            <View style={styles.handleContainer}>
-              <View style={styles.handleGold} />
-            </View>
-
-            {/* Cerradura dorada */}
-            <View style={styles.lockContainer}>
-              <View style={styles.lockGold} />
+            {/* Tijeras doradas en el centro */}
+            <View style={styles.scissorsInside}>
+              <View style={styles.scissorCircleLeft} />
+              <View style={styles.scissorCircleRight} />
+              <View style={styles.scissorCenter} />
             </View>
           </View>
         </Animated.View>
@@ -343,74 +335,73 @@ const styles = StyleSheet.create({
   },
   briefcaseContainer: {
     position: 'absolute',
-    left: screenWidth / 2 - 120,
-    width: 240,
-    height: 180,
+    left: screenWidth / 2 - 100,
+    width: 200,
+    height: 130,
   },
   briefcaseBody: {
-    width: '100%',
-    height: 140,
-    backgroundColor: '#000000', // Negro como en HTML
-    borderRadius: 10,
+    width: 200,
+    height: 130,
+    backgroundColor: '#000000',
     borderWidth: 2,
-    borderColor: '#d4af37', // Dorado como en HTML
+    borderColor: '#d4af37',
+    borderRadius: 12,
     position: 'relative',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 15 },
-    shadowOpacity: 0.6,
-    shadowRadius: 25,
-    elevation: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#d4af37',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 10,
+    elevation: 10,
   },
-  goldBorderTop: {
+  // Línea dorada horizontal superior
+  topGoldLine: {
     position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 3,
+    top: 25,
+    left: 2,
+    right: 2,
+    height: 2,
     backgroundColor: '#d4af37',
-    borderTopLeftRadius: 8,
-    borderTopRightRadius: 8,
   },
-  cornerGold: {
-    position: 'absolute',
-    width: 12,
-    height: 12,
-    backgroundColor: '#d4af37',
-    borderRadius: 6,
-  },
-  cornerTL: { top: 8, left: 8 },
-  cornerTR: { top: 8, right: 8 },
-  cornerBL: { bottom: 8, left: 8 },
-  cornerBR: { bottom: 8, right: 8 },
-  handleContainer: {
-    position: 'absolute',
-    top: -25,
-    left: '50%',
-    marginLeft: -40,
+  // Tijeras doradas en el centro
+  scissorsInside: {
+    width: 70,
+    height: 50,
+    position: 'relative',
+    justifyContent: 'center',
     alignItems: 'center',
   },
-  handleGold: {
-    width: 80,
-    height: 20,
-    backgroundColor: '#d4af37',
-    borderRadius: 10,
+  scissorCircleLeft: {
+    position: 'absolute',
+    width: 35,
+    height: 35,
     borderWidth: 3,
-    borderColor: '#000',
+    borderColor: '#d4af37',
+    borderRadius: 17.5,
+    left: 0,
+    top: 7,
+    transform: [{ rotate: '15deg' }],
   },
-  lockContainer: {
+  scissorCircleRight: {
     position: 'absolute',
-    bottom: 15,
-    left: '50%',
-    marginLeft: -15,
-    alignItems: 'center',
+    width: 35,
+    height: 35,
+    borderWidth: 3,
+    borderColor: '#d4af37',
+    borderRadius: 17.5,
+    right: 0,
+    top: 7,
+    transform: [{ rotate: '-15deg' }],
   },
-  lockGold: {
-    width: 30,
-    height: 15,
+  scissorCenter: {
+    position: 'absolute',
+    width: 10,
+    height: 10,
     backgroundColor: '#d4af37',
-    borderRadius: 4,
-    borderWidth: 2,
-    borderColor: '#000',
+    borderRadius: 5,
+    top: 20,
+    left: 30,
   },
   toolFlying: {
     position: 'absolute',
