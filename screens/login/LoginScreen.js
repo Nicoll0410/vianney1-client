@@ -1,5 +1,4 @@
-// screens/login/LoginScreen.js
-import React, { useState } from 'react';
+import React from 'react';
 import { 
   View, 
   Image, 
@@ -11,80 +10,61 @@ import {
 } from 'react-native';
 import LoginForm from './LoginForm';
 import Footer from '../../components/Footer';
-import AnimatedBriefcaseWeb from './AnimatedBriefcaseWeb';
-import AnimatedBriefcaseMobile from './AnimatedBriefcaseMobile';
 
 const { width, height } = Dimensions.get('window');
 const isDesktop = width >= 1024;
 const isMobile = width < 768;
-const isWeb = Platform.OS === 'web';
 
 const LoginScreen = () => {
-  const [animationComplete, setAnimationComplete] = useState(false);
-
-  const handleAnimationComplete = () => {
-    setAnimationComplete(true);
-  };
-
-  // ANIMACIÓN PARA WEB
-  if (isWeb) {
-    return (
-      <AnimatedBriefcaseWeb onAnimationComplete={handleAnimationComplete}>
-        {/* Layout original: logo izquierda, form derecha */}
-        <View style={styles.desktopContent}>
-          <View style={styles.logoContainer}>
-            <View style={styles.titleContainerDesktop}>
-              <Text style={styles.title}>NEW YORK BARBER</Text>
+  return (
+    <View style={styles.container}>
+      {isMobile ? (
+        <View style={styles.mobileContainer}>
+          <ScrollView 
+            contentContainerStyle={styles.scrollContainer}
+            keyboardShouldPersistTaps="handled"
+          >
+            <View style={styles.mobileContent}>
+              {/* Título para móvil */}
+              <View style={styles.titleContainerMobile}>
+                <Text style={styles.title}>NEW YORK BARBER</Text>
+              </View>
+              <Image 
+                source={require('../../assets/images/newYorkBarber.jpeg')} 
+                style={styles.logo} 
+                resizeMode="contain"
+              />
+              <LoginForm />
             </View>
-            <Image 
-              source={require('../../assets/images/newYorkBarber.jpeg')} 
-              style={styles.logo} 
-              resizeMode="contain"
-            />
+          </ScrollView>
+          {/* Footer fijo en móvil */}
+          <View style={styles.mobileFooter}>
+            <Footer />
           </View>
-          <View style={styles.formWrapper}>
+        </View>
+      ) : (
+        <View style={styles.desktopContainer}>
+          <View style={styles.desktopContent}>
+            <View style={styles.logoContainer}>
+              {/* Título para desktop */}
+              <View style={styles.titleContainerDesktop}>
+                <Text style={styles.title}>NEW YORK BARBER</Text>
+              </View>
+              <Image 
+                source={require('../../assets/images/newYorkBarber.jpeg')} 
+                style={styles.logo} 
+                resizeMode="contain"
+              />
+            </View>
             <LoginForm />
           </View>
-        </View>
-        <View style={styles.desktopFooter}>
-          <Footer />
-        </View>
-      </AnimatedBriefcaseWeb>
-    );
-  }
-
-  // ANIMACIÓN PARA MÓVIL
-  if (!isWeb) {
-    return (
-      <View style={styles.container}>
-        <AnimatedBriefcaseMobile onAnimationComplete={handleAnimationComplete}>
-          <View style={styles.mobileContainer}>
-            <ScrollView 
-              contentContainerStyle={styles.scrollContainer}
-              keyboardShouldPersistTaps="handled"
-            >
-              <View style={styles.mobileContent}>
-                <View style={styles.titleContainerMobile}>
-                  <Text style={styles.title}>NEW YORK BARBER</Text>
-                </View>
-                <Image 
-                  source={require('../../assets/images/newYorkBarber.jpeg')} 
-                  style={styles.logo} 
-                  resizeMode="contain"
-                />
-                <LoginForm />
-              </View>
-            </ScrollView>
-            <View style={styles.mobileFooter}>
-              <Footer />
-            </View>
+          <View style={styles.desktopFooter}>
+            <Footer />
           </View>
-        </AnimatedBriefcaseMobile>
-      </View>
-    );
-  }
-
-  return null;
+        </View>
+      )}
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
@@ -98,7 +78,7 @@ const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
     justifyContent: 'center',
-    paddingBottom: 80,
+    paddingBottom: 80, // Espacio para el footer
   },
   mobileContent: {
     width: '100%',
@@ -111,6 +91,12 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     zIndex: 1000,
+  },
+  desktopContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 40,
   },
   desktopContent: {
     flexDirection: 'row',
@@ -126,10 +112,6 @@ const styles = StyleSheet.create({
     width: isDesktop ? 300 : 200,
     alignItems: 'center',
   },
-  formWrapper: {
-    flex: 1,
-    maxWidth: 450,
-  },
   logo: {
     width: '100%',
     height: isDesktop ? 300 : 200,
@@ -141,6 +123,7 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
     alignSelf: 'center',
   },
+  // Nuevos estilos para el título
   titleContainerMobile: {
     marginBottom: 20,
     alignItems: 'center',
@@ -157,7 +140,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontFamily: Platform.OS === 'ios' ? 'Helvetica Neue' : 'sans-serif',
     textTransform: 'uppercase',
-  },
+  }
 });
 
 export default LoginScreen;

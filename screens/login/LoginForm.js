@@ -17,7 +17,7 @@ import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
 import { AuthContext } from "../../contexts/AuthContext";
 
-const { width, height } = Dimensions.get("window");
+const { width } = Dimensions.get("window");
 const isDesktop = width >= 1024;
 const isMobile = width < 768;
 
@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
   keyboardAvoidingView: {
     flex: 1,
     justifyContent: "center",
-    backgroundColor: "#ffffffff",
+    backgroundColor: "#f8f9fa",
   },
   formContainer: {
     width: isDesktop ? 400 : "90%",
@@ -212,7 +212,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 6,
     elevation: 3,
-    marginVertical: 10,
   },
   title: {
     fontSize: isDesktop ? 24 : 20,
@@ -252,20 +251,20 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 16,
     backgroundColor: "#fff",
-    overflow: "hidden",
+    overflow: "hidden", // Añadido para contener el icono dentro del borde
   },
   passwordInput: {
     flex: 1,
     height: 50,
     paddingHorizontal: 15,
     fontSize: 15,
-    paddingRight: 45,
+    paddingRight: 45, // Espacio para el icono del ojo
   },
   eyeIcon: {
-    position: "absolute",
+    position: "absolute", // Cambiado a posición absoluta
     right: 0,
     height: "100%",
-    width: 45,
+    width: 45, // Ancho fijo para el área táctil
     justifyContent: "center",
     alignItems: "center",
   },
