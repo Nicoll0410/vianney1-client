@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
   },
   // ✅ TEXTO BLANCO EN TEMA OSCURO
   darkText: {
-    color: '#D4AF37',
+    color: '#fff',
   },
   highlight: {
     color: '#424242',

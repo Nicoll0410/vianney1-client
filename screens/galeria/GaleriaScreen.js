@@ -280,12 +280,10 @@ const GaleriaScreen = ({ navigation }) => {
             {galeriaPorBarbero.map(renderBarberoCard)}
           </View>
         )}
-      </ScrollView>
 
-      {/* ✅ Footer FUERA del ScrollView - fijo en la parte inferior */}
-      <View style={styles.footerContainer}>
+        {/* ✅ Footer con tema oscuro */}
         <Footer dark />
-      </View>
+      </ScrollView>
 
       {/* Modal de galería completa */}
       <Modal
@@ -417,7 +415,7 @@ const styles = StyleSheet.create({
     flex: 1
   },
   scrollContent: {
-    paddingBottom: 80 // ✅ Espacio para el footer (60px de altura + 20px de margen)
+    paddingBottom: 20
   },
   headerContainer: {
     overflow: 'hidden'
@@ -622,6 +620,13 @@ const styles = StyleSheet.create({
     color: '#999',
     textAlign: 'center'
   },
+  // ✅ FOOTER CON FONDO NEGRO Y LETRAS BLANCAS
+  footerCustom: {
+    backgroundColor: '#000', // ✅ Fondo negro
+    paddingVertical: 20,
+    paddingHorizontal: 16,
+    marginTop: 20
+  },
   // Modal styles
   modalContainer: {
     flex: 1,
@@ -692,14 +697,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#666',
     textAlign: 'center'
-  },
-  // ✅ FOOTER FIJO EN LA PARTE INFERIOR
-  footerContainer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 60
   }
 });
 
