@@ -8,9 +8,7 @@ import {
   TouchableOpacity,
   TextInput,
   ActivityIndicator,
-  Platform,
-  Switch,
-  Alert
+  Platform
 } from 'react-native';
 import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -18,7 +16,7 @@ import axios from 'axios';
 import { AuthContext } from '../../contexts/AuthContext';
 import Footer from '../../components/Footer';
 import InfoModal from '../../components/InfoModal';
-import { Calendar } from 'react-native-calendars';
+import HorarioBarbero from '../../components/HorarioBarbero';
 
 const BASE_URL = 'https://vianney-server.onrender.com';
 
@@ -27,7 +25,6 @@ const MiPerfilScreen = () => {
   
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [savingSchedule, setSavingSchedule] = useState(false);
   
   // Datos del barbero
   const [barberoID, setBarberoID] = useState(null);
@@ -41,26 +38,9 @@ const MiPerfilScreen = () => {
   const [facebook, setFacebook] = useState('');
   const [tiktok, setTiktok] = useState('');
   
-  // Horarios
-  const [diasLaborales, setDiasLaborales] = useState({
-    lunes: { activo: false, horas: [] },
-    martes: { activo: false, horas: [] },
-    miercoles: { activo: false, horas: [] },
-    jueves: { activo: false, horas: [] },
-    viernes: { activo: false, horas: [] },
-    sabado: { activo: false, horas: [] },
-    domingo: { activo: false, horas: [] }
-  });
-  
-  const [horarioAlmuerzo, setHorarioAlmuerzo] = useState({
-    inicio: '13:00',
-    fin: '14:00',
-    activo: true
-  });
-  
-  const [excepciones, setExcepciones] = useState([]);
-  const [showCalendar, setShowCalendar] = useState(false);
-  const [markedDates, setMarkedDates] = useState({});
+  // Horario
+  const [showHorarioModal, setShowHorarioModal] = useState(false);
+  const [horarioData, setHorarioData] = useState(null);
   
   // Modal de info
   const [infoVisible, setInfoVisible] = useState(false);
@@ -142,7 +122,7 @@ const MiPerfilScreen = () => {
       setFacebook(barbero.facebook || '');
       setTiktok(barbero.tiktok || '');
 
-      // Cargar horario
+      // Cargar horario para vista previa
       await cargarHorario(barberoID, token);
 
     } catch (error) {
@@ -161,21 +141,7 @@ const MiPerfilScreen = () => {
       );
 
       if (data.horario) {
-        setDiasLaborales(data.horario.diasLaborales || diasLaborales);
-        setHorarioAlmuerzo(data.horario.horarioAlmuerzo || horarioAlmuerzo);
-        setExcepciones(data.horario.excepciones || []);
-        
-        // Marcar fechas en el calendario
-        const marked = {};
-        (data.horario.excepciones || []).forEach(exc => {
-          marked[exc.fecha] = {
-            selected: true,
-            marked: true,
-            selectedColor: exc.activo ? '#4CAF50' : '#F44336',
-            dotColor: exc.activo ? '#4CAF50' : '#F44336'
-          };
-        });
-        setMarkedDates(marked);
+        setHorarioData(data.horario);
       }
     } catch (error) {
       console.error('Error cargando horario:', error);
@@ -207,91 +173,13 @@ const MiPerfilScreen = () => {
     }
   };
 
-  const toggleDiaLaboral = (dia) => {
-    setDiasLaborales(prev => ({
-      ...prev,
-      [dia]: {
-        ...prev[dia],
-        activo: !prev[dia].activo
-      }
-    }));
-  };
-
-  const guardarHorario = async () => {
-    try {
-      setSavingSchedule(true);
+  const handleHorarioClose = async () => {
+    setShowHorarioModal(false);
+    // Recargar horario después de cerrar el modal
+    if (barberoID) {
       const token = await AsyncStorage.getItem('token');
-
-      await axios.put(
-        `${BASE_URL}/barberos/${barberoID}/horario`,
-        {
-          diasLaborales,
-          horarioAlmuerzo,
-          excepciones
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      showInfo('¡Éxito!', 'Horario actualizado correctamente', 'success');
-      
-    } catch (error) {
-      console.error('❌ Error guardando horario:', error);
-      showInfo('Error', error.response?.data?.mensaje || 'No se pudo guardar el horario', 'error');
-    } finally {
-      setSavingSchedule(false);
+      await cargarHorario(barberoID, token);
     }
-  };
-
-  const onDayPress = (day) => {
-    const fecha = day.dateString;
-    
-    Alert.alert(
-      `Día ${fecha}`,
-      '¿Qué deseas hacer?',
-      [
-        {
-          text: 'Trabajar este día',
-          onPress: () => agregarExcepcion(fecha, true)
-        },
-        {
-          text: 'No trabajar este día',
-          onPress: () => agregarExcepcion(fecha, false)
-        },
-        {
-          text: 'Eliminar excepción',
-          onPress: () => eliminarExcepcion(fecha),
-          style: 'destructive'
-        },
-        {
-          text: 'Cancelar',
-          style: 'cancel'
-        }
-      ]
-    );
-  };
-
-  const agregarExcepcion = (fecha, activo) => {
-    const nuevasExcepciones = excepciones.filter(e => e.fecha !== fecha);
-    nuevasExcepciones.push({ fecha, activo, motivo: '' });
-    setExcepciones(nuevasExcepciones);
-    
-    setMarkedDates(prev => ({
-      ...prev,
-      [fecha]: {
-        selected: true,
-        marked: true,
-        selectedColor: activo ? '#4CAF50' : '#F44336',
-        dotColor: activo ? '#4CAF50' : '#F44336'
-      }
-    }));
-  };
-
-  const eliminarExcepcion = (fecha) => {
-    setExcepciones(excepciones.filter(e => e.fecha !== fecha));
-    
-    const newMarked = { ...markedDates };
-    delete newMarked[fecha];
-    setMarkedDates(newMarked);
   };
 
   const limpiarRedSocial = (red) => {
@@ -306,6 +194,14 @@ const MiPerfilScreen = () => {
         setTiktok('');
         break;
     }
+  };
+
+  const getDiasActivos = () => {
+    if (!horarioData?.diasLaborales) return [];
+    
+    return Object.entries(horarioData.diasLaborales)
+      .filter(([_, config]) => config.activo)
+      .map(([dia, _]) => dia);
   };
 
   if (loading) {
@@ -466,125 +362,51 @@ const MiPerfilScreen = () => {
         {/* CONTENEDOR 3: Editar Horario */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>
-            <Ionicons name="calendar" size={20} color="#212121" /> Editar Horario
+            <Ionicons name="calendar" size={20} color="#212121" /> Mi Horario
           </Text>
           <Text style={styles.sectionDescription}>
-            Configura tus días laborales y excepciones específicas
+            Configura tus días y horas de trabajo
           </Text>
 
-          {/* Días de la semana */}
-          <View style={styles.daysContainer}>
-            {Object.keys(diasLaborales).map(dia => (
-              <View key={dia} style={styles.dayRow}>
-                <Text style={styles.dayName}>{dia.charAt(0).toUpperCase() + dia.slice(1)}</Text>
-                <Switch
-                  value={diasLaborales[dia].activo}
-                  onValueChange={() => toggleDiaLaboral(dia)}
-                  trackColor={{ false: '#E0E0E0', true: '#4CAF50' }}
-                  thumbColor={diasLaborales[dia].activo ? '#fff' : '#fff'}
-                />
-              </View>
-            ))}
-          </View>
-
-          {/* Horario de almuerzo */}
-          <View style={styles.lunchContainer}>
-            <View style={styles.lunchHeader}>
-              <Ionicons name="restaurant" size={20} color="#666" />
-              <Text style={styles.lunchTitle}>Horario de Almuerzo</Text>
-              <Switch
-                value={horarioAlmuerzo.activo}
-                onValueChange={(val) => setHorarioAlmuerzo(prev => ({ ...prev, activo: val }))}
-                trackColor={{ false: '#E0E0E0', true: '#4CAF50' }}
-                thumbColor={horarioAlmuerzo.activo ? '#fff' : '#fff'}
-              />
-            </View>
-            
-            {horarioAlmuerzo.activo && (
-              <View style={styles.lunchTimes}>
-                <View style={styles.timeInput}>
-                  <Text style={styles.timeLabel}>Inicio:</Text>
-                  <TextInput
-                    style={styles.timeValue}
-                    value={horarioAlmuerzo.inicio}
-                    onChangeText={(val) => setHorarioAlmuerzo(prev => ({ ...prev, inicio: val }))}
-                    placeholder="13:00"
-                  />
-                </View>
-                <View style={styles.timeInput}>
-                  <Text style={styles.timeLabel}>Fin:</Text>
-                  <TextInput
-                    style={styles.timeValue}
-                    value={horarioAlmuerzo.fin}
-                    onChangeText={(val) => setHorarioAlmuerzo(prev => ({ ...prev, fin: val }))}
-                    placeholder="14:00"
-                  />
-                </View>
-              </View>
-            )}
-          </View>
-
-          {/* Calendario de excepciones */}
           <TouchableOpacity
-            style={styles.calendarButton}
-            onPress={() => setShowCalendar(!showCalendar)}
+            style={styles.editScheduleButton}
+            onPress={() => setShowHorarioModal(true)}
           >
-            <Ionicons name="calendar-outline" size={20} color="#fff" />
-            <Text style={styles.calendarButtonText}>
-              {showCalendar ? 'Ocultar Calendario' : 'Gestionar Días Específicos'}
-            </Text>
+            <Ionicons name="create-outline" size={24} color="#fff" />
+            <Text style={styles.editScheduleText}>Editar Horario</Text>
           </TouchableOpacity>
 
-          {showCalendar && (
-            <View style={styles.calendarContainer}>
-              <Text style={styles.calendarHelp}>
-                Toca un día para marcarlo como día de trabajo (verde) o día libre (rojo)
-              </Text>
-              <Calendar
-                onDayPress={onDayPress}
-                markedDates={markedDates}
-                theme={{
-                  todayTextColor: '#D4AF37',
-                  selectedDayBackgroundColor: '#424242',
-                  arrowColor: '#424242'
-                }}
-              />
+          {/* Vista Previa del Horario */}
+          {horarioData && (
+            <View style={styles.schedulePreview}>
+              <Text style={styles.schedulePreviewTitle}>Horario Actual:</Text>
               
-              {excepciones.length > 0 && (
-                <View style={styles.exceptionsList}>
-                  <Text style={styles.exceptionsTitle}>Excepciones Configuradas:</Text>
-                  {excepciones.map((exc, index) => (
-                    <View key={index} style={styles.exceptionItem}>
-                      <Ionicons 
-                        name={exc.activo ? "checkmark-circle" : "close-circle"} 
-                        size={20} 
-                        color={exc.activo ? "#4CAF50" : "#F44336"} 
-                      />
-                      <Text style={styles.exceptionDate}>{exc.fecha}</Text>
-                      <Text style={styles.exceptionStatus}>
-                        {exc.activo ? 'Trabajando' : 'No trabajo'}
+              {/* Días laborales */}
+              <View style={styles.previewDays}>
+                {getDiasActivos().length > 0 ? (
+                  getDiasActivos().map(dia => (
+                    <View key={dia} style={styles.previewDayBadge}>
+                      <Text style={styles.previewDayText}>
+                        {dia.charAt(0).toUpperCase() + dia.slice(1, 3)}
                       </Text>
                     </View>
-                  ))}
+                  ))
+                ) : (
+                  <Text style={styles.noDaysText}>No hay días configurados</Text>
+                )}
+              </View>
+
+              {/* Horario de almuerzo */}
+              {horarioData.horarioAlmuerzo?.activo && (
+                <View style={styles.lunchInfo}>
+                  <Ionicons name="restaurant" size={16} color="#666" />
+                  <Text style={styles.lunchText}>
+                    Almuerzo: {horarioData.horarioAlmuerzo.inicio} - {horarioData.horarioAlmuerzo.fin}
+                  </Text>
                 </View>
               )}
             </View>
           )}
-
-          <TouchableOpacity
-            style={[styles.saveButton, savingSchedule && styles.saveButtonDisabled]}
-            onPress={guardarHorario}
-            disabled={savingSchedule}
-          >
-            {savingSchedule ? (
-              <ActivityIndicator size="small" color="#fff" />
-            ) : (
-              <>
-                <Ionicons name="checkmark-circle" size={20} color="#fff" />
-                <Text style={styles.saveButtonText}>Guardar Horario</Text>
-              </>
-            )}
-          </TouchableOpacity>
         </View>
 
         {/* CONTENEDOR 4: Vista Previa */}
@@ -631,20 +453,20 @@ const MiPerfilScreen = () => {
               </Text>
             )}
 
-            <View style={styles.previewSchedule}>
-              <Text style={styles.previewScheduleTitle}>Días de trabajo:</Text>
-              <View style={styles.previewDays}>
-                {Object.entries(diasLaborales).map(([dia, config]) => (
-                  config.activo && (
+            {horarioData && getDiasActivos().length > 0 && (
+              <View style={styles.previewSchedule}>
+                <Text style={styles.previewScheduleTitle}>Días de trabajo:</Text>
+                <View style={styles.previewDaysContainer}>
+                  {getDiasActivos().map(dia => (
                     <View key={dia} style={styles.previewDayBadge}>
                       <Text style={styles.previewDayText}>
                         {dia.substring(0, 3)}
                       </Text>
                     </View>
-                  )
-                ))}
+                  ))}
+                </View>
               </View>
-            </View>
+            )}
           </View>
         </View>
 
@@ -657,6 +479,13 @@ const MiPerfilScreen = () => {
         title={infoTitle}
         message={infoMsg}
         type={infoType}
+      />
+
+      {/* Modal de Horario */}
+      <HorarioBarbero
+        barberoId={barberoID}
+        visible={showHorarioModal}
+        onClose={handleHorarioClose}
       />
     </View>
   );
@@ -769,117 +598,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     backgroundColor: '#fafafa'
   },
-  daysContainer: {
-    marginBottom: 20
-  },
-  dayRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0'
-  },
-  dayName: {
-    fontSize: 16,
-    color: '#212121',
-    fontWeight: '500'
-  },
-  lunchContainer: {
-    backgroundColor: '#f9f9f9',
-    padding: 16,
-    borderRadius: 8,
-    marginBottom: 20
-  },
-  lunchHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between'
-  },
-  lunchTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#212121',
-    marginLeft: 8,
-    flex: 1
-  },
-  lunchTimes: {
-    flexDirection: 'row',
-    marginTop: 12,
-    gap: 16
-  },
-  timeInput: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8
-  },
-  timeLabel: {
-    fontSize: 14,
-    color: '#666'
-  },
-  timeValue: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    borderRadius: 6,
-    padding: 8,
-    fontSize: 14,
-    textAlign: 'center'
-  },
-  calendarButton: {
-    flexDirection: 'row',
-    backgroundColor: '#424242',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 16,
-    gap: 8
-  },
-  calendarButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '600'
-  },
-  calendarContainer: {
-    marginTop: 10
-  },
-  calendarHelp: {
-    fontSize: 12,
-    color: '#666',
-    textAlign: 'center',
-    marginBottom: 10,
-    fontStyle: 'italic'
-  },
-  exceptionsList: {
-    marginTop: 16,
-    padding: 12,
-    backgroundColor: '#f9f9f9',
-    borderRadius: 8
-  },
-  exceptionsTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#212121',
-    marginBottom: 8
-  },
-  exceptionItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 8,
-    gap: 8
-  },
-  exceptionDate: {
-    fontSize: 14,
-    color: '#212121',
-    flex: 1
-  },
-  exceptionStatus: {
-    fontSize: 12,
-    color: '#666'
-  },
   saveButton: {
     flexDirection: 'row',
     backgroundColor: '#424242',
@@ -897,7 +615,72 @@ const styles = StyleSheet.create({
   saveButtonText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: '600'
+    fontWeight: '600',
+    marginLeft: 8
+  },
+  editScheduleButton: {
+    flexDirection: 'row',
+    backgroundColor: '#424242',
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    borderRadius: 25,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginBottom: 16
+  },
+  editScheduleText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+    marginLeft: 8
+  },
+  schedulePreview: {
+    backgroundColor: '#f9f9f9',
+    padding: 16,
+    borderRadius: 8,
+    marginTop: 8
+  },
+  schedulePreviewTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#212121',
+    marginBottom: 12
+  },
+  previewDays: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: 12
+  },
+  previewDayBadge: {
+    backgroundColor: '#4CAF50',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 16
+  },
+  previewDayText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '600',
+    textTransform: 'capitalize'
+  },
+  noDaysText: {
+    fontSize: 14,
+    color: '#999',
+    fontStyle: 'italic'
+  },
+  lunchInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: '#E0E0E0'
+  },
+  lunchText: {
+    fontSize: 14,
+    color: '#666'
   },
   previewCard: {
     backgroundColor: '#f9f9f9',
@@ -975,22 +758,10 @@ const styles = StyleSheet.create({
     color: '#212121',
     marginBottom: 8
   },
-  previewDays: {
+  previewDaysContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 8
-  },
-  previewDayBadge: {
-    backgroundColor: '#4CAF50',
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 16
-  },
-  previewDayText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '600',
-    textTransform: 'capitalize'
   }
 });
 
