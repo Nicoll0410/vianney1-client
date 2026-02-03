@@ -40,7 +40,7 @@ const Stack = createStackNavigator();
 
 /* Logo */
 import LogoImg from "../assets/images/barberApp 1.png";
-import LogoGaleriaImg from "../assets/images/nmbarber.png"; // ✅ Logo para Galería
+import LogoGaleriaImg from "../assets/images/nmbarber.png";
 
 /* Icono campana con badge */
 const NotificationBell = ({ navigation, isDark = false }) => {
@@ -54,7 +54,7 @@ const NotificationBell = ({ navigation, isDark = false }) => {
       <Ionicons 
         name="notifications-outline" 
         size={26} 
-        color={isDark ? "#fff" : "black"} // ✅ Blanco si es tema oscuro
+        color={isDark ? "#fff" : "black"}
       />
       {unreadCount > 0 && (
         <View
@@ -84,20 +84,16 @@ const HeaderLogo = ({ useGaleriaLogo = false }) => {
   const { width } = useWindowDimensions();
   const isLargeScreen = width >= 1024;
   
-  // ✅ Tamaños diferentes según el logo
   let logoWidth, logoHeight;
   
   if (useGaleriaLogo) {
-    // Logo de galería MÁS GRANDE
     logoWidth = isLargeScreen ? 250 : 180;
     logoHeight = isLargeScreen ? 60 : 45;
   } else {
-    // Logo normal (sin cambios)
     logoWidth = isLargeScreen ? 180 : 120;
     logoHeight = isLargeScreen ? 40 : 30;
   }
 
-  // ✅ Seleccionar el logo según la pantalla
   const logoSource = useGaleriaLogo ? LogoGaleriaImg : LogoImg;
 
   return (
@@ -113,27 +109,26 @@ const HeaderLogo = ({ useGaleriaLogo = false }) => {
   );
 };
 
-// ✅ FUNCIÓN PARA OBTENER ESTILOS DEL HEADER SEGÚN LA PANTALLA
+// Función para obtener estilos del header según la pantalla
 const getHeaderStyle = (screenName) => {
   if (screenName === 'Galeria') {
     return {
       headerStyle: {
-        backgroundColor: '#000', // Fondo negro
+        backgroundColor: '#000',
       },
-      headerTintColor: '#fff', // Texto blanco (título y botones)
+      headerTintColor: '#fff',
       headerTitleStyle: {
-        color: '#fff', // Título blanco
+        color: '#fff',
         fontWeight: 'bold',
       },
     };
   }
   
-  // Para todas las demás pantallas (por defecto)
   return {
     headerStyle: {
-      backgroundColor: '#fff', // Fondo blanco
+      backgroundColor: '#fff',
     },
-    headerTintColor: '#000', // Texto negro
+    headerTintColor: '#000',
   };
 };
 
@@ -143,13 +138,10 @@ const CustomDrawerNavigator = ({ navigation: mainNavigation }) => {
   const drawerAnimation = useRef(new Animated.Value(-300)).current;
   const { width, height } = useWindowDimensions();
 
-  // Determinar si es web
   const isWeb = Platform.OS === 'web';
-  // Para web, mostramos el drawer siempre visible en pantallas grandes
   const isLargeScreen = width >= 1024;
 
   const toggleDrawer = () => {
-    // En web con pantalla grande, el drawer siempre está visible
     if (isWeb && isLargeScreen) return;
 
     if (drawerOpen) {
@@ -169,7 +161,6 @@ const CustomDrawerNavigator = ({ navigation: mainNavigation }) => {
   };
 
   const closeDrawer = () => {
-    // En web con pantalla grande, el drawer siempre está visible
     if (isWeb && isLargeScreen) return;
 
     Animated.timing(drawerAnimation, {
@@ -184,11 +175,8 @@ const CustomDrawerNavigator = ({ navigation: mainNavigation }) => {
     mainNavigation.navigate(screen);
   };
 
-  // OPCIONES COMUNES para TODAS las pantallas - CON BOTÓN DE HAMBURGUESA
-  // SOLO en móvil/pantallas pequeñas
   const commonOptions = ({ navigation, isDark = false, useGaleriaLogo = false }) => ({
     headerLeft: () => {
-      // No mostrar el ícono de menú en pantallas grandes de web
       if (isWeb && isLargeScreen) return null;
 
       return (
@@ -196,12 +184,12 @@ const CustomDrawerNavigator = ({ navigation: mainNavigation }) => {
           <Ionicons 
             name="menu" 
             size={24} 
-            color={isDark ? "#fff" : "black"} // ✅ Blanco si es tema oscuro
+            color={isDark ? "#fff" : "black"}
           />
         </TouchableOpacity>
       );
     },
-    headerRight: () => <HeaderLogo useGaleriaLogo={useGaleriaLogo} />, // ✅ Pasar prop
+    headerRight: () => <HeaderLogo useGaleriaLogo={useGaleriaLogo} />,
   });
 
   const renderDrawerScreens = (userRole) => {
@@ -209,18 +197,17 @@ const CustomDrawerNavigator = ({ navigation: mainNavigation }) => {
       case "Cliente":
         return (
           <>
-            {/* ✅ GALERÍA CON TEMA OSCURO Y LOGO ALTERNATIVO */}
             <Stack.Screen
               name="Galeria"
               component={GaleriaScreen}
               options={({ navigation }) => ({
                 ...commonOptions({ 
                   navigation, 
-                  isDark: true,           // ✅ Tema oscuro
-                  useGaleriaLogo: true    // ✅ Logo de galería
+                  isDark: true,
+                  useGaleriaLogo: true
                 }),
                 headerTitle: "Galería",
-                ...getHeaderStyle('Galeria') // ✅ Aplicar estilos oscuros
+                ...getHeaderStyle('Galeria')
               })}
             />
             <Stack.Screen
@@ -250,6 +237,7 @@ const CustomDrawerNavigator = ({ navigation: mainNavigation }) => {
       case "Barbero":
         return (
           <>
+            {/* ✅ MI PERFIL COMO PRIMERA PANTALLA PARA BARBEROS */}
             <Stack.Screen
               name="MiPerfil"
               component={MiPerfilScreen}
@@ -298,23 +286,24 @@ const CustomDrawerNavigator = ({ navigation: mainNavigation }) => {
           </>
         );
 
-      default:
+      default: // ADMINISTRADOR
         return (
           <>
-            <Stack.Screen
-              name="Dashboard"
-              component={DashboardScreen}
-              options={({ navigation }) => ({
-                ...commonOptions({ navigation }),
-                headerTitle: "Dashboard"
-              })}
-            />
+            {/* ✅ MI PERFIL COMO PRIMERA PANTALLA PARA ADMINISTRADORES */}
             <Stack.Screen
               name="MiPerfil"
               component={MiPerfilScreen}
               options={({ navigation }) => ({
                 ...commonOptions({ navigation }),
                 headerTitle: "Mi Perfil"
+              })}
+            />
+            <Stack.Screen
+              name="Dashboard"
+              component={DashboardScreen}
+              options={({ navigation }) => ({
+                ...commonOptions({ navigation }),
+                headerTitle: "Dashboard"
               })}
             />
             <Stack.Screen
@@ -394,7 +383,6 @@ const CustomDrawerNavigator = ({ navigation: mainNavigation }) => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        {/* Drawer overlay - Solo mostrar en móvil o cuando el drawer está abierto */}
         {(drawerOpen && !(isWeb && isLargeScreen)) && (
           <TouchableOpacity
             style={styles.overlay}
@@ -403,13 +391,11 @@ const CustomDrawerNavigator = ({ navigation: mainNavigation }) => {
           />
         )}
 
-        {/* Drawer content */}
         <Animated.View
           style={[
             styles.drawer,
             {
               transform: [
-                // En web con pantalla grande, siempre visible (translateX: 0)
                 isWeb && isLargeScreen
                   ? { translateX: 0 }
                   : { translateX: drawerAnimation }
@@ -425,15 +411,12 @@ const CustomDrawerNavigator = ({ navigation: mainNavigation }) => {
           />
         </Animated.View>
 
-        {/* Main content */}
         <View style={[
           styles.mainContent,
-          // En web con pantalla grande, agregamos margen para el drawer fijo
           isWeb && isLargeScreen && { marginLeft: 300 }
         ]}>
           <Stack.Navigator
             screenOptions={{
-              // Asegurar que el contenido se ajuste correctamente
               cardStyle: { flex: 1 }
             }}
           >
@@ -469,7 +452,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#000',
     zIndex: 1000,
     elevation: 1000,
-    // Para web: drawer fijo en pantallas grandes
     ...(Platform.OS === 'web' ? {
       position: 'fixed',
       left: 0,
@@ -480,7 +462,6 @@ const styles = StyleSheet.create({
   mainContent: {
     flex: 1,
     zIndex: 1,
-    // Para web: permitir scroll solo en este contenedor
     ...(Platform.OS === 'web' ? {
       overflowY: 'auto',
       height: '100vh',

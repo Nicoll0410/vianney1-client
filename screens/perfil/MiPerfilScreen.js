@@ -1,4 +1,4 @@
-//MiPerfilScreen
+// screens/perfil/MiPerfilScreen.js
 import React, { useState, useEffect, useContext } from 'react';
 import {
   View,
@@ -8,7 +8,9 @@ import {
   TouchableOpacity,
   TextInput,
   ActivityIndicator,
-  Platform
+  Platform,
+  Switch,
+  Alert
 } from 'react-native';
 import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -16,23 +18,49 @@ import axios from 'axios';
 import { AuthContext } from '../../contexts/AuthContext';
 import Footer from '../../components/Footer';
 import InfoModal from '../../components/InfoModal';
+import { Calendar } from 'react-native-calendars';
+
+const BASE_URL = 'https://vianney-server.onrender.com';
 
 const MiPerfilScreen = () => {
   const { user, userRole, barberData } = useContext(AuthContext);
   
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [savingSchedule, setSavingSchedule] = useState(false);
   
   // Datos del barbero
   const [barberoID, setBarberoID] = useState(null);
   const [nombre, setNombre] = useState('');
   const [telefono, setTelefono] = useState('');
   const [email, setEmail] = useState('');
+  const [rol, setRol] = useState('');
   
   // Redes sociales
   const [instagram, setInstagram] = useState('');
   const [facebook, setFacebook] = useState('');
   const [tiktok, setTiktok] = useState('');
+  
+  // Horarios
+  const [diasLaborales, setDiasLaborales] = useState({
+    lunes: { activo: false, horas: [] },
+    martes: { activo: false, horas: [] },
+    miercoles: { activo: false, horas: [] },
+    jueves: { activo: false, horas: [] },
+    viernes: { activo: false, horas: [] },
+    sabado: { activo: false, horas: [] },
+    domingo: { activo: false, horas: [] }
+  });
+  
+  const [horarioAlmuerzo, setHorarioAlmuerzo] = useState({
+    inicio: '13:00',
+    fin: '14:00',
+    activo: true
+  });
+  
+  const [excepciones, setExcepciones] = useState([]);
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [markedDates, setMarkedDates] = useState({});
   
   // Modal de info
   const [infoVisible, setInfoVisible] = useState(false);
@@ -68,10 +96,8 @@ const MiPerfilScreen = () => {
           return;
         }
 
-        console.log('📧 Buscando barbero por email:', emailUsuario);
-
         const { data: respuestaBarberos } = await axios.get(
-          'https://vianney-server.onrender.com/barberos',
+          `${BASE_URL}/barberos`,
           { 
             headers: { Authorization: `Bearer ${token}` },
             params: { all: true }
@@ -91,7 +117,6 @@ const MiPerfilScreen = () => {
         }
         
         barberoID = miBarbero.id;
-        console.log('✅ Barbero encontrado:', miBarbero.nombre);
       }
 
       if (!barberoID) {
@@ -99,48 +124,61 @@ const MiPerfilScreen = () => {
         return;
       }
 
-      console.log('📡 Cargando datos del barbero ID:', barberoID);
-
-      // ✅ CORRECCIÓN: Usar /barberos/by-id/:id en lugar de /barberos/:id
+      // Cargar datos del barbero
       const { data } = await axios.get(
-        `https://vianney-server.onrender.com/barberos/by-id/${barberoID}`,
+        `${BASE_URL}/barberos/by-id/${barberoID}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      // El endpoint devuelve { barbero: {...} }
       const barbero = data.barbero || data;
-
-      console.log('✅ Datos cargados correctamente');
-      console.log('📱 Redes sociales actuales:', {
-        instagram: barbero.instagram || 'No configurado',
-        facebook: barbero.facebook || 'No configurado',
-        tiktok: barbero.tiktok || 'No configurado'
-      });
 
       setBarberoID(barbero.id);
       setNombre(barbero.nombre || '');
       setTelefono(barbero.telefono || '');
       setEmail(barbero.usuario?.email || user?.email || '');
+      setRol(barbero.usuario?.rol?.nombre || userRole || '');
       
-      // Cargar redes sociales
       setInstagram(barbero.instagram || '');
       setFacebook(barbero.facebook || '');
       setTiktok(barbero.tiktok || '');
 
+      // Cargar horario
+      await cargarHorario(barberoID, token);
+
     } catch (error) {
       console.error('❌ Error cargando datos:', error);
-      console.error('❌ Error response:', error.response?.data);
-      console.error('❌ Error status:', error.response?.status);
-      
-      if (error.response?.status === 401) {
-        showInfo('Sesión expirada', 'Tu sesión ha expirado. Por favor inicia sesión nuevamente.', 'error');
-      } else if (error.response?.status === 404) {
-        showInfo('Error', 'No se encontró el barbero. Verifica tu cuenta.', 'error');
-      } else {
-        showInfo('Error', 'No se pudieron cargar los datos', 'error');
-      }
+      showInfo('Error', 'No se pudieron cargar los datos', 'error');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const cargarHorario = async (id, token) => {
+    try {
+      const { data } = await axios.get(
+        `${BASE_URL}/barberos/${id}/horario`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (data.horario) {
+        setDiasLaborales(data.horario.diasLaborales || diasLaborales);
+        setHorarioAlmuerzo(data.horario.horarioAlmuerzo || horarioAlmuerzo);
+        setExcepciones(data.horario.excepciones || []);
+        
+        // Marcar fechas en el calendario
+        const marked = {};
+        (data.horario.excepciones || []).forEach(exc => {
+          marked[exc.fecha] = {
+            selected: true,
+            marked: true,
+            selectedColor: exc.activo ? '#4CAF50' : '#F44336',
+            dotColor: exc.activo ? '#4CAF50' : '#F44336'
+          };
+        });
+        setMarkedDates(marked);
+      }
+    } catch (error) {
+      console.error('Error cargando horario:', error);
     }
   };
 
@@ -149,16 +187,8 @@ const MiPerfilScreen = () => {
       setSaving(true);
       const token = await AsyncStorage.getItem('token');
 
-      console.log('💾 Guardando redes sociales...');
-      console.log('🆔 Barbero ID:', barberoID);
-      console.log('📱 Datos a enviar:', {
-        instagram: instagram || null,
-        facebook: facebook || null,
-        tiktok: tiktok || null
-      });
-
-      const response = await axios.patch(
-        `https://vianney-server.onrender.com/barberos/${barberoID}`,
+      await axios.patch(
+        `${BASE_URL}/barberos/${barberoID}`,
         {
           instagram: instagram || null,
           facebook: facebook || null,
@@ -167,24 +197,101 @@ const MiPerfilScreen = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      console.log('✅ Respuesta del servidor:', response.data);
       showInfo('¡Éxito!', 'Redes sociales actualizadas correctamente', 'success');
       
     } catch (error) {
       console.error('❌ Error guardando:', error);
-      console.error('❌ Error response:', error.response?.data);
-      console.error('❌ Error status:', error.response?.status);
-      
-      if (error.response?.status === 401) {
-        showInfo('Sesión expirada', 'Tu sesión ha expirado. Por favor inicia sesión nuevamente.', 'error');
-      } else if (error.response?.status === 404) {
-        showInfo('Error', 'No se encontró el endpoint. Verifica la URL: /barberos/' + barberoID, 'error');
-      } else {
-        showInfo('Error', error.response?.data?.mensaje || 'No se pudieron guardar los cambios', 'error');
-      }
+      showInfo('Error', error.response?.data?.mensaje || 'No se pudieron guardar los cambios', 'error');
     } finally {
       setSaving(false);
     }
+  };
+
+  const toggleDiaLaboral = (dia) => {
+    setDiasLaborales(prev => ({
+      ...prev,
+      [dia]: {
+        ...prev[dia],
+        activo: !prev[dia].activo
+      }
+    }));
+  };
+
+  const guardarHorario = async () => {
+    try {
+      setSavingSchedule(true);
+      const token = await AsyncStorage.getItem('token');
+
+      await axios.put(
+        `${BASE_URL}/barberos/${barberoID}/horario`,
+        {
+          diasLaborales,
+          horarioAlmuerzo,
+          excepciones
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      showInfo('¡Éxito!', 'Horario actualizado correctamente', 'success');
+      
+    } catch (error) {
+      console.error('❌ Error guardando horario:', error);
+      showInfo('Error', error.response?.data?.mensaje || 'No se pudo guardar el horario', 'error');
+    } finally {
+      setSavingSchedule(false);
+    }
+  };
+
+  const onDayPress = (day) => {
+    const fecha = day.dateString;
+    
+    Alert.alert(
+      `Día ${fecha}`,
+      '¿Qué deseas hacer?',
+      [
+        {
+          text: 'Trabajar este día',
+          onPress: () => agregarExcepcion(fecha, true)
+        },
+        {
+          text: 'No trabajar este día',
+          onPress: () => agregarExcepcion(fecha, false)
+        },
+        {
+          text: 'Eliminar excepción',
+          onPress: () => eliminarExcepcion(fecha),
+          style: 'destructive'
+        },
+        {
+          text: 'Cancelar',
+          style: 'cancel'
+        }
+      ]
+    );
+  };
+
+  const agregarExcepcion = (fecha, activo) => {
+    const nuevasExcepciones = excepciones.filter(e => e.fecha !== fecha);
+    nuevasExcepciones.push({ fecha, activo, motivo: '' });
+    setExcepciones(nuevasExcepciones);
+    
+    setMarkedDates(prev => ({
+      ...prev,
+      [fecha]: {
+        selected: true,
+        marked: true,
+        selectedColor: activo ? '#4CAF50' : '#F44336',
+        dotColor: activo ? '#4CAF50' : '#F44336'
+      }
+    }));
+  };
+
+  const eliminarExcepcion = (fecha) => {
+    setExcepciones(excepciones.filter(e => e.fecha !== fecha));
+    
+    const newMarked = { ...markedDates };
+    delete newMarked[fecha];
+    setMarkedDates(newMarked);
   };
 
   const limpiarRedSocial = (red) => {
@@ -220,15 +327,25 @@ const MiPerfilScreen = () => {
           <Text style={styles.headerSubtitle}>{nombre}</Text>
         </View>
 
-        {/* Información básica (solo lectura) */}
+        {/* CONTENEDOR 1: Información Básica */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Información Básica</Text>
+          <Text style={styles.sectionTitle}>
+            <Ionicons name="information-circle" size={20} color="#212121" /> Información Básica
+          </Text>
           
           <View style={styles.infoRow}>
             <Ionicons name="person" size={20} color="#666" />
             <View style={styles.infoContent}>
               <Text style={styles.infoLabel}>Nombre</Text>
               <Text style={styles.infoValue}>{nombre}</Text>
+            </View>
+          </View>
+
+          <View style={styles.infoRow}>
+            <Ionicons name="shield-checkmark" size={20} color="#666" />
+            <View style={styles.infoContent}>
+              <Text style={styles.infoLabel}>Rol</Text>
+              <Text style={styles.infoValue}>{rol}</Text>
             </View>
           </View>
 
@@ -249,9 +366,11 @@ const MiPerfilScreen = () => {
           </View>
         </View>
 
-        {/* Redes Sociales (editable) */}
+        {/* CONTENEDOR 2: Redes Sociales */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Mis Redes Sociales</Text>
+          <Text style={styles.sectionTitle}>
+            <Ionicons name="share-social" size={20} color="#212121" /> Mis Redes Sociales
+          </Text>
           <Text style={styles.sectionDescription}>
             Estas aparecerán en tu perfil público de la galería
           </Text>
@@ -328,7 +447,6 @@ const MiPerfilScreen = () => {
             />
           </View>
 
-          {/* Botón guardar */}
           <TouchableOpacity
             style={[styles.saveButton, saving && styles.saveButtonDisabled]}
             onPress={guardarRedesSociales}
@@ -339,34 +457,194 @@ const MiPerfilScreen = () => {
             ) : (
               <>
                 <Ionicons name="checkmark-circle" size={20} color="#fff" />
-                <Text style={styles.saveButtonText}>Guardar Cambios</Text>
+                <Text style={styles.saveButtonText}>Guardar Redes Sociales</Text>
               </>
             )}
           </TouchableOpacity>
         </View>
 
-        {/* Vista previa */}
+        {/* CONTENEDOR 3: Editar Horario */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Vista Previa</Text>
+          <Text style={styles.sectionTitle}>
+            <Ionicons name="calendar" size={20} color="#212121" /> Editar Horario
+          </Text>
           <Text style={styles.sectionDescription}>
-            Así verán los clientes tus redes sociales
+            Configura tus días laborales y excepciones específicas
+          </Text>
+
+          {/* Días de la semana */}
+          <View style={styles.daysContainer}>
+            {Object.keys(diasLaborales).map(dia => (
+              <View key={dia} style={styles.dayRow}>
+                <Text style={styles.dayName}>{dia.charAt(0).toUpperCase() + dia.slice(1)}</Text>
+                <Switch
+                  value={diasLaborales[dia].activo}
+                  onValueChange={() => toggleDiaLaboral(dia)}
+                  trackColor={{ false: '#E0E0E0', true: '#4CAF50' }}
+                  thumbColor={diasLaborales[dia].activo ? '#fff' : '#fff'}
+                />
+              </View>
+            ))}
+          </View>
+
+          {/* Horario de almuerzo */}
+          <View style={styles.lunchContainer}>
+            <View style={styles.lunchHeader}>
+              <Ionicons name="restaurant" size={20} color="#666" />
+              <Text style={styles.lunchTitle}>Horario de Almuerzo</Text>
+              <Switch
+                value={horarioAlmuerzo.activo}
+                onValueChange={(val) => setHorarioAlmuerzo(prev => ({ ...prev, activo: val }))}
+                trackColor={{ false: '#E0E0E0', true: '#4CAF50' }}
+                thumbColor={horarioAlmuerzo.activo ? '#fff' : '#fff'}
+              />
+            </View>
+            
+            {horarioAlmuerzo.activo && (
+              <View style={styles.lunchTimes}>
+                <View style={styles.timeInput}>
+                  <Text style={styles.timeLabel}>Inicio:</Text>
+                  <TextInput
+                    style={styles.timeValue}
+                    value={horarioAlmuerzo.inicio}
+                    onChangeText={(val) => setHorarioAlmuerzo(prev => ({ ...prev, inicio: val }))}
+                    placeholder="13:00"
+                  />
+                </View>
+                <View style={styles.timeInput}>
+                  <Text style={styles.timeLabel}>Fin:</Text>
+                  <TextInput
+                    style={styles.timeValue}
+                    value={horarioAlmuerzo.fin}
+                    onChangeText={(val) => setHorarioAlmuerzo(prev => ({ ...prev, fin: val }))}
+                    placeholder="14:00"
+                  />
+                </View>
+              </View>
+            )}
+          </View>
+
+          {/* Calendario de excepciones */}
+          <TouchableOpacity
+            style={styles.calendarButton}
+            onPress={() => setShowCalendar(!showCalendar)}
+          >
+            <Ionicons name="calendar-outline" size={20} color="#fff" />
+            <Text style={styles.calendarButtonText}>
+              {showCalendar ? 'Ocultar Calendario' : 'Gestionar Días Específicos'}
+            </Text>
+          </TouchableOpacity>
+
+          {showCalendar && (
+            <View style={styles.calendarContainer}>
+              <Text style={styles.calendarHelp}>
+                Toca un día para marcarlo como día de trabajo (verde) o día libre (rojo)
+              </Text>
+              <Calendar
+                onDayPress={onDayPress}
+                markedDates={markedDates}
+                theme={{
+                  todayTextColor: '#D4AF37',
+                  selectedDayBackgroundColor: '#424242',
+                  arrowColor: '#424242'
+                }}
+              />
+              
+              {excepciones.length > 0 && (
+                <View style={styles.exceptionsList}>
+                  <Text style={styles.exceptionsTitle}>Excepciones Configuradas:</Text>
+                  {excepciones.map((exc, index) => (
+                    <View key={index} style={styles.exceptionItem}>
+                      <Ionicons 
+                        name={exc.activo ? "checkmark-circle" : "close-circle"} 
+                        size={20} 
+                        color={exc.activo ? "#4CAF50" : "#F44336"} 
+                      />
+                      <Text style={styles.exceptionDate}>{exc.fecha}</Text>
+                      <Text style={styles.exceptionStatus}>
+                        {exc.activo ? 'Trabajando' : 'No trabajo'}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+              )}
+            </View>
+          )}
+
+          <TouchableOpacity
+            style={[styles.saveButton, savingSchedule && styles.saveButtonDisabled]}
+            onPress={guardarHorario}
+            disabled={savingSchedule}
+          >
+            {savingSchedule ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              <>
+                <Ionicons name="checkmark-circle" size={20} color="#fff" />
+                <Text style={styles.saveButtonText}>Guardar Horario</Text>
+              </>
+            )}
+          </TouchableOpacity>
+        </View>
+
+        {/* CONTENEDOR 4: Vista Previa */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>
+            <Ionicons name="eye" size={20} color="#212121" /> Vista Previa
+          </Text>
+          <Text style={styles.sectionDescription}>
+            Así verán los clientes tu perfil
           </Text>
 
           <View style={styles.previewCard}>
-            <Text style={styles.previewNombre}>{nombre}</Text>
-            <Text style={styles.previewTelefono}>📞 {telefono}</Text>
+            <View style={styles.previewHeader}>
+              <Ionicons name="person-circle" size={50} color="#D4AF37" />
+              <View style={styles.previewInfo}>
+                <Text style={styles.previewNombre}>{nombre}</Text>
+                <Text style={styles.previewRol}>{rol}</Text>
+              </View>
+            </View>
+
+            <View style={styles.previewContact}>
+              <View style={styles.previewContactItem}>
+                <Ionicons name="call" size={16} color="#666" />
+                <Text style={styles.previewTelefono}>{telefono}</Text>
+              </View>
+              <View style={styles.previewContactItem}>
+                <Ionicons name="mail" size={16} color="#666" />
+                <Text style={styles.previewEmail}>{email}</Text>
+              </View>
+            </View>
             
             {(instagram || facebook || tiktok) ? (
-              <View style={styles.previewRedes}>
-                {instagram && <FontAwesome name="instagram" size={20} color="#E4405F" />}
-                {facebook && <FontAwesome name="facebook" size={20} color="#1877F2" />}
-                {tiktok && <FontAwesome name="music" size={20} color="#000" />}
+              <View style={styles.previewRedesContainer}>
+                <Text style={styles.previewRedesTitle}>Redes Sociales:</Text>
+                <View style={styles.previewRedes}>
+                  {instagram && <FontAwesome name="instagram" size={24} color="#E4405F" />}
+                  {facebook && <FontAwesome name="facebook" size={24} color="#1877F2" />}
+                  {tiktok && <FontAwesome name="music" size={24} color="#000" />}
+                </View>
               </View>
             ) : (
               <Text style={styles.previewSinRedes}>
                 No has agregado redes sociales
               </Text>
             )}
+
+            <View style={styles.previewSchedule}>
+              <Text style={styles.previewScheduleTitle}>Días de trabajo:</Text>
+              <View style={styles.previewDays}>
+                {Object.entries(diasLaborales).map(([dia, config]) => (
+                  config.activo && (
+                    <View key={dia} style={styles.previewDayBadge}>
+                      <Text style={styles.previewDayText}>
+                        {dia.substring(0, 3)}
+                      </Text>
+                    </View>
+                  )
+                ))}
+              </View>
+            </View>
           </View>
         </View>
 
@@ -491,6 +769,117 @@ const styles = StyleSheet.create({
     fontSize: 14,
     backgroundColor: '#fafafa'
   },
+  daysContainer: {
+    marginBottom: 20
+  },
+  dayRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0'
+  },
+  dayName: {
+    fontSize: 16,
+    color: '#212121',
+    fontWeight: '500'
+  },
+  lunchContainer: {
+    backgroundColor: '#f9f9f9',
+    padding: 16,
+    borderRadius: 8,
+    marginBottom: 20
+  },
+  lunchHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between'
+  },
+  lunchTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#212121',
+    marginLeft: 8,
+    flex: 1
+  },
+  lunchTimes: {
+    flexDirection: 'row',
+    marginTop: 12,
+    gap: 16
+  },
+  timeInput: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8
+  },
+  timeLabel: {
+    fontSize: 14,
+    color: '#666'
+  },
+  timeValue: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    borderRadius: 6,
+    padding: 8,
+    fontSize: 14,
+    textAlign: 'center'
+  },
+  calendarButton: {
+    flexDirection: 'row',
+    backgroundColor: '#424242',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+    gap: 8
+  },
+  calendarButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600'
+  },
+  calendarContainer: {
+    marginTop: 10
+  },
+  calendarHelp: {
+    fontSize: 12,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 10,
+    fontStyle: 'italic'
+  },
+  exceptionsList: {
+    marginTop: 16,
+    padding: 12,
+    backgroundColor: '#f9f9f9',
+    borderRadius: 8
+  },
+  exceptionsTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#212121',
+    marginBottom: 8
+  },
+  exceptionItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    gap: 8
+  },
+  exceptionDate: {
+    fontSize: 14,
+    color: '#212121',
+    flex: 1
+  },
+  exceptionStatus: {
+    fontSize: 12,
+    color: '#666'
+  },
   saveButton: {
     flexDirection: 'row',
     backgroundColor: '#424242',
@@ -499,7 +888,8 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 10
+    marginTop: 10,
+    gap: 8
   },
   saveButtonDisabled: {
     backgroundColor: '#999'
@@ -507,37 +897,100 @@ const styles = StyleSheet.create({
   saveButtonText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: '600',
-    marginLeft: 8
+    fontWeight: '600'
   },
   previewCard: {
     backgroundColor: '#f9f9f9',
     padding: 20,
     borderRadius: 12,
-    alignItems: 'center',
     borderWidth: 2,
     borderColor: '#E0E0E0',
     borderStyle: 'dashed'
   },
+  previewHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+    gap: 12
+  },
+  previewInfo: {
+    flex: 1
+  },
   previewNombre: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
-    color: '#212121',
-    marginBottom: 8
+    color: '#212121'
+  },
+  previewRol: {
+    fontSize: 14,
+    color: '#D4AF37',
+    marginTop: 4
+  },
+  previewContact: {
+    marginBottom: 16,
+    gap: 8
+  },
+  previewContactItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8
   },
   previewTelefono: {
     fontSize: 14,
-    color: '#666',
-    marginBottom: 12
+    color: '#666'
+  },
+  previewEmail: {
+    fontSize: 14,
+    color: '#666'
+  },
+  previewRedesContainer: {
+    marginBottom: 16
+  },
+  previewRedesTitle: {
+    fontSize: 14,
+    color: '#212121',
+    fontWeight: '600',
+    marginBottom: 8
   },
   previewRedes: {
     flexDirection: 'row',
-    gap: 12
+    gap: 16
   },
   previewSinRedes: {
     fontSize: 14,
     color: '#999',
-    fontStyle: 'italic'
+    fontStyle: 'italic',
+    textAlign: 'center',
+    marginVertical: 12
+  },
+  previewSchedule: {
+    marginTop: 16,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#E0E0E0'
+  },
+  previewScheduleTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#212121',
+    marginBottom: 8
+  },
+  previewDays: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8
+  },
+  previewDayBadge: {
+    backgroundColor: '#4CAF50',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 16
+  },
+  previewDayText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '600',
+    textTransform: 'capitalize'
   }
 });
 
