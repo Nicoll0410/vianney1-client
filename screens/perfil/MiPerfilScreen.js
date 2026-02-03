@@ -8,7 +8,8 @@ import {
   TouchableOpacity,
   TextInput,
   ActivityIndicator,
-  Platform
+  Platform,
+  useWindowDimensions
 } from 'react-native';
 import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -22,6 +23,8 @@ const BASE_URL = 'https://vianney-server.onrender.com';
 
 const MiPerfilScreen = () => {
   const { user, userRole, barberData } = useContext(AuthContext);
+  const { width } = useWindowDimensions();
+  const isLargeScreen = width >= 768; // Tablet/Desktop
   
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -223,250 +226,256 @@ const MiPerfilScreen = () => {
           <Text style={styles.headerSubtitle}>{nombre}</Text>
         </View>
 
-        {/* CONTENEDOR 1: Información Básica */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>
-            <Ionicons name="information-circle" size={20} color="#212121" /> Información Básica
-          </Text>
-          
-          <View style={styles.infoRow}>
-            <Ionicons name="person" size={20} color="#666" />
-            <View style={styles.infoContent}>
-              <Text style={styles.infoLabel}>Nombre</Text>
-              <Text style={styles.infoValue}>{nombre}</Text>
+        {/* FILA 1: Información Básica + Redes Sociales */}
+        <View style={[styles.row, !isLargeScreen && styles.rowColumn]}>
+          {/* CONTENEDOR 1: Información Básica */}
+          <View style={[styles.section, isLargeScreen && styles.sectionHalf]}>
+            <Text style={styles.sectionTitle}>
+              <Ionicons name="information-circle" size={20} color="#212121" /> Información Básica
+            </Text>
+            
+            <View style={styles.infoRow}>
+              <Ionicons name="person" size={20} color="#666" />
+              <View style={styles.infoContent}>
+                <Text style={styles.infoLabel}>Nombre</Text>
+                <Text style={styles.infoValue}>{nombre}</Text>
+              </View>
+            </View>
+
+            <View style={styles.infoRow}>
+              <Ionicons name="shield-checkmark" size={20} color="#666" />
+              <View style={styles.infoContent}>
+                <Text style={styles.infoLabel}>Rol</Text>
+                <Text style={styles.infoValue}>{rol}</Text>
+              </View>
+            </View>
+
+            <View style={styles.infoRow}>
+              <Ionicons name="call" size={20} color="#666" />
+              <View style={styles.infoContent}>
+                <Text style={styles.infoLabel}>Teléfono</Text>
+                <Text style={styles.infoValue}>{telefono}</Text>
+              </View>
+            </View>
+
+            <View style={styles.infoRow}>
+              <Ionicons name="mail" size={20} color="#666" />
+              <View style={styles.infoContent}>
+                <Text style={styles.infoLabel}>Email</Text>
+                <Text style={styles.infoValue}>{email}</Text>
+              </View>
             </View>
           </View>
 
-          <View style={styles.infoRow}>
-            <Ionicons name="shield-checkmark" size={20} color="#666" />
-            <View style={styles.infoContent}>
-              <Text style={styles.infoLabel}>Rol</Text>
-              <Text style={styles.infoValue}>{rol}</Text>
-            </View>
-          </View>
+          {/* CONTENEDOR 2: Redes Sociales */}
+          <View style={[styles.section, isLargeScreen && styles.sectionHalf]}>
+            <Text style={styles.sectionTitle}>
+              <Ionicons name="share-social" size={20} color="#212121" /> Mis Redes Sociales
+            </Text>
+            <Text style={styles.sectionDescription}>
+              Aparecerán en tu perfil público
+            </Text>
 
-          <View style={styles.infoRow}>
-            <Ionicons name="call" size={20} color="#666" />
-            <View style={styles.infoContent}>
-              <Text style={styles.infoLabel}>Teléfono</Text>
-              <Text style={styles.infoValue}>{telefono}</Text>
-            </View>
-          </View>
-
-          <View style={styles.infoRow}>
-            <Ionicons name="mail" size={20} color="#666" />
-            <View style={styles.infoContent}>
-              <Text style={styles.infoLabel}>Email</Text>
-              <Text style={styles.infoValue}>{email}</Text>
-            </View>
-          </View>
-        </View>
-
-        {/* CONTENEDOR 2: Redes Sociales */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>
-            <Ionicons name="share-social" size={20} color="#212121" /> Mis Redes Sociales
-          </Text>
-          <Text style={styles.sectionDescription}>
-            Estas aparecerán en tu perfil público de la galería
-          </Text>
-
-          {/* Instagram */}
-          <View style={styles.socialInputContainer}>
-            <View style={styles.socialHeader}>
-              <FontAwesome name="instagram" size={24} color="#E4405F" />
-              <Text style={styles.socialLabel}>Instagram</Text>
-              {instagram && (
-                <TouchableOpacity
-                  onPress={() => limpiarRedSocial('instagram')}
-                  style={styles.clearButton}
-                >
-                  <Ionicons name="close-circle" size={20} color="#999" />
-                </TouchableOpacity>
-              )}
-            </View>
-            <TextInput
-              style={styles.socialInput}
-              placeholder="https://instagram.com/tu_usuario"
-              value={instagram}
-              onChangeText={setInstagram}
-              autoCapitalize="none"
-              keyboardType="url"
-            />
-          </View>
-
-          {/* Facebook */}
-          <View style={styles.socialInputContainer}>
-            <View style={styles.socialHeader}>
-              <FontAwesome name="facebook" size={24} color="#1877F2" />
-              <Text style={styles.socialLabel}>Facebook</Text>
-              {facebook && (
-                <TouchableOpacity
-                  onPress={() => limpiarRedSocial('facebook')}
-                  style={styles.clearButton}
-                >
-                  <Ionicons name="close-circle" size={20} color="#999" />
-                </TouchableOpacity>
-              )}
-            </View>
-            <TextInput
-              style={styles.socialInput}
-              placeholder="https://facebook.com/tu_pagina"
-              value={facebook}
-              onChangeText={setFacebook}
-              autoCapitalize="none"
-              keyboardType="url"
-            />
-          </View>
-
-          {/* TikTok */}
-          <View style={styles.socialInputContainer}>
-            <View style={styles.socialHeader}>
-              <FontAwesome name="music" size={24} color="#000" />
-              <Text style={styles.socialLabel}>TikTok</Text>
-              {tiktok && (
-                <TouchableOpacity
-                  onPress={() => limpiarRedSocial('tiktok')}
-                  style={styles.clearButton}
-                >
-                  <Ionicons name="close-circle" size={20} color="#999" />
-                </TouchableOpacity>
-              )}
-            </View>
-            <TextInput
-              style={styles.socialInput}
-              placeholder="https://tiktok.com/@tu_usuario"
-              value={tiktok}
-              onChangeText={setTiktok}
-              autoCapitalize="none"
-              keyboardType="url"
-            />
-          </View>
-
-          <TouchableOpacity
-            style={[styles.saveButton, saving && styles.saveButtonDisabled]}
-            onPress={guardarRedesSociales}
-            disabled={saving}
-          >
-            {saving ? (
-              <ActivityIndicator size="small" color="#fff" />
-            ) : (
-              <>
-                <Ionicons name="checkmark-circle" size={20} color="#fff" />
-                <Text style={styles.saveButtonText}>Guardar Redes Sociales</Text>
-              </>
-            )}
-          </TouchableOpacity>
-        </View>
-
-        {/* CONTENEDOR 3: Editar Horario */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>
-            <Ionicons name="calendar" size={20} color="#212121" /> Mi Horario
-          </Text>
-          <Text style={styles.sectionDescription}>
-            Configura tus días y horas de trabajo
-          </Text>
-
-          <TouchableOpacity
-            style={styles.editScheduleButton}
-            onPress={() => setShowHorarioModal(true)}
-          >
-            <Ionicons name="create-outline" size={24} color="#fff" />
-            <Text style={styles.editScheduleText}>Editar Horario</Text>
-          </TouchableOpacity>
-
-          {/* Vista Previa del Horario */}
-          {horarioData && (
-            <View style={styles.schedulePreview}>
-              <Text style={styles.schedulePreviewTitle}>Horario Actual:</Text>
-              
-              {/* Días laborales */}
-              <View style={styles.previewDays}>
-                {getDiasActivos().length > 0 ? (
-                  getDiasActivos().map(dia => (
-                    <View key={dia} style={styles.previewDayBadge}>
-                      <Text style={styles.previewDayText}>
-                        {dia.charAt(0).toUpperCase() + dia.slice(1, 3)}
-                      </Text>
-                    </View>
-                  ))
-                ) : (
-                  <Text style={styles.noDaysText}>No hay días configurados</Text>
+            {/* Instagram */}
+            <View style={styles.socialInputContainer}>
+              <View style={styles.socialHeader}>
+                <FontAwesome name="instagram" size={24} color="#E4405F" />
+                <Text style={styles.socialLabel}>Instagram</Text>
+                {instagram && (
+                  <TouchableOpacity
+                    onPress={() => limpiarRedSocial('instagram')}
+                    style={styles.clearButton}
+                  >
+                    <Ionicons name="close-circle" size={20} color="#999" />
+                  </TouchableOpacity>
                 )}
               </View>
+              <TextInput
+                style={styles.socialInput}
+                placeholder="https://instagram.com/tu_usuario"
+                value={instagram}
+                onChangeText={setInstagram}
+                autoCapitalize="none"
+                keyboardType="url"
+              />
+            </View>
 
-              {/* Horario de almuerzo */}
-              {horarioData.horarioAlmuerzo?.activo && (
-                <View style={styles.lunchInfo}>
-                  <Ionicons name="restaurant" size={16} color="#666" />
-                  <Text style={styles.lunchText}>
-                    Almuerzo: {horarioData.horarioAlmuerzo.inicio} - {horarioData.horarioAlmuerzo.fin}
-                  </Text>
+            {/* Facebook */}
+            <View style={styles.socialInputContainer}>
+              <View style={styles.socialHeader}>
+                <FontAwesome name="facebook" size={24} color="#1877F2" />
+                <Text style={styles.socialLabel}>Facebook</Text>
+                {facebook && (
+                  <TouchableOpacity
+                    onPress={() => limpiarRedSocial('facebook')}
+                    style={styles.clearButton}
+                  >
+                    <Ionicons name="close-circle" size={20} color="#999" />
+                  </TouchableOpacity>
+                )}
+              </View>
+              <TextInput
+                style={styles.socialInput}
+                placeholder="https://facebook.com/tu_pagina"
+                value={facebook}
+                onChangeText={setFacebook}
+                autoCapitalize="none"
+                keyboardType="url"
+              />
+            </View>
+
+            {/* TikTok */}
+            <View style={styles.socialInputContainer}>
+              <View style={styles.socialHeader}>
+                <FontAwesome name="music" size={24} color="#000" />
+                <Text style={styles.socialLabel}>TikTok</Text>
+                {tiktok && (
+                  <TouchableOpacity
+                    onPress={() => limpiarRedSocial('tiktok')}
+                    style={styles.clearButton}
+                  >
+                    <Ionicons name="close-circle" size={20} color="#999" />
+                  </TouchableOpacity>
+                )}
+              </View>
+              <TextInput
+                style={styles.socialInput}
+                placeholder="https://tiktok.com/@tu_usuario"
+                value={tiktok}
+                onChangeText={setTiktok}
+                autoCapitalize="none"
+                keyboardType="url"
+              />
+            </View>
+
+            <TouchableOpacity
+              style={[styles.saveButton, saving && styles.saveButtonDisabled]}
+              onPress={guardarRedesSociales}
+              disabled={saving}
+            >
+              {saving ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <>
+                  <Ionicons name="checkmark-circle" size={20} color="#fff" />
+                  <Text style={styles.saveButtonText}>Guardar Redes</Text>
+                </>
+              )}
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* FILA 2: Mi Horario + Vista Previa */}
+        <View style={[styles.row, !isLargeScreen && styles.rowColumn]}>
+          {/* CONTENEDOR 3: Mi Horario */}
+          <View style={[styles.section, isLargeScreen && styles.sectionHalf]}>
+            <Text style={styles.sectionTitle}>
+              <Ionicons name="calendar" size={20} color="#212121" /> Mi Horario
+            </Text>
+            <Text style={styles.sectionDescription}>
+              Configura tus días y horas
+            </Text>
+
+            <TouchableOpacity
+              style={styles.editScheduleButton}
+              onPress={() => setShowHorarioModal(true)}
+            >
+              <Ionicons name="create-outline" size={24} color="#fff" />
+              <Text style={styles.editScheduleText}>Editar Horario</Text>
+            </TouchableOpacity>
+
+            {/* Vista Previa del Horario */}
+            {horarioData && (
+              <View style={styles.schedulePreview}>
+                <Text style={styles.schedulePreviewTitle}>Horario Actual:</Text>
+                
+                {/* Días laborales */}
+                <View style={styles.previewDays}>
+                  {getDiasActivos().length > 0 ? (
+                    getDiasActivos().map(dia => (
+                      <View key={dia} style={styles.previewDayBadge}>
+                        <Text style={styles.previewDayText}>
+                          {dia.charAt(0).toUpperCase() + dia.slice(1, 3)}
+                        </Text>
+                      </View>
+                    ))
+                  ) : (
+                    <Text style={styles.noDaysText}>No hay días configurados</Text>
+                  )}
+                </View>
+
+                {/* Horario de almuerzo */}
+                {horarioData.horarioAlmuerzo?.activo && (
+                  <View style={styles.lunchInfo}>
+                    <Ionicons name="restaurant" size={16} color="#666" />
+                    <Text style={styles.lunchText}>
+                      Almuerzo: {horarioData.horarioAlmuerzo.inicio} - {horarioData.horarioAlmuerzo.fin}
+                    </Text>
+                  </View>
+                )}
+              </View>
+            )}
+          </View>
+
+          {/* CONTENEDOR 4: Vista Previa */}
+          <View style={[styles.section, isLargeScreen && styles.sectionHalf]}>
+            <Text style={styles.sectionTitle}>
+              <Ionicons name="eye" size={20} color="#212121" /> Vista Previa
+            </Text>
+            <Text style={styles.sectionDescription}>
+              Así te verán los clientes
+            </Text>
+
+            <View style={styles.previewCard}>
+              <View style={styles.previewHeader}>
+                <Ionicons name="person-circle" size={50} color="#D4AF37" />
+                <View style={styles.previewInfo}>
+                  <Text style={styles.previewNombre}>{nombre}</Text>
+                  <Text style={styles.previewRol}>{rol}</Text>
+                </View>
+              </View>
+
+              <View style={styles.previewContact}>
+                <View style={styles.previewContactItem}>
+                  <Ionicons name="call" size={16} color="#666" />
+                  <Text style={styles.previewTelefono}>{telefono}</Text>
+                </View>
+                <View style={styles.previewContactItem}>
+                  <Ionicons name="mail" size={16} color="#666" />
+                  <Text style={styles.previewEmail}>{email}</Text>
+                </View>
+              </View>
+              
+              {(instagram || facebook || tiktok) ? (
+                <View style={styles.previewRedesContainer}>
+                  <Text style={styles.previewRedesTitle}>Redes Sociales:</Text>
+                  <View style={styles.previewRedes}>
+                    {instagram && <FontAwesome name="instagram" size={24} color="#E4405F" />}
+                    {facebook && <FontAwesome name="facebook" size={24} color="#1877F2" />}
+                    {tiktok && <FontAwesome name="music" size={24} color="#000" />}
+                  </View>
+                </View>
+              ) : (
+                <Text style={styles.previewSinRedes}>
+                  Sin redes sociales
+                </Text>
+              )}
+
+              {horarioData && getDiasActivos().length > 0 && (
+                <View style={styles.previewSchedule}>
+                  <Text style={styles.previewScheduleTitle}>Días de trabajo:</Text>
+                  <View style={styles.previewDaysContainer}>
+                    {getDiasActivos().map(dia => (
+                      <View key={dia} style={styles.previewDayBadge}>
+                        <Text style={styles.previewDayText}>
+                          {dia.substring(0, 3)}
+                        </Text>
+                      </View>
+                    ))}
+                  </View>
                 </View>
               )}
             </View>
-          )}
-        </View>
-
-        {/* CONTENEDOR 4: Vista Previa */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>
-            <Ionicons name="eye" size={20} color="#212121" /> Vista Previa
-          </Text>
-          <Text style={styles.sectionDescription}>
-            Así verán los clientes tu perfil
-          </Text>
-
-          <View style={styles.previewCard}>
-            <View style={styles.previewHeader}>
-              <Ionicons name="person-circle" size={50} color="#D4AF37" />
-              <View style={styles.previewInfo}>
-                <Text style={styles.previewNombre}>{nombre}</Text>
-                <Text style={styles.previewRol}>{rol}</Text>
-              </View>
-            </View>
-
-            <View style={styles.previewContact}>
-              <View style={styles.previewContactItem}>
-                <Ionicons name="call" size={16} color="#666" />
-                <Text style={styles.previewTelefono}>{telefono}</Text>
-              </View>
-              <View style={styles.previewContactItem}>
-                <Ionicons name="mail" size={16} color="#666" />
-                <Text style={styles.previewEmail}>{email}</Text>
-              </View>
-            </View>
-            
-            {(instagram || facebook || tiktok) ? (
-              <View style={styles.previewRedesContainer}>
-                <Text style={styles.previewRedesTitle}>Redes Sociales:</Text>
-                <View style={styles.previewRedes}>
-                  {instagram && <FontAwesome name="instagram" size={24} color="#E4405F" />}
-                  {facebook && <FontAwesome name="facebook" size={24} color="#1877F2" />}
-                  {tiktok && <FontAwesome name="music" size={24} color="#000" />}
-                </View>
-              </View>
-            ) : (
-              <Text style={styles.previewSinRedes}>
-                No has agregado redes sociales
-              </Text>
-            )}
-
-            {horarioData && getDiasActivos().length > 0 && (
-              <View style={styles.previewSchedule}>
-                <Text style={styles.previewScheduleTitle}>Días de trabajo:</Text>
-                <View style={styles.previewDaysContainer}>
-                  {getDiasActivos().map(dia => (
-                    <View key={dia} style={styles.previewDayBadge}>
-                      <Text style={styles.previewDayText}>
-                        {dia.substring(0, 3)}
-                      </Text>
-                    </View>
-                  ))}
-                </View>
-              </View>
-            )}
           </View>
         </View>
 
@@ -528,17 +537,29 @@ const styles = StyleSheet.create({
     color: '#D4AF37',
     marginTop: 4
   },
-  section: {
-    backgroundColor: '#fff',
+  // ✅ NUEVOS ESTILOS PARA GRID LAYOUT
+  row: {
+    flexDirection: 'row',
     marginTop: 16,
     marginHorizontal: 16,
+    gap: 16
+  },
+  rowColumn: {
+    flexDirection: 'column'
+  },
+  section: {
+    backgroundColor: '#fff',
     padding: 20,
     borderRadius: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 3
+    elevation: 3,
+    marginBottom: 16
+  },
+  sectionHalf: {
+    flex: 1
   },
   sectionTitle: {
     fontSize: 18,
