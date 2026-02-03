@@ -537,12 +537,13 @@ const styles = StyleSheet.create({
     color: '#D4AF37',
     marginTop: 4
   },
-  // ✅ NUEVOS ESTILOS PARA GRID LAYOUT
+  // ✅ GRID LAYOUT CON ALTURA COMPLETA
   row: {
     flexDirection: 'row',
     marginTop: 16,
     marginHorizontal: 16,
-    gap: 16
+    gap: 16,
+    alignItems: 'stretch' // ✅ Importante: los hijos ocupan toda la altura
   },
   rowColumn: {
     flexDirection: 'column'
@@ -559,7 +560,8 @@ const styles = StyleSheet.create({
     marginBottom: 16
   },
   sectionHalf: {
-    flex: 1
+    flex: 1,
+    minHeight: '100%' // ✅ Asegura que ocupe toda la altura
   },
   sectionTitle: {
     fontSize: 18,
@@ -594,7 +596,7 @@ const styles = StyleSheet.create({
     fontWeight: '500'
   },
   socialInputContainer: {
-    marginBottom: 20
+    marginBottom: 16 // ✅ Reducido para optimizar espacio
   },
   socialHeader: {
     flexDirection: 'row',
@@ -627,7 +629,7 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 10,
+    marginTop: 'auto', // ✅ Empuja el botón al fondo
     gap: 8
   },
   saveButtonDisabled: {
@@ -660,7 +662,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#f9f9f9',
     padding: 16,
     borderRadius: 8,
-    marginTop: 8
+    marginTop: 8,
+    flex: 1 // ✅ Ocupa el espacio disponible
   },
   schedulePreviewTitle: {
     fontSize: 14,
@@ -709,7 +712,8 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 2,
     borderColor: '#E0E0E0',
-    borderStyle: 'dashed'
+    borderStyle: 'dashed',
+    flex: 1 // ✅ Ocupa el espacio disponible
   },
   previewHeader: {
     flexDirection: 'row',
