@@ -1,11 +1,10 @@
-//HorarioBarbero.js - VERSIÓN MEJORADA CON ESTILOS MODERNOS
+//HorarioBarbero.js - VERSIÓN CON PALETA DE COLORES ACTUALIZADA
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal, ActivityIndicator, Alert } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { LinearGradient } from 'expo-linear-gradient';
 
 const diasSemana = [
   { id: 'lunes', nombre: 'Lunes', icon: 'wb-sunny' },
@@ -17,7 +16,6 @@ const diasSemana = [
   { id: 'domingo', nombre: 'Domingo', icon: 'brightness-3' }
 ];
 
-// Generar horas desde 8:00 hasta 22:00 con intervalos de 30 minutos
 const generateHours = () => {
   const hours = [];
   for (let h = 8; h <= 22; h++) {
@@ -265,7 +263,7 @@ const HorarioBarbero = ({ barberoId, visible, onClose }) => {
       <Modal visible={true} transparent animationType="fade">
         <BlurView intensity={15} tint="light" style={StyleSheet.absoluteFill} />
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#D4AF37" />
+          <ActivityIndicator size="large" color="#424242" />
           <Text style={styles.loadingText}>Cargando horario...</Text>
         </View>
       </Modal>
@@ -280,16 +278,14 @@ const HorarioBarbero = ({ barberoId, visible, onClose }) => {
       
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
-          <LinearGradient
-            colors={['#1a1a1a', '#2d2d2d']}
-            style={styles.headerGradient}
-          >
-            <MaterialIcons name="access-time" size={32} color="#D4AF37" />
+          {/* Header */}
+          <View style={styles.header}>
+            <MaterialIcons name="access-time" size={32} color="#424242" />
             <Text style={styles.title}>Configurar Horario</Text>
             <TouchableOpacity onPress={onClose} style={styles.closeIcon}>
-              <MaterialIcons name="close" size={24} color="#fff" />
+              <MaterialIcons name="close" size={24} color="#424242" />
             </TouchableOpacity>
-          </LinearGradient>
+          </View>
 
           <ScrollView contentContainerStyle={styles.scrollContent}>
             
@@ -297,7 +293,7 @@ const HorarioBarbero = ({ barberoId, visible, onClose }) => {
             <View style={styles.sectionCard}>
               <View style={styles.sectionHeader}>
                 <View style={styles.sectionTitleContainer}>
-                  <MaterialIcons name="restaurant" size={24} color="#D4AF37" />
+                  <MaterialIcons name="restaurant" size={24} color="#424242" />
                   <Text style={styles.sectionTitle}>Horario de Almuerzo</Text>
                 </View>
                 <TouchableOpacity onPress={toggleAlmuerzoActivo} style={styles.switchContainer}>
@@ -318,7 +314,7 @@ const HorarioBarbero = ({ barberoId, visible, onClose }) => {
                   >
                     <Text style={styles.timeLabel}>Inicio</Text>
                     <View style={styles.timeValueContainer}>
-                      <MaterialIcons name="schedule" size={20} color="#D4AF37" />
+                      <MaterialIcons name="schedule" size={20} color="#424242" />
                       <Text style={styles.timeValue}>{almuerzo.inicio}</Text>
                     </View>
                   </TouchableOpacity>
@@ -336,7 +332,7 @@ const HorarioBarbero = ({ barberoId, visible, onClose }) => {
                   >
                     <Text style={styles.timeLabel}>Fin</Text>
                     <View style={styles.timeValueContainer}>
-                      <MaterialIcons name="schedule" size={20} color="#D4AF37" />
+                      <MaterialIcons name="schedule" size={20} color="#424242" />
                       <Text style={styles.timeValue}>{almuerzo.fin}</Text>
                     </View>
                   </TouchableOpacity>
@@ -348,7 +344,7 @@ const HorarioBarbero = ({ barberoId, visible, onClose }) => {
             <View style={styles.sectionCard}>
               <View style={styles.sectionHeaderRow}>
                 <View style={styles.sectionTitleContainer}>
-                  <MaterialIcons name="event-available" size={24} color="#D4AF37" />
+                  <MaterialIcons name="event-available" size={24} color="#424242" />
                   <Text style={styles.sectionTitle}>Días Laborales</Text>
                 </View>
                 <TouchableOpacity 
@@ -358,7 +354,7 @@ const HorarioBarbero = ({ barberoId, visible, onClose }) => {
                   <MaterialIcons 
                     name={todosLosDiasSeleccionados ? "check-box" : "check-box-outline-blank"} 
                     size={20} 
-                    color="#D4AF37" 
+                    color="#424242" 
                   />
                   <Text style={styles.selectAllText}>
                     {todosLosDiasSeleccionados ? 'Desmarcar todos' : 'Seleccionar todos'}
@@ -377,7 +373,7 @@ const HorarioBarbero = ({ barberoId, visible, onClose }) => {
                       onPress={() => toggleDiaActivo(dia.id)}
                     >
                       <View style={styles.dayTitleContainer}>
-                        <MaterialIcons name={dia.icon} size={20} color={diaData.activo ? "#D4AF37" : "#666"} />
+                        <MaterialIcons name={dia.icon} size={20} color={diaData.activo ? "#424242" : "#666"} />
                         <Text style={[styles.dayName, diaData.activo && styles.dayNameActive]}>
                           {dia.nombre}
                         </Text>
@@ -385,7 +381,7 @@ const HorarioBarbero = ({ barberoId, visible, onClose }) => {
                       <MaterialIcons 
                         name={diaData.activo ? "check-circle" : "radio-button-unchecked"} 
                         size={24} 
-                        color={diaData.activo ? "#4CAF50" : "#666"} 
+                        color={diaData.activo ? "#424242" : "#666"} 
                       />
                     </TouchableOpacity>
                     
@@ -402,7 +398,7 @@ const HorarioBarbero = ({ barberoId, visible, onClose }) => {
                             <MaterialIcons 
                               name={todasLasHorasSeleccionadas ? "done-all" : "add"} 
                               size={16} 
-                              color="#D4AF37" 
+                              color="#424242" 
                             />
                             <Text style={styles.selectAllHoursText}>
                               {todasLasHorasSeleccionadas ? 'Quitar todas' : 'Todas'}
@@ -449,7 +445,7 @@ const HorarioBarbero = ({ barberoId, visible, onClose }) => {
                 style={styles.cancelButton}
                 onPress={onClose}
               >
-                <MaterialIcons name="close" size={20} color="#666" />
+                <MaterialIcons name="close" size={20} color="black" />
                 <Text style={styles.cancelButtonText}>Cancelar</Text>
               </TouchableOpacity>
               
@@ -457,13 +453,8 @@ const HorarioBarbero = ({ barberoId, visible, onClose }) => {
                 style={styles.saveButton}
                 onPress={saveHorario}
               >
-                <LinearGradient
-                  colors={['#D4AF37', '#C19A2E']}
-                  style={styles.saveButtonGradient}
-                >
-                  <MaterialIcons name="check-circle" size={20} color="#fff" />
-                  <Text style={styles.saveButtonText}>Guardar Cambios</Text>
-                </LinearGradient>
+                <MaterialIcons name="check-circle" size={20} color="#fff" />
+                <Text style={styles.saveButtonText}>Guardar Cambios</Text>
               </TouchableOpacity>
             </View>
           </ScrollView>
@@ -476,7 +467,7 @@ const HorarioBarbero = ({ barberoId, visible, onClose }) => {
         <View style={styles.timePickerModal}>
           <View style={styles.timePickerContent}>
             <View style={styles.timePickerHeader}>
-              <MaterialIcons name="schedule" size={24} color="#D4AF37" />
+              <MaterialIcons name="schedule" size={24} color="#424242" />
               <Text style={styles.timePickerTitle}>Seleccionar Hora</Text>
             </View>
             
@@ -494,7 +485,7 @@ const HorarioBarbero = ({ barberoId, visible, onClose }) => {
                     setShowTimePicker(false);
                   }}
                 >
-                  <MaterialIcons name="access-time" size={20} color="#D4AF37" />
+                  <MaterialIcons name="access-time" size={20} color="#424242" />
                   <Text style={styles.timeOptionText}>{hora}</Text>
                 </TouchableOpacity>
               ))}
@@ -547,11 +538,14 @@ const styles = StyleSheet.create({
     shadowRadius: 20,
     elevation: 10
   },
-  headerGradient: {
+  header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 20,
+    backgroundColor: '#f8f9fa',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
     position: 'relative'
   },
   closeIcon: {
@@ -574,14 +568,14 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: 15,
-    color: '#D4AF37',
+    color: '#424242',
     fontSize: 16,
     fontWeight: '600'
   },
   title: {
     fontSize: 26,
     fontWeight: 'bold',
-    color: '#fff',
+    color: '#424242',
     marginLeft: 12
   },
   sectionCard: {
@@ -621,12 +615,12 @@ const styles = StyleSheet.create({
     width: 50,
     height: 28,
     borderRadius: 14,
-    backgroundColor: '#ccc',
+    backgroundColor: '#D9D9D9',
     padding: 3,
     justifyContent: 'center'
   },
   switchActive: {
-    backgroundColor: '#4CAF50'
+    backgroundColor: '#424242'
   },
   switchThumb: {
     width: 22,
@@ -651,10 +645,10 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     gap: 6,
     borderWidth: 1,
-    borderColor: '#D4AF37'
+    borderColor: '#424242'
   },
   selectAllText: {
-    color: '#D4AF37',
+    color: '#424242',
     fontWeight: '600',
     fontSize: 13
   },
@@ -706,7 +700,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fafafa'
   },
   dayHeaderActive: {
-    backgroundColor: '#fff8e1'
+    backgroundColor: '#f0f0f0'
   },
   dayTitleContainer: {
     flexDirection: 'row',
@@ -719,7 +713,7 @@ const styles = StyleSheet.create({
     color: '#666'
   },
   dayNameActive: {
-    color: '#212121'
+    color: '#424242'
   },
   hoursContainer: {
     padding: 15,
@@ -739,17 +733,17 @@ const styles = StyleSheet.create({
   selectAllHoursButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff8e1',
+    backgroundColor: '#f0f0f0',
     paddingVertical: 6,
     paddingHorizontal: 10,
     borderRadius: 15,
     gap: 4,
     borderWidth: 1,
-    borderColor: '#D4AF37'
+    borderColor: '#424242'
   },
   selectAllHoursText: {
     fontSize: 12,
-    color: '#D4AF37',
+    color: '#424242',
     fontWeight: '600'
   },
   hoursGrid: {
@@ -760,17 +754,17 @@ const styles = StyleSheet.create({
   hourChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#D9D9D9',
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: '#D9D9D9',
     borderRadius: 20,
     paddingVertical: 8,
     paddingHorizontal: 12,
     gap: 6
   },
   hourChipSelected: {
-    backgroundColor: '#D4AF37',
-    borderColor: '#D4AF37'
+    backgroundColor: '#424242',
+    borderColor: '#424242'
   },
   hourText: {
     fontSize: 13,
@@ -792,26 +786,24 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 16,
     borderRadius: 12,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#D9D9D9',
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: '#D9D9D9',
     gap: 8
   },
   cancelButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#666'
+    color: 'black'
   },
   saveButton: {
     flex: 1,
-    borderRadius: 12,
-    overflow: 'hidden'
-  },
-  saveButtonGradient: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 16,
+    backgroundColor: '#424242',
+    borderRadius: 12,
     gap: 8
   },
   saveButtonText: {
@@ -843,13 +835,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 20,
-    backgroundColor: '#1a1a1a',
-    gap: 10
+    backgroundColor: '#f8f9fa',
+    gap: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0'
   },
   timePickerTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#fff'
+    color: '#424242'
   },
   timePickerScroll: {
     padding: 15
@@ -870,7 +864,9 @@ const styles = StyleSheet.create({
   timePickerClose: {
     padding: 15,
     backgroundColor: '#f5f5f5',
-    alignItems: 'center'
+    alignItems: 'center',
+    borderTopWidth: 1,
+    borderTopColor: '#e0e0e0'
   },
   timePickerCloseText: {
     fontSize: 16,
