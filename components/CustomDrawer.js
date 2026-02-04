@@ -41,8 +41,8 @@ const ROLE_MENU = {
   },
   Administrador: {
     topItems: [
-      { label: "Dashboard", screen: "Dashboard", icon: MaterialCommunityIcons, name: "view-dashboard-outline" },
       { label: "Mi Perfil", screen: "MiPerfil", icon: Ionicons, name: "person-circle-outline" }, // ✅ NUEVO
+      { label: "Dashboard", screen: "Dashboard", icon: MaterialCommunityIcons, name: "view-dashboard-outline" },
     ],
     sections: {
       Usuarios: [

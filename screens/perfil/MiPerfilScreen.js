@@ -257,7 +257,7 @@ const MiPerfilScreen = () => {
             </View>
           </View>
 
-          <View style={[styles.section, isLargeScreen && styles.sectionHalf]}>
+          <View style={[styles.section, isLargeScreen && styles.sectionHalf, styles.horarioContainer]}>
             <Text style={styles.sectionTitle}>
               <Ionicons name="calendar" size={20} color="#212121" /> Mi Horario
             </Text>
@@ -265,42 +265,44 @@ const MiPerfilScreen = () => {
               Configura tus días y horas
             </Text>
 
-            <TouchableOpacity
-              style={styles.editScheduleButton}
-              onPress={() => setShowHorarioModal(true)}
-            >
-              <Ionicons name="create-outline" size={24} color="#fff" />
-              <Text style={styles.editScheduleText}>Editar Horario</Text>
-            </TouchableOpacity>
+            <View style={styles.horarioContent}>
+              <TouchableOpacity
+                style={styles.editScheduleButton}
+                onPress={() => setShowHorarioModal(true)}
+              >
+                <Ionicons name="create-outline" size={24} color="#fff" />
+                <Text style={styles.editScheduleText}>Editar Horario</Text>
+              </TouchableOpacity>
 
-            {horarioData && (
-              <View style={styles.schedulePreview}>
-                <Text style={styles.schedulePreviewTitle}>Horario Actual:</Text>
-                
-                <View style={styles.previewDays}>
-                  {getDiasActivos().length > 0 ? (
-                    getDiasActivos().map(dia => (
-                      <View key={dia} style={styles.previewDayBadge}>
-                        <Text style={styles.previewDayText}>
-                          {dia.charAt(0).toUpperCase() + dia.slice(1, 3)}
-                        </Text>
-                      </View>
-                    ))
-                  ) : (
-                    <Text style={styles.noDaysText}>No hay días configurados</Text>
+              {horarioData && (
+                <View style={styles.schedulePreview}>
+                  <Text style={styles.schedulePreviewTitle}>Horario Actual:</Text>
+                  
+                  <View style={styles.previewDays}>
+                    {getDiasActivos().length > 0 ? (
+                      getDiasActivos().map(dia => (
+                        <View key={dia} style={styles.previewDayBadge}>
+                          <Text style={styles.previewDayText}>
+                            {dia.charAt(0).toUpperCase() + dia.slice(1, 3)}
+                          </Text>
+                        </View>
+                      ))
+                    ) : (
+                      <Text style={styles.noDaysText}>No hay días configurados</Text>
+                    )}
+                  </View>
+
+                  {horarioData.horarioAlmuerzo?.activo && (
+                    <View style={styles.lunchInfo}>
+                      <Ionicons name="restaurant" size={16} color="#666" />
+                      <Text style={styles.lunchText}>
+                        Almuerzo: {horarioData.horarioAlmuerzo.inicio} - {horarioData.horarioAlmuerzo.fin}
+                      </Text>
+                    </View>
                   )}
                 </View>
-
-                {horarioData.horarioAlmuerzo?.activo && (
-                  <View style={styles.lunchInfo}>
-                    <Ionicons name="restaurant" size={16} color="#666" />
-                    <Text style={styles.lunchText}>
-                      Almuerzo: {horarioData.horarioAlmuerzo.inicio} - {horarioData.horarioAlmuerzo.fin}
-                    </Text>
-                  </View>
-                )}
-              </View>
-            )}
+              )}
+            </View>
           </View>
         </View>
 
@@ -398,7 +400,7 @@ const MiPerfilScreen = () => {
             </TouchableOpacity>
           </View>
 
-          <View style={[styles.section, isLargeScreen && styles.sectionHalf]}>
+          <View style={[styles.section, isLargeScreen && styles.sectionHalf, styles.previewContainer]}>
             <Text style={styles.sectionTitle}>
               <Ionicons name="eye" size={20} color="#212121" /> Vista Previa
             </Text>
@@ -406,55 +408,57 @@ const MiPerfilScreen = () => {
               Así te verán los clientes
             </Text>
 
-            <View style={styles.previewCard}>
-              <View style={styles.previewHeader}>
-                <Ionicons name="person-circle" size={50} color="#D4AF37" />
-                <View style={styles.previewInfo}>
-                  <Text style={styles.previewNombre}>{nombre}</Text>
-                  <Text style={styles.previewRol}>{rol}</Text>
-                </View>
-              </View>
-
-              <View style={styles.previewContact}>
-                <View style={styles.previewContactItem}>
-                  <Ionicons name="call" size={16} color="#666" />
-                  <Text style={styles.previewTelefono}>{telefono}</Text>
-                </View>
-                <View style={styles.previewContactItem}>
-                  <Ionicons name="mail" size={16} color="#666" />
-                  <Text style={styles.previewEmail}>{email}</Text>
-                </View>
-              </View>
-              
-              {(instagram || facebook || tiktok) ? (
-                <View style={styles.previewRedesContainer}>
-                  <Text style={styles.previewRedesTitle}>Redes Sociales:</Text>
-                  <View style={styles.previewRedes}>
-                    {instagram && <FontAwesome name="instagram" size={24} color="#E4405F" />}
-                    {facebook && <FontAwesome name="facebook" size={24} color="#1877F2" />}
-                    {tiktok && <FontAwesome name="music" size={24} color="#000" />}
+            <View style={styles.previewCardWrapper}>
+              <View style={styles.previewCard}>
+                <View style={styles.previewHeader}>
+                  <Ionicons name="person-circle" size={50} color="#D4AF37" />
+                  <View style={styles.previewInfo}>
+                    <Text style={styles.previewNombre}>{nombre}</Text>
+                    <Text style={styles.previewRol}>{rol}</Text>
                   </View>
                 </View>
-              ) : (
-                <Text style={styles.previewSinRedes}>
-                  Sin redes sociales
-                </Text>
-              )}
 
-              {horarioData && getDiasActivos().length > 0 && (
-                <View style={styles.previewSchedule}>
-                  <Text style={styles.previewScheduleTitle}>Días de trabajo:</Text>
-                  <View style={styles.previewDaysContainer}>
-                    {getDiasActivos().map(dia => (
-                      <View key={dia} style={styles.previewDayBadge}>
-                        <Text style={styles.previewDayText}>
-                          {dia.substring(0, 3)}
-                        </Text>
-                      </View>
-                    ))}
+                <View style={styles.previewContact}>
+                  <View style={styles.previewContactItem}>
+                    <Ionicons name="call" size={16} color="#666" />
+                    <Text style={styles.previewTelefono}>{telefono}</Text>
+                  </View>
+                  <View style={styles.previewContactItem}>
+                    <Ionicons name="mail" size={16} color="#666" />
+                    <Text style={styles.previewEmail}>{email}</Text>
                   </View>
                 </View>
-              )}
+                
+                {(instagram || facebook || tiktok) ? (
+                  <View style={styles.previewRedesContainer}>
+                    <Text style={styles.previewRedesTitle}>Redes Sociales:</Text>
+                    <View style={styles.previewRedes}>
+                      {instagram && <FontAwesome name="instagram" size={24} color="#E4405F" />}
+                      {facebook && <FontAwesome name="facebook" size={24} color="#1877F2" />}
+                      {tiktok && <FontAwesome name="music" size={24} color="#000" />}
+                    </View>
+                  </View>
+                ) : (
+                  <Text style={styles.previewSinRedes}>
+                    Sin redes sociales
+                  </Text>
+                )}
+
+                {horarioData && getDiasActivos().length > 0 && (
+                  <View style={styles.previewSchedule}>
+                    <Text style={styles.previewScheduleTitle}>Días de trabajo:</Text>
+                    <View style={styles.previewDaysContainer}>
+                      {getDiasActivos().map(dia => (
+                        <View key={dia} style={styles.previewDayBadge}>
+                          <Text style={styles.previewDayText}>
+                            {dia.substring(0, 3)}
+                          </Text>
+                        </View>
+                      ))}
+                    </View>
+                  </View>
+                )}
+              </View>
             </View>
           </View>
         </View>
@@ -573,6 +577,16 @@ const styles = StyleSheet.create({
     color: '#212121',
     fontWeight: '500'
   },
+  horarioContainer: {
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  horarioContent: {
+    width: '100%',
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
   socialInputContainer: {
     marginBottom: 16
   },
@@ -628,7 +642,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    marginBottom: 16
+    marginBottom: 16,
+    alignSelf: 'center',
+    minWidth: 200
   },
   editScheduleText: {
     color: '#fff',
@@ -641,19 +657,23 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 8,
     marginTop: 8,
-    flex: 1
+    width: '100%',
+    maxWidth: 400,
+    alignSelf: 'center'
   },
   schedulePreviewTitle: {
     fontSize: 14,
     fontWeight: '600',
     color: '#212121',
-    marginBottom: 12
+    marginBottom: 12,
+    textAlign: 'center'
   },
   previewDays: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 8,
-    marginBottom: 12
+    marginBottom: 12,
+    justifyContent: 'center'
   },
   previewDayBadge: {
     backgroundColor: '#4CAF50',
@@ -670,7 +690,8 @@ const styles = StyleSheet.create({
   noDaysText: {
     fontSize: 14,
     color: '#999',
-    fontStyle: 'italic'
+    fontStyle: 'italic',
+    textAlign: 'center'
   },
   lunchInfo: {
     flexDirection: 'row',
@@ -678,11 +699,22 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingTop: 8,
     borderTopWidth: 1,
-    borderTopColor: '#E0E0E0'
+    borderTopColor: '#E0E0E0',
+    justifyContent: 'center'
   },
   lunchText: {
     fontSize: 14,
     color: '#666'
+  },
+  previewContainer: {
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  previewCardWrapper: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%'
   },
   previewCard: {
     backgroundColor: '#f9f9f9',
@@ -691,7 +723,8 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#E0E0E0',
     borderStyle: 'dashed',
-    flex: 1
+    maxWidth: 400,
+    width: '100%'
   },
   previewHeader: {
     flexDirection: 'row',
