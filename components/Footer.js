@@ -14,7 +14,7 @@ const Footer = ({ dark = false }) => {
       dark && styles.darkContainer // ✅ Aplicar tema oscuro si dark=true
     ]}>
       <View style={styles.content}>
-        <Text style={[styles.text, dark && styles.darkText]}>© 2025.</Text>
+        <Text style={[styles.text, dark && styles.darkText]}>© 2025 - 2026.</Text>
 
         <View style={[styles.authors, isMobile && styles.authorsMobile]}>
           <TouchableOpacity style={styles.authorLink}>
