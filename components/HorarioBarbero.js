@@ -1,19 +1,20 @@
-//HorarioBarbero
+//HorarioBarbero.js - VERSIÓN MEJORADA CON ESTILOS MODERNOS
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal, ActivityIndicator, Alert } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const diasSemana = [
-  { id: 'lunes', nombre: 'Lunes' },
-  { id: 'martes', nombre: 'Martes' },
-  { id: 'miercoles', nombre: 'Miércoles' },
-  { id: 'jueves', nombre: 'Jueves' },
-  { id: 'viernes', nombre: 'Viernes' },
-  { id: 'sabado', nombre: 'Sábado' },
-  { id: 'domingo', nombre: 'Domingo' }
+  { id: 'lunes', nombre: 'Lunes', icon: 'wb-sunny' },
+  { id: 'martes', nombre: 'Martes', icon: 'wb-sunny' },
+  { id: 'miercoles', nombre: 'Miércoles', icon: 'wb-sunny' },
+  { id: 'jueves', nombre: 'Jueves', icon: 'wb-sunny' },
+  { id: 'viernes', nombre: 'Viernes', icon: 'wb-sunny' },
+  { id: 'sabado', nombre: 'Sábado', icon: 'wb-sunny' },
+  { id: 'domingo', nombre: 'Domingo', icon: 'brightness-3' }
 ];
 
 // Generar horas desde 8:00 hasta 22:00 con intervalos de 30 minutos
@@ -71,7 +72,6 @@ const HorarioBarbero = ({ barberoId, visible, onClose }) => {
       if (response.data?.horario) {
         const horarioRecibido = response.data.horario;
         
-        // Normalizar datos recibidos
         const diasLaboralesNormalizados = {
           lunes: horarioRecibido.diasLaborales?.lunes || { activo: false, horas: [] },
           martes: horarioRecibido.diasLaborales?.martes || { activo: false, horas: [] },
@@ -82,14 +82,12 @@ const HorarioBarbero = ({ barberoId, visible, onClose }) => {
           domingo: horarioRecibido.diasLaborales?.domingo || { activo: false, horas: [] }
         };
 
-        // Validar horario de almuerzo
         let horarioAlmuerzoNormalizado = horarioRecibido.horarioAlmuerzo || { 
           inicio: '13:00', 
           fin: '14:00', 
           activo: true 
         };
 
-        // Asegurar que el horario de almuerzo sea válido
         if (!horarioAlmuerzoNormalizado.inicio || !horarioAlmuerzoNormalizado.fin) {
           horarioAlmuerzoNormalizado = { inicio: '13:00', fin: '14:00', activo: true };
         }
@@ -113,7 +111,6 @@ const HorarioBarbero = ({ barberoId, visible, onClose }) => {
     }
   };
 
-  // Función para seleccionar todos los días
   const toggleTodosLosDias = (activar) => {
     setHorario(prev => {
       const nuevosDias = {...prev.diasLaborales};
@@ -132,7 +129,6 @@ const HorarioBarbero = ({ barberoId, visible, onClose }) => {
     });
   };
 
-  // Función para seleccionar todas las horas de un día específico
   const toggleTodasLasHoras = (diaId, seleccionarTodas) => {
     setHorario(prev => {
       const diaActual = prev.diasLaborales[diaId] || { activo: false, horas: [] };
@@ -192,7 +188,6 @@ const HorarioBarbero = ({ barberoId, visible, onClose }) => {
     setAlmuerzo(prev => {
       const newAlmuerzo = { ...prev, [field]: value };
       
-      // Validar que la hora de fin sea posterior a la de inicio
       if (field === 'inicio' || field === 'fin') {
         const [inicioH, inicioM] = (field === 'inicio' ? value : prev.inicio).split(':').map(Number);
         const [finH, finM] = (field === 'fin' ? value : prev.fin).split(':').map(Number);
@@ -222,7 +217,6 @@ const HorarioBarbero = ({ barberoId, visible, onClose }) => {
       setLoading(true);
       const token = await AsyncStorage.getItem('token');
       
-      // Validar horario de almuerzo
       const [inicioH, inicioM] = almuerzo.inicio.split(':').map(Number);
       const [finH, finM] = almuerzo.fin.split(':').map(Number);
       
@@ -249,10 +243,8 @@ const HorarioBarbero = ({ barberoId, visible, onClose }) => {
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      // Mostrar modal de éxito
       setShowSuccessModal(true);
       
-      // Cerrar el modal después de 2 segundos
       setTimeout(() => {
         setShowSuccessModal(false);
         onClose();
@@ -273,77 +265,101 @@ const HorarioBarbero = ({ barberoId, visible, onClose }) => {
       <Modal visible={true} transparent animationType="fade">
         <BlurView intensity={15} tint="light" style={StyleSheet.absoluteFill} />
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#424242" />
-          <Text>Cargando horario...</Text>
+          <ActivityIndicator size="large" color="#D4AF37" />
+          <Text style={styles.loadingText}>Cargando horario...</Text>
         </View>
       </Modal>
     );
   }
 
-  // Verificar si todos los días están seleccionados
   const todosLosDiasSeleccionados = Object.values(horario.diasLaborales).every(dia => dia.activo);
 
   return (
     <Modal visible={visible} transparent animationType="slide">
-      <BlurView intensity={15} tint="light" style={StyleSheet.absoluteFill} />
+      <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFill} />
       
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
+          <LinearGradient
+            colors={['#1a1a1a', '#2d2d2d']}
+            style={styles.headerGradient}
+          >
+            <MaterialIcons name="access-time" size={32} color="#D4AF37" />
+            <Text style={styles.title}>Configurar Horario</Text>
+            <TouchableOpacity onPress={onClose} style={styles.closeIcon}>
+              <MaterialIcons name="close" size={24} color="#fff" />
+            </TouchableOpacity>
+          </LinearGradient>
+
           <ScrollView contentContainerStyle={styles.scrollContent}>
-            <Text style={styles.title}>Horario del Barbero</Text>
             
             {/* Configuración de almuerzo */}
-            <View style={styles.section}>
+            <View style={styles.sectionCard}>
               <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>Horario de Almuerzo</Text>
-                <TouchableOpacity onPress={toggleAlmuerzoActivo}>
-                  <MaterialIcons 
-                    name={almuerzo.activo ? "check-box" : "check-box-outline-blank"} 
-                    size={24} 
-                    color={almuerzo.activo ? "#424242" : "#ccc"} 
-                  />
+                <View style={styles.sectionTitleContainer}>
+                  <MaterialIcons name="restaurant" size={24} color="#D4AF37" />
+                  <Text style={styles.sectionTitle}>Horario de Almuerzo</Text>
+                </View>
+                <TouchableOpacity onPress={toggleAlmuerzoActivo} style={styles.switchContainer}>
+                  <View style={[styles.switch, almuerzo.activo && styles.switchActive]}>
+                    <View style={[styles.switchThumb, almuerzo.activo && styles.switchThumbActive]} />
+                  </View>
                 </TouchableOpacity>
               </View>
               
               {almuerzo.activo && (
                 <View style={styles.timeInputContainer}>
-                  <View style={styles.timeInput}>
-                    <Text style={styles.timeLabel}>Inicio:</Text>
-                    <TouchableOpacity 
-                      style={styles.timeButton}
-                      onPress={() => {
-                        setCurrentDay('almuerzo-inicio');
-                        setShowTimePicker(true);
-                      }}
-                    >
-                      <Text style={styles.timeText}>{almuerzo.inicio}</Text>
-                    </TouchableOpacity>
-                  </View>
+                  <TouchableOpacity 
+                    style={styles.timeInput}
+                    onPress={() => {
+                      setCurrentDay('almuerzo-inicio');
+                      setShowTimePicker(true);
+                    }}
+                  >
+                    <Text style={styles.timeLabel}>Inicio</Text>
+                    <View style={styles.timeValueContainer}>
+                      <MaterialIcons name="schedule" size={20} color="#D4AF37" />
+                      <Text style={styles.timeValue}>{almuerzo.inicio}</Text>
+                    </View>
+                  </TouchableOpacity>
                   
-                  <View style={styles.timeInput}>
-                    <Text style={styles.timeLabel}>Fin:</Text>
-                    <TouchableOpacity 
-                      style={styles.timeButton}
-                      onPress={() => {
-                        setCurrentDay('almuerzo-fin');
-                        setShowTimePicker(true);
-                      }}
-                    >
-                      <Text style={styles.timeText}>{almuerzo.fin}</Text>
-                    </TouchableOpacity>
+                  <View style={styles.timeSeparator}>
+                    <MaterialIcons name="arrow-forward" size={24} color="#666" />
                   </View>
+
+                  <TouchableOpacity 
+                    style={styles.timeInput}
+                    onPress={() => {
+                      setCurrentDay('almuerzo-fin');
+                      setShowTimePicker(true);
+                    }}
+                  >
+                    <Text style={styles.timeLabel}>Fin</Text>
+                    <View style={styles.timeValueContainer}>
+                      <MaterialIcons name="schedule" size={20} color="#D4AF37" />
+                      <Text style={styles.timeValue}>{almuerzo.fin}</Text>
+                    </View>
+                  </TouchableOpacity>
                 </View>
               )}
             </View>
 
             {/* Días laborales */}
-            <View style={styles.section}>
+            <View style={styles.sectionCard}>
               <View style={styles.sectionHeaderRow}>
-                <Text style={styles.sectionTitle}>Días Laborales</Text>
+                <View style={styles.sectionTitleContainer}>
+                  <MaterialIcons name="event-available" size={24} color="#D4AF37" />
+                  <Text style={styles.sectionTitle}>Días Laborales</Text>
+                </View>
                 <TouchableOpacity 
                   style={styles.selectAllButton}
                   onPress={() => toggleTodosLosDias(!todosLosDiasSeleccionados)}
                 >
+                  <MaterialIcons 
+                    name={todosLosDiasSeleccionados ? "check-box" : "check-box-outline-blank"} 
+                    size={20} 
+                    color="#D4AF37" 
+                  />
                   <Text style={styles.selectAllText}>
                     {todosLosDiasSeleccionados ? 'Desmarcar todos' : 'Seleccionar todos'}
                   </Text>
@@ -355,28 +371,41 @@ const HorarioBarbero = ({ barberoId, visible, onClose }) => {
                 const todasLasHorasSeleccionadas = diaData.horas.length === horasDisponibles.length;
                 
                 return (
-                  <View key={dia.id} style={styles.dayContainer}>
-                    <View style={styles.dayHeader}>
-                      <TouchableOpacity onPress={() => toggleDiaActivo(dia.id)}>
-                        <MaterialIcons 
-                          name={diaData.activo ? "check-box" : "check-box-outline-blank"} 
-                          size={24} 
-                          color={diaData.activo ? "#424242" : "#ccc"} 
-                        />
-                      </TouchableOpacity>
-                      <Text style={styles.dayName}>{dia.nombre}</Text>
-                    </View>
+                  <View key={dia.id} style={styles.dayCard}>
+                    <TouchableOpacity 
+                      style={[styles.dayHeader, diaData.activo && styles.dayHeaderActive]}
+                      onPress={() => toggleDiaActivo(dia.id)}
+                    >
+                      <View style={styles.dayTitleContainer}>
+                        <MaterialIcons name={dia.icon} size={20} color={diaData.activo ? "#D4AF37" : "#666"} />
+                        <Text style={[styles.dayName, diaData.activo && styles.dayNameActive]}>
+                          {dia.nombre}
+                        </Text>
+                      </View>
+                      <MaterialIcons 
+                        name={diaData.activo ? "check-circle" : "radio-button-unchecked"} 
+                        size={24} 
+                        color={diaData.activo ? "#4CAF50" : "#666"} 
+                      />
+                    </TouchableOpacity>
                     
                     {diaData.activo && (
                       <View style={styles.hoursContainer}>
                         <View style={styles.hoursHeader}>
-                          <Text style={styles.hoursTitle}>Horas disponibles:</Text>
+                          <Text style={styles.hoursTitle}>
+                            <MaterialIcons name="schedule" size={16} color="#666" /> Horas disponibles
+                          </Text>
                           <TouchableOpacity 
                             style={styles.selectAllHoursButton}
                             onPress={() => toggleTodasLasHoras(dia.id, !todasLasHorasSeleccionadas)}
                           >
+                            <MaterialIcons 
+                              name={todasLasHorasSeleccionadas ? "done-all" : "add"} 
+                              size={16} 
+                              color="#D4AF37" 
+                            />
                             <Text style={styles.selectAllHoursText}>
-                              {todasLasHorasSeleccionadas ? 'Desmarcar todas' : 'Seleccionar todas'}
+                              {todasLasHorasSeleccionadas ? 'Quitar todas' : 'Todas'}
                             </Text>
                           </TouchableOpacity>
                         </View>
@@ -387,11 +416,16 @@ const HorarioBarbero = ({ barberoId, visible, onClose }) => {
                               <TouchableOpacity
                                 key={`${dia.id}-${hora}`}
                                 style={[
-                                  styles.hourButton,
-                                  isSelected && styles.hourButtonSelected
+                                  styles.hourChip,
+                                  isSelected && styles.hourChipSelected
                                 ]}
                                 onPress={() => toggleHora(dia.id, hora)}
                               >
+                                <MaterialIcons 
+                                  name="access-time" 
+                                  size={14} 
+                                  color={isSelected ? "#fff" : "#666"} 
+                                />
                                 <Text style={[
                                   styles.hourText,
                                   isSelected && styles.hourTextSelected
@@ -412,17 +446,24 @@ const HorarioBarbero = ({ barberoId, visible, onClose }) => {
             {/* Botones */}
             <View style={styles.buttonsContainer}>
               <TouchableOpacity 
-                style={[styles.button, styles.cancelButton]}
+                style={styles.cancelButton}
                 onPress={onClose}
               >
-                <Text style={styles.buttonText}>Cancelar</Text>
+                <MaterialIcons name="close" size={20} color="#666" />
+                <Text style={styles.cancelButtonText}>Cancelar</Text>
               </TouchableOpacity>
               
               <TouchableOpacity 
-                style={[styles.button, styles.saveButton]}
+                style={styles.saveButton}
                 onPress={saveHorario}
               >
-                <Text style={styles.buttonText}>Guardar Cambios</Text>
+                <LinearGradient
+                  colors={['#D4AF37', '#C19A2E']}
+                  style={styles.saveButtonGradient}
+                >
+                  <MaterialIcons name="check-circle" size={20} color="#fff" />
+                  <Text style={styles.saveButtonText}>Guardar Cambios</Text>
+                </LinearGradient>
               </TouchableOpacity>
             </View>
           </ScrollView>
@@ -431,12 +472,13 @@ const HorarioBarbero = ({ barberoId, visible, onClose }) => {
 
       {/* Time Picker Modal */}
       <Modal visible={showTimePicker} transparent animationType="fade">
-        <BlurView intensity={15} tint="light" style={StyleSheet.absoluteFill} />
+        <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFill} />
         <View style={styles.timePickerModal}>
           <View style={styles.timePickerContent}>
-            <Text style={styles.timePickerTitle}>
-              Seleccionar Hora
-            </Text>
+            <View style={styles.timePickerHeader}>
+              <MaterialIcons name="schedule" size={24} color="#D4AF37" />
+              <Text style={styles.timePickerTitle}>Seleccionar Hora</Text>
+            </View>
             
             <ScrollView contentContainerStyle={styles.timePickerScroll}>
               {horasDisponibles.map(hora => (
@@ -452,6 +494,7 @@ const HorarioBarbero = ({ barberoId, visible, onClose }) => {
                     setShowTimePicker(false);
                   }}
                 >
+                  <MaterialIcons name="access-time" size={20} color="#D4AF37" />
                   <Text style={styles.timeOptionText}>{hora}</Text>
                 </TouchableOpacity>
               ))}
@@ -469,11 +512,14 @@ const HorarioBarbero = ({ barberoId, visible, onClose }) => {
 
       {/* Success Modal */}
       <Modal visible={showSuccessModal} transparent animationType="fade">
-        <BlurView intensity={15} tint="light" style={StyleSheet.absoluteFill} />
+        <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFill} />
         <View style={styles.successModal}>
           <View style={styles.successContent}>
-            <MaterialIcons name="check-circle" size={60} color="#4CAF50" />
-            <Text style={styles.successText}>¡Horario guardado con éxito!</Text>
+            <View style={styles.successIconContainer}>
+              <MaterialIcons name="check-circle" size={80} color="#4CAF50" />
+            </View>
+            <Text style={styles.successTitle}>¡Perfecto!</Text>
+            <Text style={styles.successText}>Horario guardado correctamente</Text>
           </View>
         </View>
       </Modal>
@@ -490,177 +536,288 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     width: '100%',
-    maxWidth: 800,
+    maxWidth: 900,
     maxHeight: '90%',
-    backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 20,
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    overflow: 'hidden',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    elevation: 10
+  },
+  headerGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+    position: 'relative'
+  },
+  closeIcon: {
+    position: 'absolute',
+    right: 15,
+    top: 15,
+    padding: 5
   },
   scrollContent: {
-    paddingBottom: 20
+    padding: 20,
+    paddingBottom: 30
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.9)',
-    borderRadius: 10,
-    padding: 20
+    backgroundColor: 'rgba(0,0,0,0.8)',
+    borderRadius: 15,
+    padding: 30
+  },
+  loadingText: {
+    marginTop: 15,
+    color: '#D4AF37',
+    fontSize: 16,
+    fontWeight: '600'
   },
   title: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center',
-    color: '#424242'
+    color: '#fff',
+    marginLeft: 12
   },
-  section: {
-    marginBottom: 25,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-    paddingBottom: 15
+  sectionCard: {
+    backgroundColor: '#f8f9fa',
+    borderRadius: 15,
+    padding: 20,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#e0e0e0'
   },
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     marginBottom: 15
   },
   sectionHeaderRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 15
+    marginBottom: 20
+  },
+  sectionTitleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginRight: 10,
-    color: '#424242'
+    color: '#212121'
+  },
+  switchContainer: {
+    padding: 5
+  },
+  switch: {
+    width: 50,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#ccc',
+    padding: 3,
+    justifyContent: 'center'
+  },
+  switchActive: {
+    backgroundColor: '#4CAF50'
+  },
+  switchThumb: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 3
+  },
+  switchThumbActive: {
+    transform: [{ translateX: 22 }]
   },
   selectAllButton: {
-    padding: 8,
-    backgroundColor: '#f0f0f0',
-    borderRadius: 5
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    gap: 6,
+    borderWidth: 1,
+    borderColor: '#D4AF37'
   },
   selectAllText: {
-    color: '#424242',
-    fontWeight: '500'
+    color: '#D4AF37',
+    fontWeight: '600',
+    fontSize: 13
   },
   timeInputContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 10
+    alignItems: 'center',
+    gap: 10
   },
   timeInput: {
     flex: 1,
-    marginHorizontal: 5
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 15,
+    borderWidth: 1,
+    borderColor: '#e0e0e0'
   },
   timeLabel: {
-    fontSize: 14,
-    marginBottom: 5,
-    color: '#666'
+    fontSize: 12,
+    color: '#666',
+    marginBottom: 8,
+    fontWeight: '600'
   },
-  timeButton: {
+  timeValueContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8
+  },
+  timeValue: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#212121'
+  },
+  timeSeparator: {
+    paddingBottom: 20
+  },
+  dayCard: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    marginBottom: 12,
+    overflow: 'hidden',
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 5,
-    padding: 10,
-    alignItems: 'center'
-  },
-  timeText: {
-    fontSize: 16
-  },
-  dayContainer: {
-    marginBottom: 15
+    borderColor: '#e0e0e0'
   },
   dayHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 10
+    justifyContent: 'space-between',
+    padding: 15,
+    backgroundColor: '#fafafa'
+  },
+  dayHeaderActive: {
+    backgroundColor: '#fff8e1'
+  },
+  dayTitleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10
   },
   dayName: {
     fontSize: 16,
-    marginLeft: 10,
-    color: '#424242'
+    fontWeight: '600',
+    color: '#666'
+  },
+  dayNameActive: {
+    color: '#212121'
   },
   hoursContainer: {
-    marginLeft: 35
+    padding: 15,
+    backgroundColor: '#fff'
   },
   hoursHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10
+    marginBottom: 12
   },
   hoursTitle: {
     fontSize: 14,
-    color: '#666'
+    color: '#666',
+    fontWeight: '600'
   },
   selectAllHoursButton: {
-    padding: 5,
-    backgroundColor: '#f0f0f0',
-    borderRadius: 5
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff8e1',
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 15,
+    gap: 4,
+    borderWidth: 1,
+    borderColor: '#D4AF37'
   },
   selectAllHoursText: {
     fontSize: 12,
-    color: '#424242',
-    fontWeight: '500'
+    color: '#D4AF37',
+    fontWeight: '600'
   },
   hoursGrid: {
     flexDirection: 'row',
-    flexWrap: 'wrap'
+    flexWrap: 'wrap',
+    gap: 8
   },
-  hourButton: {
+  hourChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f5f5f5',
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 5,
-    padding: 8,
-    margin: 3,
-    minWidth: 70,
-    alignItems: 'center'
+    borderColor: '#e0e0e0',
+    borderRadius: 20,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    gap: 6
   },
-  hourButtonSelected: {
-    backgroundColor: '#424242',
-    borderColor: '#424242'
+  hourChipSelected: {
+    backgroundColor: '#D4AF37',
+    borderColor: '#D4AF37'
   },
   hourText: {
-    fontSize: 14
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#666'
   },
   hourTextSelected: {
-    color: 'white'
+    color: '#fff'
   },
   buttonsContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 20
-  },
-  button: {
-    flex: 1,
-    padding: 15,
-    borderRadius: 5,
-    alignItems: 'center',
-    marginHorizontal: 5
+    gap: 12,
+    marginTop: 10
   },
   cancelButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 16,
+    borderRadius: 12,
     backgroundColor: '#f5f5f5',
     borderWidth: 1,
-    borderColor: '#ddd'
+    borderColor: '#e0e0e0',
+    gap: 8
+  },
+  cancelButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#666'
   },
   saveButton: {
-    backgroundColor: '#424242'
+    flex: 1,
+    borderRadius: 12,
+    overflow: 'hidden'
   },
-  buttonText: {
+  saveButtonGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 16,
+    gap: 8
+  },
+  saveButtonText: {
     fontSize: 16,
     fontWeight: 'bold',
     color: '#fff'
-  },
-  cancelButtonText: {
-    color: '#424242'
   },
   timePickerModal: {
     flex: 1,
@@ -669,40 +826,56 @@ const styles = StyleSheet.create({
     padding: 20
   },
   timePickerContent: {
-    width: '80%',
+    width: '90%',
+    maxWidth: 400,
     maxHeight: '70%',
-    backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 20
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 10
+  },
+  timePickerHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+    backgroundColor: '#1a1a1a',
+    gap: 10
   },
   timePickerTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 15,
-    textAlign: 'center',
-    color: '#424242'
+    color: '#fff'
   },
   timePickerScroll: {
-    paddingBottom: 15
+    padding: 15
   },
   timeOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: 15,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee'
+    borderBottomColor: '#f0f0f0',
+    gap: 12
   },
   timeOptionText: {
     fontSize: 16,
-    textAlign: 'center'
+    color: '#212121',
+    fontWeight: '500'
   },
   timePickerClose: {
-    marginTop: 15,
-    padding: 10,
+    padding: 15,
+    backgroundColor: '#f5f5f5',
     alignItems: 'center'
   },
   timePickerCloseText: {
     fontSize: 16,
-    color: '#424242',
-    fontWeight: 'bold'
+    color: '#666',
+    fontWeight: '600'
   },
   successModal: {
     flex: 1,
@@ -710,17 +883,29 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   successContent: {
-    backgroundColor: 'white',
-    padding: 30,
-    borderRadius: 10,
+    backgroundColor: '#fff',
+    padding: 40,
+    borderRadius: 20,
     alignItems: 'center',
-    justifyContent: 'center'
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 10
+  },
+  successIconContainer: {
+    marginBottom: 20
+  },
+  successTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#212121',
+    marginBottom: 8
   },
   successText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginTop: 15,
-    color: '#424242'
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center'
   }
 });
 

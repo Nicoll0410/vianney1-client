@@ -25,23 +25,23 @@ const MiPerfilScreen = () => {
   const { user, userRole, barberData } = useContext(AuthContext);
   const { width } = useWindowDimensions();
   const isLargeScreen = width >= 768;
-  
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  
+
   const [barberoID, setBarberoID] = useState(null);
   const [nombre, setNombre] = useState('');
   const [telefono, setTelefono] = useState('');
   const [email, setEmail] = useState('');
   const [rol, setRol] = useState('');
-  
+
   const [instagram, setInstagram] = useState('');
   const [facebook, setFacebook] = useState('');
   const [tiktok, setTiktok] = useState('');
-  
+
   const [showHorarioModal, setShowHorarioModal] = useState(false);
   const [horarioData, setHorarioData] = useState(null);
-  
+
   const [infoVisible, setInfoVisible] = useState(false);
   const [infoTitle, setInfoTitle] = useState('');
   const [infoMsg, setInfoMsg] = useState('');
@@ -62,14 +62,14 @@ const MiPerfilScreen = () => {
     try {
       setLoading(true);
       const token = await AsyncStorage.getItem('token');
-      
+
       let barberoID;
       if (userRole === 'Barbero' && barberData?.id) {
         barberoID = barberData.id;
         console.log('✅ Barbero ID desde barberData:', barberoID);
       } else if (userRole === 'Administrador') {
         const emailUsuario = user?.email;
-        
+
         if (!emailUsuario) {
           showInfo('Error', 'No se pudo obtener el email del usuario', 'error');
           return;
@@ -77,24 +77,24 @@ const MiPerfilScreen = () => {
 
         const { data: respuestaBarberos } = await axios.get(
           `${BASE_URL}/barberos`,
-          { 
+          {
             headers: { Authorization: `Bearer ${token}` },
             params: { all: true }
           }
         );
-        
-        const barberosArray = Array.isArray(respuestaBarberos) ? respuestaBarberos : 
-                             (respuestaBarberos.barberos || respuestaBarberos.data || []);
-        
-        const miBarbero = barberosArray.find(b => 
+
+        const barberosArray = Array.isArray(respuestaBarberos) ? respuestaBarberos :
+          (respuestaBarberos.barberos || respuestaBarberos.data || []);
+
+        const miBarbero = barberosArray.find(b =>
           b.usuario?.email?.toLowerCase() === emailUsuario.toLowerCase()
         );
-        
+
         if (!miBarbero) {
           showInfo('Error', 'No se encontró registro de barbero', 'error');
           return;
         }
-        
+
         barberoID = miBarbero.id;
       }
 
@@ -115,7 +115,7 @@ const MiPerfilScreen = () => {
       setTelefono(barbero.telefono || '');
       setEmail(barbero.usuario?.email || user?.email || '');
       setRol(barbero.usuario?.rol?.nombre || userRole || '');
-      
+
       setInstagram(barbero.instagram || '');
       setFacebook(barbero.facebook || '');
       setTiktok(barbero.tiktok || '');
@@ -161,7 +161,7 @@ const MiPerfilScreen = () => {
       );
 
       showInfo('¡Éxito!', 'Redes sociales actualizadas correctamente', 'success');
-      
+
     } catch (error) {
       console.error('❌ Error guardando:', error);
       showInfo('Error', error.response?.data?.mensaje || 'No se pudieron guardar los cambios', 'error');
@@ -179,7 +179,7 @@ const MiPerfilScreen = () => {
   };
 
   const limpiarRedSocial = (red) => {
-    switch(red) {
+    switch (red) {
       case 'instagram':
         setInstagram('');
         break;
@@ -194,7 +194,7 @@ const MiPerfilScreen = () => {
 
   const getDiasActivos = () => {
     if (!horarioData?.diasLaborales) return [];
-    
+
     return Object.entries(horarioData.diasLaborales)
       .filter(([_, config]) => config.activo)
       .map(([dia, _]) => dia);
@@ -223,7 +223,7 @@ const MiPerfilScreen = () => {
             <Text style={styles.sectionTitle}>
               <Ionicons name="information-circle" size={20} color="#212121" /> Información Básica
             </Text>
-            
+
             <View style={styles.infoRow}>
               <Ionicons name="person" size={20} color="#666" />
               <View style={styles.infoContent}>
@@ -257,12 +257,14 @@ const MiPerfilScreen = () => {
             </View>
           </View>
 
+// REEMPLAZAR la sección del horario en MiPerfilScreen.js
+
           <View style={[styles.section, isLargeScreen && styles.sectionHalf, styles.horarioContainer]}>
             <Text style={styles.sectionTitle}>
               <Ionicons name="calendar" size={20} color="#212121" /> Mi Horario
             </Text>
             <Text style={styles.sectionDescription}>
-              Configura tus días y horas
+              Configura tus días y horas de trabajo
             </Text>
 
             <View style={styles.horarioContent}>
@@ -274,196 +276,217 @@ const MiPerfilScreen = () => {
                 <Text style={styles.editScheduleText}>Editar Horario</Text>
               </TouchableOpacity>
 
+              {/* VISUALIZACIÓN MEJORADA DEL HORARIO */}
               {horarioData && (
-                <View style={styles.schedulePreview}>
-                  <Text style={styles.schedulePreviewTitle}>Horario Actual:</Text>
-                  
-                  <View style={styles.previewDays}>
-                    {getDiasActivos().length > 0 ? (
-                      getDiasActivos().map(dia => (
-                        <View key={dia} style={styles.previewDayBadge}>
-                          <Text style={styles.previewDayText}>
-                            {dia.charAt(0).toUpperCase() + dia.slice(1, 3)}
+                <View style={styles.scheduleDisplay}>
+                  <Text style={styles.scheduleDisplayTitle}>Horario Configurado:</Text>
+
+                  {getDiasActivos().length > 0 ? (
+                    <>
+                      {/* Lista de días activos con sus horas */}
+                      {Object.entries(horarioData.diasLaborales)
+                        .filter(([_, config]) => config.activo)
+                        .map(([dia, config]) => {
+                          const horasInicio = config.horas.length > 0 ? config.horas[0] : '---';
+                          const horasFin = config.horas.length > 0 ? config.horas[config.horas.length - 1] : '---';
+
+                          return (
+                            <View key={dia} style={styles.dayScheduleRow}>
+                              <View style={styles.dayBadge}>
+                                <Text style={styles.dayBadgeText}>
+                                  {dia.charAt(0).toUpperCase() + dia.slice(1)}
+                                </Text>
+                              </View>
+                              <View style={styles.dayHoursContainer}>
+                                <Ionicons name="time-outline" size={16} color="#666" />
+                                <Text style={styles.dayHoursText}>
+                                  {horasInicio} - {horasFin}
+                                </Text>
+                              </View>
+                            </View>
+                          );
+                        })}
+
+                      {/* Información del almuerzo */}
+                      {horarioData.horarioAlmuerzo?.activo && (
+                        <View style={styles.lunchInfoCard}>
+                          <Ionicons name="restaurant" size={18} color="#FF9800" />
+                          <Text style={styles.lunchInfoText}>
+                            Almuerzo: {horarioData.horarioAlmuerzo.inicio} - {horarioData.horarioAlmuerzo.fin}
                           </Text>
                         </View>
-                      ))
-                    ) : (
-                      <Text style={styles.noDaysText}>No hay días configurados</Text>
-                    )}
-                  </View>
-
-                  {horarioData.horarioAlmuerzo?.activo && (
-                    <View style={styles.lunchInfo}>
-                      <Ionicons name="restaurant" size={16} color="#666" />
-                      <Text style={styles.lunchText}>
-                        Almuerzo: {horarioData.horarioAlmuerzo.inicio} - {horarioData.horarioAlmuerzo.fin}
-                      </Text>
+                      )}
+                    </>
+                  ) : (
+                    <View style={styles.noScheduleContainer}>
+                      <Ionicons name="calendar-outline" size={48} color="#ccc" />
+                      <Text style={styles.noScheduleText}>No has configurado tu horario</Text>
+                      <Text style={styles.noScheduleSubtext}>Presiona "Editar Horario" para comenzar</Text>
                     </View>
                   )}
                 </View>
               )}
             </View>
           </View>
-        </View>
 
-        <View style={[styles.row, !isLargeScreen && styles.rowColumn]}>
-          <View style={[styles.section, isLargeScreen && styles.sectionHalf]}>
-            <Text style={styles.sectionTitle}>
-              <Ionicons name="share-social" size={20} color="#212121" /> Mis Redes Sociales
-            </Text>
-            <Text style={styles.sectionDescription}>
-              Aparecerán en tu perfil público
-            </Text>
+          <View style={[styles.row, !isLargeScreen && styles.rowColumn]}>
+            <View style={[styles.section, isLargeScreen && styles.sectionHalf]}>
+              <Text style={styles.sectionTitle}>
+                <Ionicons name="share-social" size={20} color="#212121" /> Mis Redes Sociales
+              </Text>
+              <Text style={styles.sectionDescription}>
+                Aparecerán en tu perfil público
+              </Text>
 
-            <View style={styles.socialInputContainer}>
-              <View style={styles.socialHeader}>
-                <FontAwesome name="instagram" size={24} color="#E4405F" />
-                <Text style={styles.socialLabel}>Instagram</Text>
-                {instagram && (
-                  <TouchableOpacity
-                    onPress={() => limpiarRedSocial('instagram')}
-                    style={styles.clearButton}
-                  >
-                    <Ionicons name="close-circle" size={20} color="#999" />
-                  </TouchableOpacity>
-                )}
-              </View>
-              <TextInput
-                style={styles.socialInput}
-                placeholder="https://instagram.com/tu_usuario"
-                value={instagram}
-                onChangeText={setInstagram}
-                autoCapitalize="none"
-                keyboardType="url"
-              />
-            </View>
-
-            <View style={styles.socialInputContainer}>
-              <View style={styles.socialHeader}>
-                <FontAwesome name="facebook" size={24} color="#1877F2" />
-                <Text style={styles.socialLabel}>Facebook</Text>
-                {facebook && (
-                  <TouchableOpacity
-                    onPress={() => limpiarRedSocial('facebook')}
-                    style={styles.clearButton}
-                  >
-                    <Ionicons name="close-circle" size={20} color="#999" />
-                  </TouchableOpacity>
-                )}
-              </View>
-              <TextInput
-                style={styles.socialInput}
-                placeholder="https://facebook.com/tu_pagina"
-                value={facebook}
-                onChangeText={setFacebook}
-                autoCapitalize="none"
-                keyboardType="url"
-              />
-            </View>
-
-            <View style={styles.socialInputContainer}>
-              <View style={styles.socialHeader}>
-                <FontAwesome name="music" size={24} color="#000" />
-                <Text style={styles.socialLabel}>TikTok</Text>
-                {tiktok && (
-                  <TouchableOpacity
-                    onPress={() => limpiarRedSocial('tiktok')}
-                    style={styles.clearButton}
-                  >
-                    <Ionicons name="close-circle" size={20} color="#999" />
-                  </TouchableOpacity>
-                )}
-              </View>
-              <TextInput
-                style={styles.socialInput}
-                placeholder="https://tiktok.com/@tu_usuario"
-                value={tiktok}
-                onChangeText={setTiktok}
-                autoCapitalize="none"
-                keyboardType="url"
-              />
-            </View>
-
-            <TouchableOpacity
-              style={[styles.saveButton, saving && styles.saveButtonDisabled]}
-              onPress={guardarRedesSociales}
-              disabled={saving}
-            >
-              {saving ? (
-                <ActivityIndicator size="small" color="#fff" />
-              ) : (
-                <>
-                  <Ionicons name="checkmark-circle" size={20} color="#fff" />
-                  <Text style={styles.saveButtonText}>Guardar Redes</Text>
-                </>
-              )}
-            </TouchableOpacity>
-          </View>
-
-          <View style={[styles.section, isLargeScreen && styles.sectionHalf, styles.previewContainer]}>
-            <Text style={styles.sectionTitle}>
-              <Ionicons name="eye" size={20} color="#212121" /> Vista Previa
-            </Text>
-            <Text style={styles.sectionDescription}>
-              Así te verán los clientes
-            </Text>
-
-            <View style={styles.previewCardWrapper}>
-              <View style={styles.previewCard}>
-                <View style={styles.previewHeader}>
-                  <Ionicons name="person-circle" size={50} color="#D4AF37" />
-                  <View style={styles.previewInfo}>
-                    <Text style={styles.previewNombre}>{nombre}</Text>
-                    <Text style={styles.previewRol}>{rol}</Text>
-                  </View>
+              <View style={styles.socialInputContainer}>
+                <View style={styles.socialHeader}>
+                  <FontAwesome name="instagram" size={24} color="#E4405F" />
+                  <Text style={styles.socialLabel}>Instagram</Text>
+                  {instagram && (
+                    <TouchableOpacity
+                      onPress={() => limpiarRedSocial('instagram')}
+                      style={styles.clearButton}
+                    >
+                      <Ionicons name="close-circle" size={20} color="#999" />
+                    </TouchableOpacity>
+                  )}
                 </View>
+                <TextInput
+                  style={styles.socialInput}
+                  placeholder="https://instagram.com/tu_usuario"
+                  value={instagram}
+                  onChangeText={setInstagram}
+                  autoCapitalize="none"
+                  keyboardType="url"
+                />
+              </View>
 
-                <View style={styles.previewContact}>
-                  <View style={styles.previewContactItem}>
-                    <Ionicons name="call" size={16} color="#666" />
-                    <Text style={styles.previewTelefono}>{telefono}</Text>
-                  </View>
-                  <View style={styles.previewContactItem}>
-                    <Ionicons name="mail" size={16} color="#666" />
-                    <Text style={styles.previewEmail}>{email}</Text>
-                  </View>
+              <View style={styles.socialInputContainer}>
+                <View style={styles.socialHeader}>
+                  <FontAwesome name="facebook" size={24} color="#1877F2" />
+                  <Text style={styles.socialLabel}>Facebook</Text>
+                  {facebook && (
+                    <TouchableOpacity
+                      onPress={() => limpiarRedSocial('facebook')}
+                      style={styles.clearButton}
+                    >
+                      <Ionicons name="close-circle" size={20} color="#999" />
+                    </TouchableOpacity>
+                  )}
                 </View>
-                
-                {(instagram || facebook || tiktok) ? (
-                  <View style={styles.previewRedesContainer}>
-                    <Text style={styles.previewRedesTitle}>Redes Sociales:</Text>
-                    <View style={styles.previewRedes}>
-                      {instagram && <FontAwesome name="instagram" size={24} color="#E4405F" />}
-                      {facebook && <FontAwesome name="facebook" size={24} color="#1877F2" />}
-                      {tiktok && <FontAwesome name="music" size={24} color="#000" />}
-                    </View>
-                  </View>
+                <TextInput
+                  style={styles.socialInput}
+                  placeholder="https://facebook.com/tu_pagina"
+                  value={facebook}
+                  onChangeText={setFacebook}
+                  autoCapitalize="none"
+                  keyboardType="url"
+                />
+              </View>
+
+              <View style={styles.socialInputContainer}>
+                <View style={styles.socialHeader}>
+                  <FontAwesome name="music" size={24} color="#000" />
+                  <Text style={styles.socialLabel}>TikTok</Text>
+                  {tiktok && (
+                    <TouchableOpacity
+                      onPress={() => limpiarRedSocial('tiktok')}
+                      style={styles.clearButton}
+                    >
+                      <Ionicons name="close-circle" size={20} color="#999" />
+                    </TouchableOpacity>
+                  )}
+                </View>
+                <TextInput
+                  style={styles.socialInput}
+                  placeholder="https://tiktok.com/@tu_usuario"
+                  value={tiktok}
+                  onChangeText={setTiktok}
+                  autoCapitalize="none"
+                  keyboardType="url"
+                />
+              </View>
+
+              <TouchableOpacity
+                style={[styles.saveButton, saving && styles.saveButtonDisabled]}
+                onPress={guardarRedesSociales}
+                disabled={saving}
+              >
+                {saving ? (
+                  <ActivityIndicator size="small" color="#fff" />
                 ) : (
-                  <Text style={styles.previewSinRedes}>
-                    Sin redes sociales
-                  </Text>
+                  <>
+                    <Ionicons name="checkmark-circle" size={20} color="#fff" />
+                    <Text style={styles.saveButtonText}>Guardar Redes</Text>
+                  </>
                 )}
+              </TouchableOpacity>
+            </View>
 
-                {horarioData && getDiasActivos().length > 0 && (
-                  <View style={styles.previewSchedule}>
-                    <Text style={styles.previewScheduleTitle}>Días de trabajo:</Text>
-                    <View style={styles.previewDaysContainer}>
-                      {getDiasActivos().map(dia => (
-                        <View key={dia} style={styles.previewDayBadge}>
-                          <Text style={styles.previewDayText}>
-                            {dia.substring(0, 3)}
-                          </Text>
-                        </View>
-                      ))}
+            <View style={[styles.section, isLargeScreen && styles.sectionHalf, styles.previewContainer]}>
+              <Text style={styles.sectionTitle}>
+                <Ionicons name="eye" size={20} color="#212121" /> Vista Previa
+              </Text>
+              <Text style={styles.sectionDescription}>
+                Así te verán los clientes
+              </Text>
+
+              <View style={styles.previewCardWrapper}>
+                <View style={styles.previewCard}>
+                  <View style={styles.previewHeader}>
+                    <Ionicons name="person-circle" size={50} color="#D4AF37" />
+                    <View style={styles.previewInfo}>
+                      <Text style={styles.previewNombre}>{nombre}</Text>
+                      <Text style={styles.previewRol}>{rol}</Text>
                     </View>
                   </View>
-                )}
+
+                  <View style={styles.previewContact}>
+                    <View style={styles.previewContactItem}>
+                      <Ionicons name="call" size={16} color="#666" />
+                      <Text style={styles.previewTelefono}>{telefono}</Text>
+                    </View>
+                    <View style={styles.previewContactItem}>
+                      <Ionicons name="mail" size={16} color="#666" />
+                      <Text style={styles.previewEmail}>{email}</Text>
+                    </View>
+                  </View>
+
+                  {(instagram || facebook || tiktok) ? (
+                    <View style={styles.previewRedesContainer}>
+                      <Text style={styles.previewRedesTitle}>Redes Sociales:</Text>
+                      <View style={styles.previewRedes}>
+                        {instagram && <FontAwesome name="instagram" size={24} color="#E4405F" />}
+                        {facebook && <FontAwesome name="facebook" size={24} color="#1877F2" />}
+                        {tiktok && <FontAwesome name="music" size={24} color="#000" />}
+                      </View>
+                    </View>
+                  ) : (
+                    <Text style={styles.previewSinRedes}>
+                      Sin redes sociales
+                    </Text>
+                  )}
+
+                  {horarioData && getDiasActivos().length > 0 && (
+                    <View style={styles.previewSchedule}>
+                      <Text style={styles.previewScheduleTitle}>Días de trabajo:</Text>
+                      <View style={styles.previewDaysContainer}>
+                        {getDiasActivos().map(dia => (
+                          <View key={dia} style={styles.previewDayBadge}>
+                            <Text style={styles.previewDayText}>
+                              {dia.substring(0, 3)}
+                            </Text>
+                          </View>
+                        ))}
+                      </View>
+                    </View>
+                  )}
+                </View>
               </View>
             </View>
           </View>
-        </View>
 
-        <Footer />
+          <Footer />
       </ScrollView>
 
       <InfoModal
@@ -798,7 +821,96 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 8
-  }
+  },
+  // AGREGAR estos estilos al final del StyleSheet en MiPerfilScreen.js
+
+scheduleDisplay: {
+  backgroundColor: '#f9f9f9',
+  padding: 16,
+  borderRadius: 12,
+  marginTop: 16,
+  width: '100%',
+  maxWidth: 400,
+  alignSelf: 'center',
+  borderWidth: 1,
+  borderColor: '#E0E0E0'
+},
+scheduleDisplayTitle: {
+  fontSize: 16,
+  fontWeight: 'bold',
+  color: '#212121',
+  marginBottom: 16,
+  textAlign: 'center'
+},
+dayScheduleRow: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  backgroundColor: '#fff',
+  padding: 12,
+  borderRadius: 8,
+  marginBottom: 8,
+  borderLeftWidth: 3,
+  borderLeftColor: '#4CAF50'
+},
+dayBadge: {
+  backgroundColor: '#4CAF50',
+  paddingVertical: 6,
+  paddingHorizontal: 12,
+  borderRadius: 16,
+  minWidth: 100
+},
+dayBadgeText: {
+  color: '#fff',
+  fontSize: 13,
+  fontWeight: '600',
+  textAlign: 'center',
+  textTransform: 'capitalize'
+},
+dayHoursContainer: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  gap: 6,
+  flex: 1,
+  justifyContent: 'flex-end'
+},
+dayHoursText: {
+  fontSize: 14,
+  color: '#424242',
+  fontWeight: '500'
+},
+lunchInfoCard: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  backgroundColor: '#FFF8E1',
+  padding: 12,
+  borderRadius: 8,
+  marginTop: 12,
+  gap: 10,
+  borderLeftWidth: 3,
+  borderLeftColor: '#FF9800'
+},
+lunchInfoText: {
+  fontSize: 14,
+  color: '#E65100',
+  fontWeight: '600'
+},
+noScheduleContainer: {
+  alignItems: 'center',
+  paddingVertical: 30
+},
+noScheduleText: {
+  fontSize: 16,
+  fontWeight: '600',
+  color: '#999',
+  marginTop: 12
+},
+noScheduleSubtext: {
+  fontSize: 13,
+  color: '#bbb',
+  marginTop: 6,
+  textAlign: 'center'
+},
 });
 
 export default MiPerfilScreen;

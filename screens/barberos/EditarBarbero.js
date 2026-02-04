@@ -19,7 +19,6 @@ import { BlurView } from "expo-blur";
 import { Calendar, LocaleConfig } from "react-native-calendars";
 import { Picker } from "@react-native-picker/picker";
 import axios from "axios";
-import HorarioBarbero from '../../components/HorarioBarbero';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 /* ───────────────────── localización ES ───────────────────── */
@@ -62,7 +61,6 @@ const EditarBarbero = ({ visible, onClose, barbero, onUpdate }) => {
   const [calYear, setCalYear] = useState(currentYear);
   const [errors, setErrors] = useState({});
   const scrollRef = useRef(null);
-  const [showHorarioModal, setShowHorarioModal] = useState(false);
 
 
   const [formData, setFormData] = useState({
@@ -409,16 +407,6 @@ const EditarBarbero = ({ visible, onClose, barbero, onUpdate }) => {
               </View>
             </View>
 
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>Horario Laboral</Text>
-                <TouchableOpacity
-                  style={styles.horarioButton}
-                  onPress={() => setShowHorarioModal(true)}
-                >
-                  <Text style={styles.horarioButtonText}>Editar Horario</Text>
-                </TouchableOpacity>
-            </View>
-
             {/* avatar */}
             <View style={styles.formGroup}>
               <Text style={styles.label}>Avatar (opcional)</Text>
@@ -572,35 +560,12 @@ const EditarBarbero = ({ visible, onClose, barbero, onUpdate }) => {
           </View>
         </View>
       )}
-      <HorarioBarbero 
-        barberoId={barbero?.id} 
-        visible={showHorarioModal} 
-        onClose={() => {
-          setShowHorarioModal(false);
-          // Forzar actualización de datos después de cerrar el horario
-          onUpdate(barbero);
-        }} 
-      />
-
     </Modal>
   );
 };
 
 /* ─── estilos ─── */
 const styles = StyleSheet.create({
-  horarioButton: {
-  borderWidth: 2,
-  borderColor: '#424242',
-  borderRadius: 8,
-  padding: 12,
-  alignItems: 'center',
-  backgroundColor: 'rgba(255,255,255,0.7)'
-},
-horarioButtonText: {
-  fontSize: 16,
-  fontWeight: '500',
-  color: '#424242'
-},
   modalContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
   modalContent: {
     width: "92%",
