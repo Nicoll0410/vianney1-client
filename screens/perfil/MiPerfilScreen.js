@@ -24,28 +24,24 @@ const BASE_URL = 'https://vianney-server.onrender.com';
 const MiPerfilScreen = () => {
   const { user, userRole, barberData } = useContext(AuthContext);
   const { width } = useWindowDimensions();
-  const isLargeScreen = width >= 768; // Tablet/Desktop
+  const isLargeScreen = width >= 768;
   
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   
-  // Datos del barbero
   const [barberoID, setBarberoID] = useState(null);
   const [nombre, setNombre] = useState('');
   const [telefono, setTelefono] = useState('');
   const [email, setEmail] = useState('');
   const [rol, setRol] = useState('');
   
-  // Redes sociales
   const [instagram, setInstagram] = useState('');
   const [facebook, setFacebook] = useState('');
   const [tiktok, setTiktok] = useState('');
   
-  // Horario
   const [showHorarioModal, setShowHorarioModal] = useState(false);
   const [horarioData, setHorarioData] = useState(null);
   
-  // Modal de info
   const [infoVisible, setInfoVisible] = useState(false);
   const [infoTitle, setInfoTitle] = useState('');
   const [infoMsg, setInfoMsg] = useState('');
@@ -107,7 +103,6 @@ const MiPerfilScreen = () => {
         return;
       }
 
-      // Cargar datos del barbero
       const { data } = await axios.get(
         `${BASE_URL}/barberos/by-id/${barberoID}`,
         { headers: { Authorization: `Bearer ${token}` } }
@@ -125,7 +120,6 @@ const MiPerfilScreen = () => {
       setFacebook(barbero.facebook || '');
       setTiktok(barbero.tiktok || '');
 
-      // Cargar horario para vista previa
       await cargarHorario(barberoID, token);
 
     } catch (error) {
@@ -178,7 +172,6 @@ const MiPerfilScreen = () => {
 
   const handleHorarioClose = async () => {
     setShowHorarioModal(false);
-    // Recargar horario después de cerrar el modal
     if (barberoID) {
       const token = await AsyncStorage.getItem('token');
       await cargarHorario(barberoID, token);
@@ -219,16 +212,13 @@ const MiPerfilScreen = () => {
   return (
     <View style={styles.container}>
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-        {/* Header */}
         <View style={styles.header}>
           <Ionicons name="person-circle" size={60} color="#D4AF37" />
           <Text style={styles.headerTitle}>Mi Perfil</Text>
           <Text style={styles.headerSubtitle}>{nombre}</Text>
         </View>
 
-        {/* FILA 1: Información Básica + Redes Sociales */}
         <View style={[styles.row, !isLargeScreen && styles.rowColumn]}>
-          {/* CONTENEDOR 1: Información Básica */}
           <View style={[styles.section, isLargeScreen && styles.sectionHalf]}>
             <Text style={styles.sectionTitle}>
               <Ionicons name="information-circle" size={20} color="#212121" /> Información Básica
@@ -267,7 +257,54 @@ const MiPerfilScreen = () => {
             </View>
           </View>
 
-          {/* CONTENEDOR 2: Redes Sociales */}
+          <View style={[styles.section, isLargeScreen && styles.sectionHalf]}>
+            <Text style={styles.sectionTitle}>
+              <Ionicons name="calendar" size={20} color="#212121" /> Mi Horario
+            </Text>
+            <Text style={styles.sectionDescription}>
+              Configura tus días y horas
+            </Text>
+
+            <TouchableOpacity
+              style={styles.editScheduleButton}
+              onPress={() => setShowHorarioModal(true)}
+            >
+              <Ionicons name="create-outline" size={24} color="#fff" />
+              <Text style={styles.editScheduleText}>Editar Horario</Text>
+            </TouchableOpacity>
+
+            {horarioData && (
+              <View style={styles.schedulePreview}>
+                <Text style={styles.schedulePreviewTitle}>Horario Actual:</Text>
+                
+                <View style={styles.previewDays}>
+                  {getDiasActivos().length > 0 ? (
+                    getDiasActivos().map(dia => (
+                      <View key={dia} style={styles.previewDayBadge}>
+                        <Text style={styles.previewDayText}>
+                          {dia.charAt(0).toUpperCase() + dia.slice(1, 3)}
+                        </Text>
+                      </View>
+                    ))
+                  ) : (
+                    <Text style={styles.noDaysText}>No hay días configurados</Text>
+                  )}
+                </View>
+
+                {horarioData.horarioAlmuerzo?.activo && (
+                  <View style={styles.lunchInfo}>
+                    <Ionicons name="restaurant" size={16} color="#666" />
+                    <Text style={styles.lunchText}>
+                      Almuerzo: {horarioData.horarioAlmuerzo.inicio} - {horarioData.horarioAlmuerzo.fin}
+                    </Text>
+                  </View>
+                )}
+              </View>
+            )}
+          </View>
+        </View>
+
+        <View style={[styles.row, !isLargeScreen && styles.rowColumn]}>
           <View style={[styles.section, isLargeScreen && styles.sectionHalf]}>
             <Text style={styles.sectionTitle}>
               <Ionicons name="share-social" size={20} color="#212121" /> Mis Redes Sociales
@@ -276,7 +313,6 @@ const MiPerfilScreen = () => {
               Aparecerán en tu perfil público
             </Text>
 
-            {/* Instagram */}
             <View style={styles.socialInputContainer}>
               <View style={styles.socialHeader}>
                 <FontAwesome name="instagram" size={24} color="#E4405F" />
@@ -300,7 +336,6 @@ const MiPerfilScreen = () => {
               />
             </View>
 
-            {/* Facebook */}
             <View style={styles.socialInputContainer}>
               <View style={styles.socialHeader}>
                 <FontAwesome name="facebook" size={24} color="#1877F2" />
@@ -324,7 +359,6 @@ const MiPerfilScreen = () => {
               />
             </View>
 
-            {/* TikTok */}
             <View style={styles.socialInputContainer}>
               <View style={styles.socialHeader}>
                 <FontAwesome name="music" size={24} color="#000" />
@@ -363,61 +397,7 @@ const MiPerfilScreen = () => {
               )}
             </TouchableOpacity>
           </View>
-        </View>
 
-        {/* FILA 2: Mi Horario + Vista Previa */}
-        <View style={[styles.row, !isLargeScreen && styles.rowColumn]}>
-          {/* CONTENEDOR 3: Mi Horario */}
-          <View style={[styles.section, isLargeScreen && styles.sectionHalf]}>
-            <Text style={styles.sectionTitle}>
-              <Ionicons name="calendar" size={20} color="#212121" /> Mi Horario
-            </Text>
-            <Text style={styles.sectionDescription}>
-              Configura tus días y horas
-            </Text>
-
-            <TouchableOpacity
-              style={styles.editScheduleButton}
-              onPress={() => setShowHorarioModal(true)}
-            >
-              <Ionicons name="create-outline" size={24} color="#fff" />
-              <Text style={styles.editScheduleText}>Editar Horario</Text>
-            </TouchableOpacity>
-
-            {/* Vista Previa del Horario */}
-            {horarioData && (
-              <View style={styles.schedulePreview}>
-                <Text style={styles.schedulePreviewTitle}>Horario Actual:</Text>
-                
-                {/* Días laborales */}
-                <View style={styles.previewDays}>
-                  {getDiasActivos().length > 0 ? (
-                    getDiasActivos().map(dia => (
-                      <View key={dia} style={styles.previewDayBadge}>
-                        <Text style={styles.previewDayText}>
-                          {dia.charAt(0).toUpperCase() + dia.slice(1, 3)}
-                        </Text>
-                      </View>
-                    ))
-                  ) : (
-                    <Text style={styles.noDaysText}>No hay días configurados</Text>
-                  )}
-                </View>
-
-                {/* Horario de almuerzo */}
-                {horarioData.horarioAlmuerzo?.activo && (
-                  <View style={styles.lunchInfo}>
-                    <Ionicons name="restaurant" size={16} color="#666" />
-                    <Text style={styles.lunchText}>
-                      Almuerzo: {horarioData.horarioAlmuerzo.inicio} - {horarioData.horarioAlmuerzo.fin}
-                    </Text>
-                  </View>
-                )}
-              </View>
-            )}
-          </View>
-
-          {/* CONTENEDOR 4: Vista Previa */}
           <View style={[styles.section, isLargeScreen && styles.sectionHalf]}>
             <Text style={styles.sectionTitle}>
               <Ionicons name="eye" size={20} color="#212121" /> Vista Previa
@@ -490,7 +470,6 @@ const MiPerfilScreen = () => {
         type={infoType}
       />
 
-      {/* Modal de Horario */}
       <HorarioBarbero
         barberoId={barberoID}
         visible={showHorarioModal}
@@ -537,13 +516,12 @@ const styles = StyleSheet.create({
     color: '#D4AF37',
     marginTop: 4
   },
-  // ✅ GRID LAYOUT CON ALTURA COMPLETA
   row: {
     flexDirection: 'row',
     marginTop: 16,
     marginHorizontal: 16,
     gap: 16,
-    alignItems: 'stretch' // ✅ Importante: los hijos ocupan toda la altura
+    alignItems: 'stretch'
   },
   rowColumn: {
     flexDirection: 'column'
@@ -561,7 +539,7 @@ const styles = StyleSheet.create({
   },
   sectionHalf: {
     flex: 1,
-    minHeight: '100%' // ✅ Asegura que ocupe toda la altura
+    minHeight: '100%'
   },
   sectionTitle: {
     fontSize: 18,
@@ -596,7 +574,7 @@ const styles = StyleSheet.create({
     fontWeight: '500'
   },
   socialInputContainer: {
-    marginBottom: 16 // ✅ Reducido para optimizar espacio
+    marginBottom: 16
   },
   socialHeader: {
     flexDirection: 'row',
@@ -629,7 +607,7 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 'auto', // ✅ Empuja el botón al fondo
+    marginTop: 'auto',
     gap: 8
   },
   saveButtonDisabled: {
@@ -663,7 +641,7 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 8,
     marginTop: 8,
-    flex: 1 // ✅ Ocupa el espacio disponible
+    flex: 1
   },
   schedulePreviewTitle: {
     fontSize: 14,
@@ -713,7 +691,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#E0E0E0',
     borderStyle: 'dashed',
-    flex: 1 // ✅ Ocupa el espacio disponible
+    flex: 1
   },
   previewHeader: {
     flexDirection: 'row',
